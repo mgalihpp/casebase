@@ -1,0 +1,16 @@
+node_modules
+.next
+.test
+dist
+public/sqljs
+next-env.d.ts
+*.tsbuildinfo
+out
+build
+.vercel
+.env
+.env*.local
+.env.*
+!.env.example
+npm-debug.log*
+.DS_Store

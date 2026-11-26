@@ -1,0 +1,26 @@
+{
+  "name": "casebase",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "copy-sqljs": "node scripts/copy-sqljs.mjs",
+    "dev": "npm run copy-sqljs && next dev",
+    "build": "npm run copy-sqljs && next build",
+    "start": "next start",
+    "test": "esbuild scripts/test-grader.ts --bundle --platform=node --format=esm --external:sql.js --outfile=.test/test-grader.mjs --log-level=warning && node .test/test-grader.mjs",
+    "build:artifact": "npm run copy-sqljs && node scripts/build-artifact.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "sql.js": "1.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.11",
+    "@types/react": "19.3.3",
+    "@types/react-dom": "19.3.0",
+    "esbuild": "0.28.2",
+    "typescript": "7.0.2"
+  }
+}
