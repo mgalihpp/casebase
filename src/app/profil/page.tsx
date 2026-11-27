@@ -1,5 +1,5 @@
-import { Suspense } from "react";
 import { connection } from "next/server";
+import { Suspense } from "react";
 import { ProfileView } from "@/features/profile/components/profile-view";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
