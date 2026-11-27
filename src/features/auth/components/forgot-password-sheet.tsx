@@ -36,7 +36,7 @@ export function ForgotPasswordSheet({ initialEmail, onSent, onClose }: Props) {
     setSubmitting(true);
     const { error } = await authClient.requestPasswordReset({
       email: trimmed,
-      redirectTo: "/masuk",
+      redirectTo: "/atur-ulang-kata-sandi",
     });
     setSubmitting(false);
 
