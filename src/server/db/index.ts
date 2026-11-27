@@ -3,3 +3,5 @@ import { requireEnv } from "@/lib/env";
 import * as schema from "./schema";
 
 export const db = drizzle(requireEnv("DATABASE_URL"), { schema });
+
+export type Db = typeof db;
