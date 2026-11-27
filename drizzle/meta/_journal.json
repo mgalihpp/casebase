@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795788839300,
+      "tag": "0000_sprint1_accounts_onboarding",
+      "breakpoints": true
+    }
+  ]
+}
