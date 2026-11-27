@@ -58,10 +58,24 @@ function RuleItem({ ok, children }: { ok: boolean; children: string }) {
       className={`flex items-center gap-2.5 text-[14.5px] font-bold ${ok ? "text-ok" : "text-ink-soft"}`}
     >
       <span
-        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${ok ? "bg-ok text-white" : "bg-lock text-[#6E6987]"}`}
+        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${ok ? "bg-ok text-white" : "bg-[#D9D6E8]"}`}
         aria-hidden="true"
       >
-        {ok ? "✓" : "•"}
+        {ok ? (
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
+          </svg>
+        ) : null}
       </span>
       {children}
     </li>
@@ -197,7 +211,7 @@ export function ResetPasswordForm() {
               {[0, 1, 2, 3].map((i) => (
                 <span
                   key={i}
-                  className={`h-1.5 rounded-full ${i < strength * 2 ? "bg-ok" : "bg-lock"}`}
+                  className={`h-1.5 rounded-full ${i < strength * 2 ? "bg-ok" : "bg-[#D9D6E8]"}`}
                 />
               ))}
             </div>
