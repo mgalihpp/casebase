@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
-import {
-  buttonPrimary,
-  fieldClass,
-  inputClass,
-  labelClass,
-  pageClass,
-} from "@/components/ui/styles";
+import { buttonPrimary, inputClass, pageClass } from "@/components/ui/styles";
 import { authClient } from "@/lib/auth-client";
 
 // Reached from the link in the reset email. Better Auth sends ?token=... on success
@@ -189,10 +183,13 @@ export function ResetPasswordForm() {
 
         <div className="grid gap-5">
           <div>
-            <label htmlFor="rp-pw" className={labelClass}>
+            <label
+              htmlFor="rp-pw"
+              className="mb-1.5 block font-body text-sm font-bold text-ink"
+            >
               Kata sandi baru
             </label>
-            <div className={fieldClass}>
+            <div className="flex min-h-[52px] items-center rounded-[14px] border-[1.5px] border-line bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD]">
               <input
                 id="rp-pw"
                 type={showPassword ? "text" : "password"}
@@ -218,10 +215,15 @@ export function ResetPasswordForm() {
           </div>
 
           <div>
-            <label htmlFor="rp-repeat" className={labelClass}>
+            <label
+              htmlFor="rp-repeat"
+              className="mb-1.5 block font-body text-sm font-bold text-ink"
+            >
               Ulangi kata sandi baru
             </label>
-            <div className={`${fieldClass} ${repeatError ? "border-bad" : ""}`}>
+            <div
+              className={`flex min-h-[52px] items-center rounded-[14px] border-[1.5px] bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD] ${repeatError ? "border-bad shadow-[0_0_0_4px_#FFF1F4]" : "border-line"}`}
+            >
               <input
                 id="rp-repeat"
                 type={showRepeat ? "text" : "password"}
