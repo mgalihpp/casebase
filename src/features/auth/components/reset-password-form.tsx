@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, useState } from "react";
-import { buttonPrimary, inputClass, pageClass } from "@/components/ui/styles";
+import { buttonPrimary, pageClass } from "@/components/ui/styles";
 import { authClient } from "@/lib/auth-client";
 
 // Reached from the link in the reset email. Better Auth sends ?token=... on success
@@ -26,14 +26,14 @@ function EyeButton({
       type="button"
       onClick={onToggle}
       aria-label={shown ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
-      className="grid min-h-11 min-w-11 place-items-center rounded-full text-ink-soft"
+      className="grid min-h-11 min-w-11 place-items-center rounded-[22px] px-2"
     >
       <svg
         viewBox="0 0 24 24"
         width="22"
         height="22"
         fill="none"
-        stroke="currentColor"
+        stroke="#5C5878"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -49,7 +49,7 @@ function EyeButton({
 function RuleItem({ ok, children }: { ok: boolean; children: string }) {
   return (
     <li
-      className={`flex items-center gap-2.5 text-[14.5px] font-semibold ${ok ? "text-ok" : "text-ink-soft"}`}
+      className={`flex items-center gap-2.5 font-body text-[14.5px] font-semibold leading-[1.3] ${ok ? "text-ok" : "text-ink-soft"}`}
     >
       <span
         className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${ok ? "bg-ok text-white" : "bg-[#D9D6E8] text-[#6E6987]"}`}
@@ -93,7 +93,12 @@ export function ResetPasswordForm() {
   const linkInvalid = !token || linkError === "INVALID_TOKEN";
   const lengthOk = password.length >= MIN_LENGTH;
   const mixOk = hasLetterAndDigit(password);
-  const strength = [lengthOk, mixOk].filter(Boolean).length;
+  const strength = [
+    lengthOk,
+    mixOk,
+    password.length >= 12,
+    /[^A-Za-z0-9]/.test(password),
+  ].filter(Boolean).length;
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -143,12 +148,12 @@ export function ResetPasswordForm() {
 
   return (
     <div className={`${pageClass} pt-[env(safe-area-inset-top)]`}>
-      <nav className="relative -mx-4 flex h-14 items-center justify-center border-b border-line bg-app/95 px-2">
+      <div className="py-2">
         <button
           type="button"
           aria-label="Kembali"
           onClick={() => router.push("/masuk")}
-          className="absolute left-2 grid min-h-11 min-w-11 place-items-center rounded-full text-ink-soft"
+          className="grid min-h-11 min-w-11 place-items-center rounded-full text-ink-soft"
         >
           <svg
             viewBox="0 0 24 24"
@@ -164,23 +169,13 @@ export function ResetPasswordForm() {
             <path d="M19 12H5M11 6l-6 6 6 6" />
           </svg>
         </button>
-        <span className="font-body text-[17px] font-semibold">
-          Atur ulang kata sandi
-        </span>
-      </nav>
+      </div>
 
       <form
         noValidate
         onSubmit={onSubmit}
-        className="flex flex-1 flex-col pb-40 pt-5"
+        className="flex flex-1 flex-col gap-5 pb-44 pt-2"
       >
-        <h1 className="font-display text-[34px] font-black leading-[41px]">
-          Kata sandi baru
-        </h1>
-        <p className="mb-4 mt-1.5 text-[15px] leading-normal text-ink-soft">
-          Pilih kata sandi yang belum pernah kamu pakai di tempat lain.
-        </p>
-
         <div className="grid gap-5">
           <div>
             <label
@@ -197,7 +192,7 @@ export function ResetPasswordForm() {
                 placeholder="Masukkan kata sandi baru"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={inputClass}
+                className="h-12 min-w-0 flex-1 bg-transparent font-body text-[17px] text-ink outline-none placeholder:text-[#7D7896]"
               />
               <EyeButton
                 shown={showPassword}
@@ -208,7 +203,7 @@ export function ResetPasswordForm() {
               {[0, 1, 2, 3].map((i) => (
                 <span
                   key={i}
-                  className={`h-1.5 rounded-full ${i < strength * 2 ? "bg-ok" : "bg-[#D9D6E8]"}`}
+                  className={`h-1.5 rounded-[3px] ${i < strength ? "bg-ok" : "bg-[#D9D6E8]"}`}
                 />
               ))}
             </div>
@@ -232,7 +227,7 @@ export function ResetPasswordForm() {
                 value={repeat}
                 onChange={(e) => setRepeat(e.target.value)}
                 aria-invalid={!!repeatError}
-                className={inputClass}
+                className="h-12 min-w-0 flex-1 bg-transparent font-body text-[17px] text-ink outline-none placeholder:text-[#7D7896]"
               />
               <EyeButton
                 shown={showRepeat}
@@ -242,7 +237,7 @@ export function ResetPasswordForm() {
             {repeatError && (
               <p
                 role="alert"
-                className="mt-1.5 px-1 text-sm font-bold text-bad"
+                className="mx-0.5 mt-1.5 text-[13.5px] font-bold leading-[1.4] text-bad"
               >
                 {repeatError}
               </p>
@@ -256,7 +251,7 @@ export function ResetPasswordForm() {
         </ul>
 
         {formError && (
-          <p role="alert" className="mt-4 px-1 text-sm font-bold text-bad">
+          <p role="alert" className="mt-4 text-sm font-bold text-bad">
             {formError}
           </p>
         )}
@@ -267,14 +262,14 @@ export function ResetPasswordForm() {
           type="submit"
           onClick={onSubmit}
           disabled={submitting}
-          className={buttonPrimary}
+          className="flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-ind font-display text-base font-black uppercase tracking-[0.05em] text-white shadow-[0_5px_0_#3730A3] disabled:opacity-60"
         >
           {submitting ? "Menyimpan…" : "Simpan kata sandi"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/masuk")}
-          className="mt-1.5 min-h-11 w-full font-bold text-ink-soft"
+          className="mt-1.5 flex min-h-11 w-full items-center justify-center font-body text-[15px] font-bold text-ink-soft"
         >
           Batal
         </button>
