@@ -55,10 +55,10 @@ function EyeButton({
 function RuleItem({ ok, children }: { ok: boolean; children: string }) {
   return (
     <li
-      className={`flex items-center gap-2.5 text-[14.5px] font-bold ${ok ? "text-ok" : "text-ink-soft"}`}
+      className={`flex items-center gap-2.5 text-[14.5px] font-semibold ${ok ? "text-ok" : "text-ink-soft"}`}
     >
       <span
-        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${ok ? "bg-ok text-white" : "bg-[#D9D6E8]"}`}
+        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${ok ? "bg-ok text-white" : "bg-[#D9D6E8] text-[#6E6987]"}`}
         aria-hidden="true"
       >
         {ok ? (
@@ -149,12 +149,12 @@ export function ResetPasswordForm() {
 
   return (
     <div className={`${pageClass} pt-[env(safe-area-inset-top)]`}>
-      <nav className="relative flex h-14 items-center justify-center -mx-4 border-b border-line bg-app/95 px-2">
+      <nav className="relative -mx-4 flex h-14 items-center justify-center border-b border-line bg-app/95 px-2">
         <button
           type="button"
           aria-label="Kembali"
           onClick={() => router.push("/masuk")}
-          className="absolute left-2 grid min-h-11 min-w-11 place-items-center rounded-full text-ind"
+          className="absolute left-2 grid min-h-11 min-w-11 place-items-center rounded-full text-ink-soft"
         >
           <svg
             viewBox="0 0 24 24"
@@ -167,7 +167,7 @@ export function ResetPasswordForm() {
             strokeLinejoin="round"
             aria-hidden="true"
           >
-            <path d="M15 5l-7 7 7 7" />
+            <path d="M19 12H5M11 6l-6 6 6 6" />
           </svg>
         </button>
         <span className="font-body text-[17px] font-semibold">
@@ -180,14 +180,14 @@ export function ResetPasswordForm() {
         onSubmit={onSubmit}
         className="flex flex-1 flex-col pb-40 pt-5"
       >
-        <h1 className="font-display text-[30px] font-black leading-tight">
+        <h1 className="font-display text-[34px] font-black leading-[41px]">
           Kata sandi baru
         </h1>
         <p className="mb-4 mt-1.5 text-[15px] leading-normal text-ink-soft">
           Pilih kata sandi yang belum pernah kamu pakai di tempat lain.
         </p>
 
-        <div className="grid gap-3.5">
+        <div className="grid gap-5">
           <div>
             <label htmlFor="rp-pw" className={labelClass}>
               Kata sandi baru
@@ -197,7 +197,7 @@ export function ResetPasswordForm() {
                 id="rp-pw"
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="Minimal 8 karakter"
+                placeholder="Masukkan kata sandi baru"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className={inputClass}
@@ -226,7 +226,7 @@ export function ResetPasswordForm() {
                 id="rp-repeat"
                 type={showRepeat ? "text" : "password"}
                 autoComplete="new-password"
-                placeholder="Ketik ulang kata sandi baru"
+                placeholder="Ketik ulang"
                 value={repeat}
                 onChange={(e) => setRepeat(e.target.value)}
                 aria-invalid={!!repeatError}
