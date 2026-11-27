@@ -12,7 +12,8 @@
       "!**/node_modules",
       "!**/bun.lock",
       "!**/next-env.d.ts",
-      "!**/*.md"
+      "!**/*.md",
+      "!**/drizzle/meta"
     ]
   },
   "formatter": {
@@ -34,7 +35,14 @@
     }
   },
   "linter": {
-    "enabled": false
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    },
+    "domains": {
+      "next": "recommended",
+      "react": "recommended"
+    }
   },
   "assist": {
     "enabled": true,

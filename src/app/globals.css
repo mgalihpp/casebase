@@ -1,26 +1,52 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-ind: #4f46e5;
+  --color-ind-7: #3730a3;
+  --color-ind-soft: #eeedfd;
+  --color-ink: #1e1b3a;
+  --color-ink-soft: #5c5878;
+  --color-line: #e4e1f0;
+  --color-app: #f6f5fb;
+  --color-ok: #0e7490;
+  --color-bad: #e11d48;
+  --font-display: var(--font-nunito), system-ui, sans-serif;
+  --font-body: var(--font-nunito-sans), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-app);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+@keyframes nodein {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.nodein {
+  animation: nodein 0.5s ease both;
+}
+
+/* Thin scrollbar for in-page scroll areas (Firefox and Chromium). */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #d9d6e8 transparent;
+}
+
+.thin-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: #d9d6e8;
+  border-radius: 999px;
 }

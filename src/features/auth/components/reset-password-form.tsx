@@ -1,0 +1,279 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { type FormEvent, useState } from "react";
+import { buttonPrimary, pageClass } from "@/components/ui/styles";
+import { authClient } from "@/lib/auth-client";
+
+// Reached from the link in the reset email. Better Auth sends ?token=... on success
+// and ?error=INVALID_TOKEN when the link is expired or already used.
+const MIN_LENGTH = 8;
+
+function hasLetterAndDigit(value: string) {
+  return /[A-Za-z]/.test(value) && /\d/.test(value);
+}
+
+function EyeButton({
+  shown,
+  onToggle,
+}: {
+  shown: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={shown ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+      className="grid min-h-11 min-w-11 place-items-center rounded-[22px] px-2"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="22"
+        height="22"
+        fill="none"
+        stroke="#5C5878"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    </button>
+  );
+}
+
+function RuleItem({ ok, children }: { ok: boolean; children: string }) {
+  return (
+    <li
+      className={`flex items-center gap-2.5 font-body text-[14.5px] font-semibold leading-[1.3] ${ok ? "text-ok" : "text-ink-soft"}`}
+    >
+      <span
+        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${ok ? "bg-ok text-white" : "bg-[#D9D6E8] text-[#6E6987]"}`}
+        aria-hidden="true"
+      >
+        {ok ? (
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M5 12.5l4.5 4.5L19 7.5" />
+          </svg>
+        ) : null}
+      </span>
+      {children}
+    </li>
+  );
+}
+
+export function ResetPasswordForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const linkError = searchParams.get("error");
+
+  const [password, setPassword] = useState("");
+  const [repeat, setRepeat] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeat, setShowRepeat] = useState(false);
+  const [repeatError, setRepeatError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const linkInvalid = !token || linkError === "INVALID_TOKEN";
+  const lengthOk = password.length >= MIN_LENGTH;
+  const mixOk = hasLetterAndDigit(password);
+  const strength = [
+    lengthOk,
+    mixOk,
+    password.length >= 12,
+    /[^A-Za-z0-9]/.test(password),
+  ].filter(Boolean).length;
+
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    setFormError(null);
+    setRepeatError(null);
+    if (!lengthOk || !mixOk) return;
+    if (password !== repeat) {
+      setRepeatError("Kata sandi belum sama. Ketik ulang dengan benar.");
+      return;
+    }
+    if (!token) return;
+
+    setSubmitting(true);
+    const { error } = await authClient.resetPassword({
+      newPassword: password,
+      token,
+    });
+    setSubmitting(false);
+
+    if (error) {
+      setFormError("Kata sandi belum bisa diubah. Minta tautan baru ya.");
+      return;
+    }
+    router.push("/masuk");
+  }
+
+  if (linkInvalid) {
+    return (
+      <div className={`${pageClass} gap-5 pt-[env(safe-area-inset-top)]`}>
+        <div className="py-2">
+          <Link href="/masuk" className="font-bold text-ind">
+            Kembali
+          </Link>
+        </div>
+        <h1 className="font-display text-[28px] font-black leading-tight">
+          Tautannya sudah tidak berlaku
+        </h1>
+        <p className="text-[15px] text-ink-soft">
+          Minta tautan baru dari halaman masuk.
+        </p>
+        <Link href="/masuk" className={buttonPrimary}>
+          Ke halaman masuk
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${pageClass} pt-[env(safe-area-inset-top)]`}>
+      <div className="py-2">
+        <button
+          type="button"
+          aria-label="Kembali"
+          onClick={() => router.push("/masuk")}
+          className="grid min-h-11 min-w-11 place-items-center rounded-full text-ink-soft"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5M11 6l-6 6 6 6" />
+          </svg>
+        </button>
+      </div>
+
+      <form
+        noValidate
+        onSubmit={onSubmit}
+        className="flex flex-1 flex-col gap-5 pb-44 pt-2"
+      >
+        <div className="grid gap-5">
+          <div>
+            <label
+              htmlFor="rp-pw"
+              className="mb-1.5 block font-body text-sm font-bold text-ink"
+            >
+              Kata sandi baru
+            </label>
+            <div className="flex min-h-[52px] items-center rounded-[14px] border-[1.5px] border-line bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD]">
+              <input
+                id="rp-pw"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                placeholder="Masukkan kata sandi baru"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-12 min-w-0 flex-1 bg-transparent font-body text-[17px] text-ink outline-none placeholder:text-[#7D7896]"
+              />
+              <EyeButton
+                shown={showPassword}
+                onToggle={() => setShowPassword((v) => !v)}
+              />
+            </div>
+            <div className="mt-2 grid grid-cols-4 gap-1.5" aria-hidden="true">
+              {[0, 1, 2, 3].map((i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 rounded-[3px] ${i < strength ? "bg-ok" : "bg-[#D9D6E8]"}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="rp-repeat"
+              className="mb-1.5 block font-body text-sm font-bold text-ink"
+            >
+              Ulangi kata sandi baru
+            </label>
+            <div
+              className={`flex min-h-[52px] items-center rounded-[14px] border-[1.5px] bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD] ${repeatError ? "border-bad shadow-[0_0_0_4px_#FFF1F4]" : "border-line"}`}
+            >
+              <input
+                id="rp-repeat"
+                type={showRepeat ? "text" : "password"}
+                autoComplete="new-password"
+                placeholder="Ketik ulang"
+                value={repeat}
+                onChange={(e) => setRepeat(e.target.value)}
+                aria-invalid={!!repeatError}
+                className="h-12 min-w-0 flex-1 bg-transparent font-body text-[17px] text-ink outline-none placeholder:text-[#7D7896]"
+              />
+              <EyeButton
+                shown={showRepeat}
+                onToggle={() => setShowRepeat((v) => !v)}
+              />
+            </div>
+            {repeatError && (
+              <p
+                role="alert"
+                className="mx-0.5 mt-1.5 text-[13.5px] font-bold leading-[1.4] text-bad"
+              >
+                {repeatError}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <ul className="mt-6 grid gap-2.5" aria-label="Syarat kata sandi">
+          <RuleItem ok={lengthOk}>Minimal 8 karakter</RuleItem>
+          <RuleItem ok={mixOk}>Memuat huruf dan angka</RuleItem>
+        </ul>
+
+        {formError && (
+          <p role="alert" className="mt-4 text-sm font-bold text-bad">
+            {formError}
+          </p>
+        )}
+      </form>
+
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] bg-linear-to-t from-app from-70% to-app/0 px-4 pb-8 pt-3">
+        <button
+          type="submit"
+          onClick={onSubmit}
+          disabled={submitting}
+          className="flex min-h-[52px] w-full items-center justify-center rounded-2xl bg-ind font-display text-base font-black uppercase tracking-[0.05em] text-white shadow-[0_5px_0_#3730A3] disabled:opacity-60"
+        >
+          {submitting ? "Menyimpan…" : "Simpan kata sandi"}
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/masuk")}
+          className="mt-1.5 flex min-h-11 w-full items-center justify-center font-body text-[15px] font-bold text-ink-soft"
+        >
+          Batal
+        </button>
+      </div>
+    </div>
+  );
+}
