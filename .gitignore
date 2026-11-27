@@ -14,3 +14,6 @@ build
 !.env.example
 npm-debug.log*
 .DS_Store
+public/pglite
+public/poc-worker
+poc-server
