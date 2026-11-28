@@ -100,7 +100,7 @@ export function ProfileView() {
   }
 
   return (
-    <div className={`${pageClass} anim-tab-in pt-8 pb-28`}>
+    <div className={`${pageClass} anim-tab-in gap-5 pt-8 pb-28`}>
       <h1 className="pt-0.5 font-display text-[34px] leading-[41px] font-black tracking-[0.2px]">
         Profil
       </h1>
@@ -217,7 +217,16 @@ export function ProfileView() {
             </p>
           )}
 
-          <section className="anim-row-in grid gap-3 pb-8">
+          <section
+            aria-labelledby="danger-zone"
+            className="anim-row-in grid gap-3 pb-8"
+          >
+            <h2
+              id="danger-zone"
+              className="font-display text-lg font-black text-bad"
+            >
+              Danger zone
+            </h2>
             {confirm === "delete-account" ? (
               <div className="grid gap-2 rounded-2xl border-2 border-bad bg-white p-4">
                 <p className="font-bold text-bad">

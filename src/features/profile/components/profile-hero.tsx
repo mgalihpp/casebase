@@ -28,8 +28,40 @@ export type ProfileHeroData = {
   badges: Badge[];
 };
 
-const STAR =
-  "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z";
+const BADGE_ICON: Record<string, string[]> = {
+  "detektif-pemula": ["M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM16 16l5 5"],
+  "tanpa-petunjuk": [
+    "M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3zM3 3l18 18",
+  ],
+  "query-kilat": ["M13 2L4 14h7l-1 8 9-12h-7z"],
+  "ahli-join": [
+    "M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1",
+  ],
+  "lentera-30": ["M9 3h6M10 3v2M14 3v2M7 5h10l1 4-1 9H7L6 9zM10 18v2h4v-2"],
+  "lima-kursus": ["M4 5h4v14H4zM10 5h4v14h-4zM16 6l4 1-3 13-4-1z"],
+};
+
+function BadgeIcon({ badgeKey, size }: { badgeKey: string; size: number }) {
+  const paths = BADGE_ICON[badgeKey] ?? [];
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {paths.map((d) => (
+        <path key={d} d={d} />
+      ))}
+    </svg>
+  );
+}
+
 const FLAME =
   "M12 2c1 3.5 5 5.5 5 10.5A5 5 0 0 1 7 12.5c0-2 1-3.5 2-4.5.2 1.6 1 2.6 2 3-.6-3 .3-6 1-9z";
 
@@ -77,20 +109,20 @@ function Chevron({ open }: { open: boolean }) {
 export function ProfileSkeleton() {
   return (
     <div role="status" aria-busy="true" aria-label="Memuat profil">
-      <div className="mt-3 flex items-center gap-3.5 rounded-2xl border border-line bg-white p-4">
+      <div className="flex items-center gap-3.5 rounded-2xl border border-line bg-white p-4">
         <span className="anim-skeleton h-16 w-16 flex-none rounded-[20px]" />
         <span className="grid flex-1 gap-2">
           <span className="anim-skeleton h-[18px] w-1/2 rounded-md" />
           <span className="anim-skeleton h-3 w-3/4 rounded-md" />
         </span>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5">
         <span className="anim-skeleton h-[68px] rounded-2xl" />
         <span className="anim-skeleton h-[68px] rounded-2xl" />
         <span className="anim-skeleton h-[68px] rounded-2xl" />
         <span className="anim-skeleton h-[68px] rounded-2xl" />
       </div>
-      <span className="anim-skeleton mt-6 mb-2.5 block h-5 w-[110px] rounded-md" />
+      <span className="anim-skeleton mb-2.5 block h-5 w-[110px] rounded-md" />
       <div className="grid grid-cols-3 gap-2">
         <span className="anim-skeleton h-28 rounded-2xl" />
         <span className="anim-skeleton h-28 rounded-2xl" />
@@ -125,7 +157,7 @@ export function ProfileHero({
     <>
       <section
         aria-label="Ringkasan profil"
-        className="mt-3 flex items-center gap-3.5 rounded-2xl border border-line bg-white p-4"
+        className="flex items-center gap-3.5 rounded-2xl border border-line bg-white p-4"
       >
         <span className="grid h-16 w-16 flex-none place-items-center rounded-[20px] bg-ind font-display text-2xl font-black text-white">
           {initialsOf(data.name)}
@@ -141,7 +173,7 @@ export function ProfileHero({
         </span>
       </section>
 
-      <div className="mt-3 grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 gap-2.5">
         <StatCard
           value={String(streak.data?.streak ?? 0)}
           label="Hari beruntun"
@@ -162,9 +194,7 @@ export function ProfileHero({
         <StatCard value={String(data.casesDone)} label="Kasus selesai" />
       </div>
 
-      <h2 className="mt-6 mb-2 font-display text-[20px] font-extrabold">
-        Lencana
-      </h2>
+      <h2 className="mb-2 font-display text-[20px] font-extrabold">Lencana</h2>
       <div className="grid grid-cols-3 gap-2">
         {data.badges.map((badge, index) => (
           <button
@@ -183,15 +213,7 @@ export function ProfileHero({
                 boxShadow: `0 4px 0 ${badge.earned ? "#B45309" : "#BDB8D3"}`,
               }}
             >
-              <svg
-                viewBox="0 0 24 24"
-                width="24"
-                height="24"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d={STAR} />
-              </svg>
+              <BadgeIcon badgeKey={badge.key} size={24} />
             </span>
             <span className="font-body text-[12.5px] leading-[1.25] font-semibold">
               {badge.title}
@@ -200,9 +222,7 @@ export function ProfileHero({
         ))}
       </div>
 
-      <h2 className="mt-6 mb-2 font-display text-[20px] font-extrabold">
-        Lainnya
-      </h2>
+      <h2 className="mb-2 font-display text-[20px] font-extrabold">Lainnya</h2>
       <div className="overflow-hidden rounded-2xl border border-line bg-white">
         <button
           type="button"
@@ -264,7 +284,7 @@ export function ProfileHero({
       <button
         type="button"
         onClick={() => setTipOpen(true)}
-        className="mt-4 flex min-h-16 items-center gap-3 rounded-2xl border border-line bg-white px-3.5 py-2.5 text-left"
+        className="flex min-h-16 items-center gap-3 rounded-2xl border border-line bg-white px-3.5 py-2.5 text-left"
       >
         <span className="grid h-10 w-10 flex-none place-items-center rounded-xl bg-ind-soft text-ind">
           <svg
@@ -295,7 +315,7 @@ export function ProfileHero({
       <button
         type="button"
         onClick={() => setLogoutOpen(true)}
-        className="mt-4 flex min-h-[52px] w-full items-center justify-center rounded-2xl border border-line bg-white font-body text-[17px] font-semibold text-bad"
+        className="flex min-h-[52px] w-full items-center justify-center rounded-2xl border border-line bg-white font-body text-[17px] font-semibold text-bad"
       >
         Keluar dari akun
       </button>
@@ -324,15 +344,7 @@ export function ProfileHero({
                 boxShadow: `0 5px 0 ${openBadge.earned ? "#B45309" : "#BDB8D3"}`,
               }}
             >
-              <svg
-                viewBox="0 0 24 24"
-                width="38"
-                height="38"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d={STAR} />
-              </svg>
+              <BadgeIcon badgeKey={openBadge.key} size={38} />
             </span>
             <p className="text-base leading-normal">{openBadge.description}</p>
             <p
