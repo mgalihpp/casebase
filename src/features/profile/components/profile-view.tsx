@@ -220,7 +220,7 @@ export function ProfileView() {
 
           <section
             aria-labelledby="danger-zone"
-            className="anim-row-in grid gap-3 pb-8"
+            className="anim-row-in grid gap-3 rounded-2xl border-2 border-bad bg-[#FFF1F4] p-4 pb-4"
           >
             <h2
               id="danger-zone"
@@ -229,7 +229,7 @@ export function ProfileView() {
               Danger zone
             </h2>
             {confirm === "delete-account" ? (
-              <div className="grid gap-2 rounded-2xl border-2 border-bad bg-white p-4">
+              <>
                 <p className="font-bold text-bad">
                   Hapus akun? Semua progres, berkas, dan keanggotaan kelas akan
                   hilang dan tidak bisa dikembalikan.
@@ -248,15 +248,21 @@ export function ProfileView() {
                 >
                   Batal
                 </button>
-              </div>
+              </>
             ) : (
-              <button
-                type="button"
-                className={buttonGhost}
-                onClick={() => setConfirm("delete-account")}
-              >
-                Hapus akun
-              </button>
+              <>
+                <p className="text-sm text-ink-soft">
+                  Menghapus akun akan menghilangkan semua progres, berkas, dan
+                  keanggotaan kelas secara permanen.
+                </p>
+                <button
+                  type="button"
+                  className="flex min-h-13 w-full items-center justify-center rounded-2xl border-2 border-bad bg-white font-display font-black text-bad"
+                  onClick={() => setConfirm("delete-account")}
+                >
+                  Hapus akun
+                </button>
+              </>
             )}
           </section>
         </>
