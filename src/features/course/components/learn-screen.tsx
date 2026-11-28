@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Mascot, type MascotMood } from "@/components/ui/mascot";
 import { buttonPrimary, pageClass } from "@/components/ui/styles";
 import { findCourse } from "@/features/course/data";
-import { useCoursePath } from "@/features/course/hooks";
-import type { NodeStatus } from "@/features/course/path";
+import { useCourseList, useCoursePath } from "@/features/course/hooks";
+import { useStreak } from "@/features/progress/hooks";
 
 type Props = { courseId: string };
 
@@ -15,6 +16,9 @@ const OFFSETS = [0, -48, 0, 48, 0, -48];
 const STEP_HEIGHT = 44;
 
 type IconProps = { size: number; stroke?: number };
+type PathNode = NonNullable<
+  ReturnType<typeof useCoursePath>["data"]
+>["nodes"][number];
 
 function CheckIcon({ size, stroke = 3 }: IconProps) {
   return (
@@ -44,6 +48,20 @@ function StarIcon({ size }: IconProps) {
       aria-hidden="true"
     >
       <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />
+    </svg>
+  );
+}
+
+function FlameIcon({ size }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12 2.5c.8 3.4 5 5.6 5 10.5a5 5 0 0 1-10 0c0-2.1.9-3.6 2-4.7.2 1.6.9 2.6 1.9 3.1C10.6 8.2 10.9 5.2 12 2.5z" />
     </svg>
   );
 }
@@ -199,12 +217,17 @@ function Footprints({
 
 export function LearnScreen({ courseId }: Props) {
   const { data, isPending, error } = useCoursePath(courseId);
+  const courses = useCourseList();
+  const streak = useStreak();
   const meta = findCourse(courseId);
   const [caseOpen, setCaseOpen] = useState(false);
   const [mood, setMood] = useState<MascotMood>("idle");
   const [tip, setTip] = useState<string | null>(null);
   const pokeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [scrolled, setScrolled] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [streakOpen, setStreakOpen] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -247,13 +270,17 @@ export function LearnScreen({ courseId }: Props) {
     );
   }
 
+  const streakCount = streak.data?.streak ?? 0;
+
   const nav = (
     <header
-      className={`fixed inset-x-0 top-0 z-20 mx-auto flex h-14 max-w-[430px] items-center px-2 backdrop-blur-xl ${scrolled ? "border-b border-ink/15 bg-app/90" : "bg-app/70"}`}
+      className={`fixed inset-x-0 top-0 z-20 mx-auto flex h-14 max-w-[430px] items-center gap-2 px-2 backdrop-blur-xl ${scrolled ? "border-b border-ink/15 bg-app/90" : "bg-app/70"}`}
     >
-      <Link
-        href="/belajar/sql"
-        aria-label={`Kursus sekarang ${meta.name}`}
+      <button
+        type="button"
+        onClick={() => setPickerOpen(true)}
+        aria-haspopup="dialog"
+        aria-label={`Ganti kursus, sekarang ${meta.name}`}
         className="flex min-h-11 items-center gap-2 rounded-full pl-1.5 pr-2 font-body text-base font-bold"
       >
         <span
@@ -263,8 +290,84 @@ export function LearnScreen({ courseId }: Props) {
           <Mascot name={meta.abbr} size={34} />
         </span>
         <span className="max-w-[140px] truncate">{meta.name}</span>
-      </Link>
+        <ChevronIcon size={18} />
+      </button>
+      <button
+        type="button"
+        onClick={() => setStreakOpen(true)}
+        aria-haspopup="dialog"
+        aria-label={`Status harian, streak ${streakCount} hari`}
+        className="ml-auto flex min-h-11 items-center gap-1.5 rounded-full bg-[#FEF3C7] px-3 font-display text-base font-black text-[#92400E]"
+      >
+        <span className="text-[#F59E0B]">
+          <FlameIcon size={18} />
+        </span>
+        {streakCount}
+      </button>
     </header>
+  );
+
+  const sheets = (
+    <>
+      <BottomSheet
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        title="Pilih kursus"
+      >
+        {courses.isPending ? (
+          <p className="text-ink-soft">Memuat kursus…</p>
+        ) : (
+          <ul className="flex flex-col gap-2">
+            {(courses.data ?? []).map((item) => {
+              const isCurrent = item.id === courseId;
+              return (
+                <li key={item.id}>
+                  <Link
+                    href={`/belajar/${item.id}`}
+                    aria-current={isCurrent ? "page" : undefined}
+                    onClick={() => setPickerOpen(false)}
+                    className="flex min-h-14 items-center gap-3 rounded-2xl border-[1.5px] border-line bg-white px-3 py-2"
+                  >
+                    <span
+                      className="grid h-10 w-10 flex-none place-items-end justify-center overflow-hidden rounded-[10px]"
+                      style={{ background: `${item.color}1F` }}
+                    >
+                      <Mascot name={item.abbr} size={34} />
+                    </span>
+                    <span className="flex-1 font-display text-[17px] font-extrabold">
+                      {item.name}
+                    </span>
+                    {isCurrent ? (
+                      <span className="text-[13px] font-bold text-ok">
+                        Sedang dipelajari
+                      </span>
+                    ) : null}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </BottomSheet>
+
+      <BottomSheet
+        open={streakOpen}
+        onClose={() => setStreakOpen(false)}
+        title="Status harian"
+      >
+        <p className="font-display text-[34px] font-black leading-none text-[#92400E]">
+          {streakCount} hari
+        </p>
+        <p className="mt-3 text-[15px] leading-normal text-ink-soft">
+          {streak.data?.doneToday
+            ? "Hari ini sudah ada misi yang selesai. Streak kamu aman."
+            : "Hari ini belum ada misi yang selesai. Selesaikan satu misi supaya streak tetap berjalan."}
+        </p>
+        <p className="mt-2 text-[15px] leading-normal text-ink-soft">
+          Streak adalah jumlah hari berturut-turut kamu belajar.
+        </p>
+      </BottomSheet>
+    </>
   );
 
   if (!data.case) {
@@ -280,10 +383,16 @@ export function LearnScreen({ courseId }: Props) {
             Tim kami masih menyiapkan kasus untuk kursus ini. Sambil menunggu,
             coba pecahkan kasus di kursus lain.
           </p>
-          <Link href="/belajar/sql" className={`${buttonPrimary} mt-6`}>
+          <button
+            type="button"
+            onClick={() => setPickerOpen(true)}
+            aria-haspopup="dialog"
+            className={`${buttonPrimary} mt-6`}
+          >
             Pilih kursus lain
-          </Link>
+          </button>
         </main>
+        {sheets}
       </>
     );
   }
@@ -294,12 +403,13 @@ export function LearnScreen({ courseId }: Props) {
   const chips = nodes
     .filter((node) => node.type === "mission" && node.topic)
     .map((node) => node.topic as string);
-  const currentIsMission = current?.type === "mission";
+  const currentIsPlayable = current !== undefined && current.type !== "chest";
+  const selected = nodes.find((node) => node.key === selectedKey);
   const ctaLabel = !current
     ? "Kasus selesai"
-    : current.type === "mission"
-      ? `Lanjutkan: ${current.title ?? "misi"}`
-      : "Interogasi segera hadir";
+    : current.type === "chest"
+      ? "Buka kotak bukti"
+      : `Lanjutkan: ${current.title ?? "misi"}`;
 
   function poke() {
     setMood("wave");
@@ -376,41 +486,25 @@ export function LearnScreen({ courseId }: Props) {
             const isChest = node.type === "chest";
             const isBoss = node.type === "boss";
             const isCurrent = node.status === "current";
-            const interactive =
-              node.type === "mission" && node.status !== "locked";
+            const isRetry = node.status === "retry";
             const x = OFFSETS[index % OFFSETS.length] ?? 0;
             const prevX = OFFSETS[(index - 1) % OFFSETS.length] ?? 0;
-            const label = isChest
-              ? "Kotak bukti"
-              : isBoss
-                ? "Interogasi"
-                : (node.title ?? "Misi");
-            const tag = isChest ? "BUKA" : isBoss ? "INTEROGASI" : "MULAI";
+            const label =
+              node.title ??
+              (isChest ? "Kotak bukti" : isBoss ? "Interogasi" : "Misi");
+            const tag = isRetry
+              ? "ULANGI"
+              : isChest
+                ? "BUKA"
+                : isBoss
+                  ? "INTEROGASI"
+                  : "MULAI";
             const stepState: "walked" | "walking" | "ahead" =
               index <= currentIndex || currentIndex < 0
                 ? index === currentIndex
                   ? "walking"
                   : "walked"
                 : "ahead";
-
-            const body = (
-              <span
-                className={`relative grid h-[66px] w-[72px] place-items-center rounded-full transition active:translate-y-1 ${isCurrent ? "node-breathe" : ""}`}
-                style={nodeStyle(node.status, isChest)}
-              >
-                {isChest ? <ChestIcon size={30} /> : null}
-                {!isChest && node.status === "done" ? (
-                  <CheckIcon size={32} />
-                ) : null}
-                {!isChest && isCurrent && !isBoss ? (
-                  <StarIcon size={30} />
-                ) : null}
-                {isBoss && isCurrent ? <SearchIcon size={30} /> : null}
-                {!isChest && node.status === "locked" ? (
-                  <LockIcon size={26} />
-                ) : null}
-              </span>
-            );
 
             return (
               <li key={node.key} className="contents">
@@ -433,38 +527,61 @@ export function LearnScreen({ courseId }: Props) {
                         animationDelay: `${(index * 0.07).toFixed(2)}s`,
                       }}
                     >
-                      {isCurrent ? (
+                      {isCurrent || isRetry ? (
                         <>
+                          {isCurrent ? (
+                            <>
+                              <span
+                                aria-hidden="true"
+                                className="node-ring pointer-events-none absolute -left-2.5 -top-2.5 h-[92px] w-[92px] rounded-full border-[5px] border-ind"
+                              />
+                              <span
+                                aria-hidden="true"
+                                className="node-ring pointer-events-none absolute -left-2.5 -top-2.5 h-[92px] w-[92px] rounded-full border-[5px] border-ind [animation-delay:0.9s]"
+                              />
+                            </>
+                          ) : null}
                           <span
-                            aria-hidden="true"
-                            className="node-ring pointer-events-none absolute -left-2.5 -top-2.5 h-[92px] w-[92px] rounded-full border-[5px] border-ind"
-                          />
-                          <span
-                            aria-hidden="true"
-                            className="node-ring pointer-events-none absolute -left-2.5 -top-2.5 h-[92px] w-[92px] rounded-full border-[5px] border-ind [animation-delay:0.9s]"
-                          />
-                          <span className="node-tag absolute -top-[46px] left-1/2 whitespace-nowrap rounded-[10px] border-[1.5px] border-line bg-white px-2.5 py-1.5 font-display text-xs font-black tracking-[0.1em] text-ind shadow-[0_3px_0_#E4E1F0]">
+                            className={`node-tag absolute -top-[46px] left-1/2 whitespace-nowrap rounded-[10px] border-[1.5px] border-line bg-white px-2.5 py-1.5 font-display text-xs font-black tracking-[0.1em] shadow-[0_3px_0_#E4E1F0] ${isRetry ? "text-bad" : "text-ind"}`}
+                          >
                             {tag}
                           </span>
                         </>
                       ) : null}
-                      {interactive ? (
-                        <Link
-                          href={`/belajar/${courseId}/misi/${node.key}`}
-                          aria-label={`${label}, ${statusLabel(node.status)}`}
-                          className="relative block rounded-full"
-                        >
-                          {body}
-                        </Link>
-                      ) : (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedKey(node.key)}
+                        aria-haspopup="dialog"
+                        aria-label={`${label}, ${statusLabel(node.status)}`}
+                        className="relative block rounded-full"
+                      >
                         <span
-                          role="img"
-                          aria-label={`${label}, ${statusLabel(node.status)}`}
-                          className="relative block"
+                          className={`relative grid h-[66px] w-[72px] place-items-center rounded-full transition active:translate-y-1 ${isCurrent ? "node-breathe" : ""}`}
+                          style={nodeStyle(node.status, isChest)}
                         >
-                          {body}
+                          {isChest ? <ChestIcon size={30} /> : null}
+                          {!isChest && node.status === "done" ? (
+                            <CheckIcon size={32} />
+                          ) : null}
+                          {!isChest && isCurrent && !isBoss ? (
+                            <StarIcon size={30} />
+                          ) : null}
+                          {!isChest && isBoss && isCurrent ? (
+                            <SearchIcon size={30} />
+                          ) : null}
+                          {isRetry ? (
+                            <span
+                              aria-hidden="true"
+                              className="font-display text-[34px] font-black leading-none"
+                            >
+                              !
+                            </span>
+                          ) : null}
+                          {!isChest && node.status === "locked" ? (
+                            <LockIcon size={26} />
+                          ) : null}
                         </span>
-                      )}
+                      </button>
                       {isCurrent ? (
                         <>
                           <button
@@ -516,7 +633,7 @@ export function LearnScreen({ courseId }: Props) {
       </main>
 
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[430px] bg-gradient-to-b from-app/0 from-0% to-app to-[38%] px-4 pb-3 pt-[18px]">
-        {currentIsMission && current ? (
+        {currentIsPlayable && current ? (
           <Link
             href={`/belajar/${courseId}/misi/${current.key}`}
             className={`${buttonPrimary} pointer-events-auto gap-2`}
@@ -527,18 +644,80 @@ export function LearnScreen({ courseId }: Props) {
         ) : (
           <button
             type="button"
-            disabled
+            disabled={!current}
+            onClick={() => current && setSelectedKey(current.key)}
             className={`${buttonPrimary} pointer-events-auto`}
           >
             {ctaLabel}
           </button>
         )}
       </div>
+
+      {sheets}
+      <BottomSheet
+        open={selected !== undefined}
+        onClose={() => setSelectedKey(null)}
+        title={selected ? (selected.title ?? nodeFallbackTitle(selected)) : ""}
+      >
+        {selected ? <NodeDetail node={selected} courseId={courseId} /> : null}
+      </BottomSheet>
     </>
   );
 }
 
-function nodeStyle(status: NodeStatus, isChest: boolean) {
+function NodeDetail({ node, courseId }: { node: PathNode; courseId: string }) {
+  if (node.type === "chest") {
+    return (
+      <div className="flex flex-col gap-2 text-[15px]">
+        <p className="font-display text-lg font-black">
+          {node.status === "done" ? "Sudah dibuka" : "Terkunci"}
+        </p>
+        <p className="font-semibold text-[#92400E]">{node.coins ?? 0} koin</p>
+      </div>
+    );
+  }
+
+  if (node.status === "locked") {
+    return (
+      <p className="text-[15px] leading-normal text-ink-soft">
+        Terkunci. Selesaikan misi sebelumnya untuk membuka misi ini.
+      </p>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-[15px] text-ink-soft">
+        {node.status === "done"
+          ? "Selesai"
+          : node.status === "retry"
+            ? "Perlu diulang"
+            : "Misi berikutnya"}
+        {node.topic ? (
+          <>
+            {" · Topik "}
+            <span className="font-mono">{node.topic}</span>
+          </>
+        ) : null}
+      </p>
+      <Link
+        href={`/belajar/${courseId}/misi/${node.key}`}
+        className={`${buttonPrimary} gap-2`}
+      >
+        <PlayIcon size={18} />
+        <span>{node.status === "current" ? "Mulai misi" : "Ulangi misi"}</span>
+      </Link>
+    </div>
+  );
+}
+
+function nodeFallbackTitle(node: PathNode) {
+  if (node.type === "chest") return "Kotak bukti";
+  if (node.type === "boss") return "Interogasi";
+  return "Misi";
+}
+
+function nodeStyle(status: PathNode["status"], isChest: boolean) {
   if (isChest && status === "done")
     return {
       background: "#FFFFFF",
@@ -557,6 +736,12 @@ function nodeStyle(status: NodeStatus, isChest: boolean) {
       color: "#fff",
       boxShadow: "0 6px 0 #3730A3",
     };
+  if (status === "retry")
+    return {
+      background: "#E11D48",
+      color: "#fff",
+      boxShadow: "0 6px 0 #A3123A",
+    };
   return {
     background: "#D9D6E8",
     color: "#6E6987",
@@ -564,8 +749,9 @@ function nodeStyle(status: NodeStatus, isChest: boolean) {
   };
 }
 
-function statusLabel(status: NodeStatus) {
+function statusLabel(status: PathNode["status"]) {
   if (status === "done") return "selesai";
   if (status === "current") return "misi berikutnya";
+  if (status === "retry") return "perlu diulang";
   return "terkunci";
 }

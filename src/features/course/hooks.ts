@@ -9,3 +9,8 @@ export function useCoursePath(courseId: string) {
     trpc.course.path.queryOptions({ courseId }, { retry: false }),
   );
 }
+
+export function useCourseList() {
+  const trpc = useTRPC();
+  return useQuery(trpc.course.list.queryOptions());
+}
