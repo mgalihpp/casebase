@@ -113,7 +113,7 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
             </p>
           </div>
 
-          <div className="mx-4 mt-4 overflow-hidden rounded-2xl border-2 border-line bg-white">
+          <div className="mx-4 mt-4 overflow-hidden rounded-2xl border border-line bg-white">
             <AccordionRow
               label="Cerita kasus"
               count=""
@@ -130,6 +130,11 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
               count={String((data.bukti ?? []).length)}
               open={open.evidence}
               onToggle={() => toggle("evidence")}
+              empty={
+                (data.bukti ?? []).length === 0
+                  ? "Belum ada bukti terkumpul."
+                  : undefined
+              }
             >
               <ul className="m-0 list-none p-0">
                 {(data.bukti ?? []).map((item) => (
@@ -162,6 +167,11 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
               count=""
               open={open.query}
               onToggle={() => toggle("query")}
+              empty={
+                data.lastQuery
+                  ? undefined
+                  : "Belum ada query yang ditulis di kasus ini."
+              }
             >
               {data.lastQuery ? (
                 <div className="rounded-[14px] border-[1.5px] border-line bg-[#FCFCFF] py-2.5 font-mono text-sm leading-[1.65] text-ink">
@@ -201,6 +211,11 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
               count={String((data.tersangka ?? []).length)}
               open={open.suspects}
               onToggle={() => toggle("suspects")}
+              empty={
+                (data.tersangka ?? []).length === 0
+                  ? "Belum ada tersangka."
+                  : undefined
+              }
             >
               <ul className="m-0 list-none p-0">
                 {(data.tersangka ?? []).map((item) => (
@@ -228,8 +243,9 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
               </ul>
             </AccordionRow>
           </div>
+          <div className="h-28" aria-hidden="true" />
 
-          <div className="fixed inset-x-0 bottom-0 mx-auto max-w-[430px] bg-gradient-to-b from-app/0 via-app to-app px-4 pb-[88px] pt-4">
+          <div className="fixed inset-x-0 bottom-0 mx-auto max-w-[430px] bg-gradient-to-b from-app/0 via-app to-app px-4 pb-[calc(12px+env(safe-area-inset-bottom))] pt-3.5">
             <Link href={`/belajar/${data.course}`} className="btn-primary">
               {complete ? "Ulangi kasus" : "Lanjutkan misi"}
             </Link>
@@ -250,13 +266,27 @@ function AccordionRow({
   open,
   onToggle,
   children,
+  empty,
 }: {
   label: string;
   count: string;
   open: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  empty?: string;
 }) {
+  if (empty) {
+    return (
+      <div className="px-3.5 py-3">
+        <p className="m-0 flex min-h-[40px] items-center justify-between font-body text-base font-semibold">
+          {label}
+          <span className="font-normal text-ink-soft">{count}</span>
+        </p>
+        <p className="m-0 text-[15px] leading-snug text-ink-soft">{empty}</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <button

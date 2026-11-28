@@ -108,7 +108,7 @@ function Chevron({ open }: { open: boolean }) {
 
 export function ProfileSkeleton() {
   return (
-    <div role="status" aria-busy="true" aria-label="Memuat profil">
+    <div role="status" aria-busy="true" aria-label="Memuat profil" className="grid gap-5">
       <div className="flex items-center gap-3.5 rounded-2xl border border-line bg-white p-4">
         <span className="anim-skeleton h-16 w-16 flex-none rounded-[20px]" />
         <span className="grid flex-1 gap-2">
@@ -122,7 +122,7 @@ export function ProfileSkeleton() {
         <span className="anim-skeleton h-[68px] rounded-2xl" />
         <span className="anim-skeleton h-[68px] rounded-2xl" />
       </div>
-      <span className="anim-skeleton mb-2.5 block h-5 w-[110px] rounded-md" />
+      <span className="anim-skeleton block h-5 w-[110px] rounded-md" />
       <div className="grid grid-cols-3 gap-2">
         <span className="anim-skeleton h-28 rounded-2xl" />
         <span className="anim-skeleton h-28 rounded-2xl" />
