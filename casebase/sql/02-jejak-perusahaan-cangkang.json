@@ -114,19 +114,65 @@
     },
     {
       "node": "n2",
-      "type": "pilih",
-      "prompt": "Baris perusahaan mana yang lolos WHERE negara = 'Panama'?",
-      "options": [
-        "id 3, 6",
-        "id 1, 4, 7",
-        "id 1, 2, 4, 7",
-        "id 1, 2, 3, 4"
+      "type": "tebak",
+      "prompt": "Ketuk semua baris yang lolos WHERE negara = 'Panama'.",
+      "columns": [
+        "id",
+        "nama",
+        "negara"
       ],
-      "answerIndex": 2,
+      "rows": [
+        [
+          1,
+          "Delta Horizon Ltd",
+          "Panama"
+        ],
+        [
+          2,
+          "Biru Samudra Corp",
+          "Panama"
+        ],
+        [
+          3,
+          "Karang Emas Inc",
+          "Seychelles"
+        ],
+        [
+          4,
+          "Lintang Holdings",
+          "Panama"
+        ],
+        [
+          5,
+          "Cemara Trading",
+          "Bermuda"
+        ],
+        [
+          6,
+          "Nusa Prima Ltd",
+          "Seychelles"
+        ],
+        [
+          7,
+          "Garuda Mitra Co",
+          "Panama"
+        ],
+        [
+          8,
+          "Tirta Abadi Ltd",
+          "Bermuda"
+        ]
+      ],
+      "answer": [
+        0,
+        1,
+        3,
+        6
+      ],
       "hints": [
         "Lihat kolom negara tiap baris.",
-        "Panama muncul di perusahaan pertama, kedua, keempat, dan ketujuh.",
-        "Ada empat baris."
+        "Panama muncul di empat baris.",
+        "Baris dengan Seychelles atau Bermuda tidak lolos."
       ],
       "explanation": "WHERE hanya meloloskan baris yang negaranya Panama: id 1, 2, 4, dan 7."
     },
@@ -198,39 +244,60 @@
     },
     {
       "node": "n5",
-      "type": "pilih",
-      "prompt": "Query ini salah: SELECT nama, nama_pemilik FROM perusahaan JOIN pemilik ON pemilik.id = perusahaan.id. Bagian mana yang keliru?",
-      "options": [
-        "JOIN",
-        "SELECT nama",
-        "pemilik.id",
-        "perusahaan.id"
+      "type": "pasang",
+      "prompt": "Pasangkan tiap perusahaan dengan pemilik yang kuncinya sama (id dan perusahaan_id).",
+      "kiri": [
+        "Karang Emas Inc · id 3",
+        "Cemara Trading · id 5",
+        "Nusa Prima Ltd · id 6",
+        "Garuda Mitra Co · id 7"
       ],
-      "answerIndex": 2,
+      "kanan": [
+        "Bagas Pratama · perusahaan_id 7",
+        "Dewi Larasati · perusahaan_id 3",
+        "Hendra Kusuma · perusahaan_id 5",
+        "Sari Wulandari · perusahaan_id 6"
+      ],
+      "answer": [
+        1,
+        2,
+        3,
+        0
+      ],
       "hints": [
-        "JOIN mencocokkan kunci yang berhubungan.",
-        "pemilik.id adalah nomor urut pemilik, bukan rujukan ke perusahaan.",
-        "Kolom yang menunjuk perusahaan ada di tabel pemilik."
+        "JOIN mencocokkan perusahaan.id dengan pemilik.perusahaan_id.",
+        "Cari angka yang sama di kedua sisi.",
+        "Perusahaan id 3 berpasangan dengan perusahaan_id 3."
       ],
-      "explanation": "pemilik.id hanya nomor baris pemilik. Rujukan ke perusahaan ada di pemilik.perusahaan_id."
+      "explanation": "Setiap pemilik menunjuk perusahaannya lewat perusahaan_id. Kunci yang sama berarti pasangan yang sama."
     },
     {
       "node": "n5",
-      "type": "pilih",
-      "prompt": "Apa pengganti yang benar untuk pemilik.id?",
+      "type": "salah",
+      "prompt": "Query ini salah. Ketuk bagian yang keliru, lalu pilih perbaikannya.",
+      "tokens": [
+        "SELECT nama, nama_pemilik",
+        "FROM perusahaan",
+        "JOIN pemilik",
+        "ON",
+        "pemilik.id",
+        "=",
+        "perusahaan.id"
+      ],
+      "wrongIndex": 4,
       "options": [
-        "pemilik.persen",
         "pemilik.perusahaan_id",
         "pemilik.nama_pemilik",
+        "pemilik.persen",
         "perusahaan.nama"
       ],
-      "answerIndex": 1,
+      "fixIndex": 0,
       "hints": [
-        "Cari kolom yang menyimpan id perusahaan.",
-        "Namanya memuat kata perusahaan.",
-        "Tabel pemilik punya kolom perusahaan_id."
+        "JOIN mencocokkan kunci yang berhubungan.",
+        "pemilik.id hanya nomor urut pemilik.",
+        "Rujukan ke perusahaan ada di kolom perusahaan_id."
       ],
-      "explanation": "pemilik.perusahaan_id menyimpan id perusahaan, sehingga cocok dengan perusahaan.id."
+      "explanation": "pemilik.id hanya nomor baris pemilik. Rujukan ke perusahaan ada di pemilik.perusahaan_id."
     },
     {
       "node": "n5",

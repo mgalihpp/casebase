@@ -112,21 +112,50 @@
     },
     {
       "node": "n2",
-      "type": "pilih",
-      "prompt": "CTE keluar menghitung SUM(jumlah) per dari_id. Query utama memakai WHERE total > 800. Rekening mana yang lolos?",
-      "options": [
-        "1 dan 4",
-        "Semua enam rekening",
-        "1, 2, 3, dan 4",
-        "Hanya 1"
+      "type": "tebak",
+      "prompt": "CTE keluar menghitung total uang keluar per rekening. Ketuk rekening yang lolos WHERE total > 800.",
+      "columns": [
+        "dari_id",
+        "total"
       ],
-      "answerIndex": 2,
+      "rows": [
+        [
+          1,
+          940
+        ],
+        [
+          2,
+          900
+        ],
+        [
+          3,
+          860
+        ],
+        [
+          4,
+          840
+        ],
+        [
+          5,
+          30
+        ],
+        [
+          6,
+          50
+        ]
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3
+      ],
       "hints": [
-        "Total keluar: 1 = 940, 2 = 900, 3 = 860, 4 = 840.",
-        "Rekening 5 hanya 30, rekening 6 hanya 50.",
-        "Hitung mana yang melewati 800."
+        "Bandingkan kolom total dengan 800.",
+        "Rekening 5 dan 6 hanya mengirim puluhan.",
+        "Empat rekening teratas lolos."
       ],
-      "explanation": "Rekening 1 (940), 2 (900), 3 (860), dan 4 (840) melewati 800. Rekening 5 dan 6 jauh di bawahnya."
+      "explanation": "Rekening 1 (940), 2 (900), 3 (860), dan 4 (840) melewati 800."
     },
     {
       "node": "n2",
@@ -198,15 +227,22 @@
     },
     {
       "node": "n5",
-      "type": "pilih",
-      "prompt": "Query ini salah: WITH masuk AS (SELECT ke_id, SUM(jumlah) AS total FROM transaksi) SELECT * FROM masuk. Bagian mana yang kurang?",
-      "options": [
+      "type": "salah",
+      "prompt": "CTE ini menghasilkan satu baris saja. Ketuk bagian yang kurang, lalu pilih perbaikannya.",
+      "tokens": [
         "WITH masuk AS",
-        "SUM(jumlah)",
-        "SELECT * FROM masuk",
-        "GROUP BY ke_id"
+        "(SELECT ke_id, SUM(jumlah) AS total",
+        "FROM transaksi)",
+        "SELECT * FROM masuk"
       ],
-      "answerIndex": 3,
+      "wrongIndex": 2,
+      "options": [
+        "FROM transaksi GROUP BY ke_id)",
+        "FROM transaksi ORDER BY ke_id)",
+        "FROM transaksi WHERE ke_id)",
+        "FROM transaksi LIMIT ke_id)"
+      ],
+      "fixIndex": 0,
       "hints": [
         "SUM digabung dengan kolom biasa.",
         "Kolom ke_id perlu dikelompokkan.",

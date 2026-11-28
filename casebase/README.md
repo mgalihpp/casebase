@@ -29,5 +29,10 @@ Satu kasus = satu file JSON, sesuai SDD 5.1 (`docs/claude/SDD.md`).
 - `questions`: soal per node. `answer` adalah kunci jawaban dan tidak boleh dikirim ke browser.
 - `boleh`, `wajib`, `aturanKolom`: batasan query yang diterima.
 - `pemeriksa`: diisi hanya untuk soal yang mengubah data.
+- Tipe soal: `write`, `pilih`, `susun`, dan tiga tipe interaktif.
+  - `tebak`: ketuk baris yang lolos. Isi `columns`, `rows`, dan `answer` (indeks baris).
+  - `salah`: ketuk token yang keliru, lalu pilih perbaikan. Isi `tokens`, `wrongIndex`, `options`, `fixIndex`.
+  - `pasang`: pasangkan `kiri` dengan `kanan`. `answer[i]` adalah indeks `kanan` untuk `kiri[i]`.
+- Kasus dikerjakan berurutan menurut `number`. Kasus berikutnya terbuka setelah semua node kasus sebelumnya tuntas.
 
 Sebelum dipakai, cocokkan `seed` dengan prototipe (lihat catatan di `docs/claude/kasus-01.md`).

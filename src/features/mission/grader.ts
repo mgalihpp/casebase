@@ -34,5 +34,37 @@ export async function gradeAnswer(
       ? { correct: true, message: "Benar. Buktinya cocok." }
       : { correct: false, message: "Urutannya belum benar." };
   }
+  if (question.type === "tebak" && answer.type === "tebak") {
+    const got = [...new Set(answer.rows)].sort((a, b) => a - b);
+    const want = [...question.answer].sort((a, b) => a - b);
+    const same =
+      got.length === want.length && got.every((row, i) => row === want[i]);
+    return same
+      ? { correct: true, message: "Benar. Buktinya cocok." }
+      : {
+          correct: false,
+          message:
+            "Baris yang kamu pilih belum tepat. Cek ada yang terlewat atau kelebihan.",
+        };
+  }
+  if (question.type === "salah" && answer.type === "salah") {
+    if (answer.token !== question.wrongIndex) {
+      return {
+        correct: false,
+        message: "Bagian itu belum jadi sumber kesalahan. Cari lagi.",
+      };
+    }
+    return answer.fix === question.fixIndex
+      ? { correct: true, message: "Benar. Buktinya cocok." }
+      : { correct: false, message: "Perbaikan itu belum tepat." };
+  }
+  if (question.type === "pasang" && answer.type === "pasang") {
+    const same =
+      answer.pairs.length === question.answer.length &&
+      answer.pairs.every((right, left) => right === question.answer[left]);
+    return same
+      ? { correct: true, message: "Benar. Buktinya cocok." }
+      : { correct: false, message: "Ada pasangan yang belum cocok." };
+  }
   return { correct: false, message: "Jenis jawaban tidak sesuai soal." };
 }

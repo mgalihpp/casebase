@@ -115,21 +115,55 @@
     },
     {
       "node": "n2",
-      "type": "pilih",
-      "prompt": "JOIN biasa antara tersangka dan alibi. Tersangka mana yang TIDAK muncul di hasil?",
-      "options": [
-        "Rudi Hartono saja",
-        "Semua tersangka muncul",
-        "Lina Marlina dan Dedi Kurniawan",
-        "Joko Santoso dan Putri Ayu"
+      "type": "tebak",
+      "prompt": "Ketuk tersangka yang akan muncul di hasil JOIN biasa dengan tabel alibi.",
+      "columns": [
+        "id",
+        "nama"
       ],
-      "answerIndex": 2,
+      "rows": [
+        [
+          1,
+          "Rudi Hartono"
+        ],
+        [
+          2,
+          "Maya Sari"
+        ],
+        [
+          3,
+          "Joko Santoso"
+        ],
+        [
+          4,
+          "Lina Marlina"
+        ],
+        [
+          5,
+          "Tono Wijaya"
+        ],
+        [
+          6,
+          "Putri Ayu"
+        ],
+        [
+          7,
+          "Dedi Kurniawan"
+        ]
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        4,
+        5
+      ],
       "hints": [
         "JOIN biasa hanya memuat baris yang punya pasangan.",
-        "Cari tersangka yang id-nya tidak ada di kolom tersangka_id alibi.",
-        "Id 4 dan 7 tidak punya baris alibi."
+        "Cari id yang ada di kolom tersangka_id tabel alibi.",
+        "Id 4 dan 7 tidak punya alibi."
       ],
-      "explanation": "JOIN biasa membuang tersangka tanpa pasangan. Lina (id 4) dan Dedi (id 7) tidak punya alibi."
+      "explanation": "JOIN biasa membuang tersangka tanpa pasangan. Lina (id 4) dan Dedi (id 7) tidak muncul."
     },
     {
       "node": "n2",
@@ -196,19 +230,28 @@
     },
     {
       "node": "n5",
-      "type": "pilih",
-      "prompt": "Query ini salah: SELECT nama FROM tersangka LEFT JOIN alibi ON alibi.tersangka_id = tersangka.id WHERE alibi.tempat = NULL. Bagian mana yang keliru?",
-      "options": [
-        "LEFT JOIN",
+      "type": "salah",
+      "prompt": "Query ini mencari tersangka tanpa alibi, tetapi hasilnya kosong. Ketuk bagian yang keliru, lalu pilih perbaikannya.",
+      "tokens": [
         "SELECT nama",
-        "tersangka.id",
+        "FROM tersangka",
+        "LEFT JOIN alibi",
+        "ON alibi.tersangka_id = tersangka.id",
+        "WHERE alibi.tempat",
         "= NULL"
       ],
-      "answerIndex": 3,
+      "wrongIndex": 5,
+      "options": [
+        "IS NULL",
+        "== NULL",
+        "EQUALS NULL",
+        "IS EMPTY"
+      ],
+      "fixIndex": 0,
       "hints": [
-        "Query ini seharusnya mencari tersangka tanpa alibi.",
-        "Ada satu operator yang tidak bekerja untuk NULL.",
-        "Gantilah dengan IS NULL."
+        "NULL bukan nilai biasa.",
+        "Operator = tidak pernah benar terhadap NULL.",
+        "Pakai IS NULL."
       ],
       "explanation": "= NULL tidak pernah benar. Pemeriksaan kosong harus memakai IS NULL."
     },

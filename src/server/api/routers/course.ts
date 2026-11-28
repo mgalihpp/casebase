@@ -24,6 +24,7 @@ export const courseRouter = createTRPCRouter({
         return {
           course: bundle.course,
           case: null,
+          cases: [],
           nodes: [],
           done: 0,
           total: 0,
@@ -48,6 +49,7 @@ export const courseRouter = createTRPCRouter({
           title: bundle.body.title,
           story: bundle.body.story,
         },
+        cases: bundle.cases,
         nodes,
         done: nodes.filter((node) => node.status === "done").length,
         total: nodes.length,

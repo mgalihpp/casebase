@@ -150,6 +150,32 @@
     },
     {
       "node": "n3",
+      "type": "salah",
+      "prompt": "Query ini tidak menampilkan apa pun padahal ada pesan bulan Maret. Ketuk bagian yang keliru, lalu pilih perbaikannya.",
+      "tokens": [
+        "SELECT * FROM pesan",
+        "WHERE",
+        "strftime('%m', dikirim)",
+        "=",
+        "3"
+      ],
+      "wrongIndex": 4,
+      "options": [
+        "'03'",
+        "03",
+        "'3'",
+        "MARET"
+      ],
+      "fixIndex": 0,
+      "hints": [
+        "strftime mengembalikan teks dua digit.",
+        "Bulan Maret dikembalikan sebagai '03'.",
+        "Bandingkan dengan teks, bukan angka."
+      ],
+      "explanation": "strftime('%m', ...) menghasilkan teks '03'. Membandingkannya dengan angka 3 tidak pernah cocok."
+    },
+    {
+      "node": "n3",
       "type": "write",
       "prompt": "Tampilkan pesan yang dikirim pada bulan Maret (bulan 03).",
       "boleh": [

@@ -112,15 +112,30 @@
     },
     {
       "node": "n2",
-      "type": "pilih",
-      "prompt": "Query: SELECT * FROM kendaraan WHERE plat IN (SELECT melihat_plat FROM saksi). Kendaraan mana yang tampil?",
-      "options": [
-        "B 5555 AA",
-        "Semua tiga kendaraan",
-        "B 1234 XY dan D 9876 QW",
-        "Hanya B 1234 XY"
+      "type": "tebak",
+      "prompt": "Query: SELECT * FROM kendaraan WHERE plat IN (SELECT melihat_plat FROM saksi). Ketuk kendaraan yang akan tampil.",
+      "columns": [
+        "plat",
+        "pemilik"
       ],
-      "answerIndex": 2,
+      "rows": [
+        [
+          "B 1234 XY",
+          "Hendro Gunawan"
+        ],
+        [
+          "D 9876 QW",
+          "Citra Dewanti"
+        ],
+        [
+          "B 5555 AA",
+          "Fajar Nugroho"
+        ]
+      ],
+      "answer": [
+        0,
+        1
+      ],
       "hints": [
         "IN memeriksa apakah plat ada dalam daftar hasil subquery.",
         "Plat yang dilihat saksi: B 1234 XY dan D 9876 QW.",

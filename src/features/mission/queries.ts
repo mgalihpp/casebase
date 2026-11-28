@@ -31,6 +31,27 @@ function toPublicQuestion(question: CaseQuestion) {
         prompt: question.prompt,
         pieces: question.pieces,
       };
+    case "tebak":
+      return {
+        type: question.type,
+        prompt: question.prompt,
+        columns: question.columns,
+        rows: question.rows,
+      };
+    case "salah":
+      return {
+        type: question.type,
+        prompt: question.prompt,
+        tokens: question.tokens,
+        options: question.options,
+      };
+    case "pasang":
+      return {
+        type: question.type,
+        prompt: question.prompt,
+        kiri: question.kiri,
+        kanan: question.kanan,
+      };
   }
 }
 

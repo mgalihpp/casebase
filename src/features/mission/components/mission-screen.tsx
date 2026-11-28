@@ -20,13 +20,17 @@ import {
   useMissionStart,
 } from "@/features/mission/hooks";
 import { useTRPC } from "@/trpc/client";
+import { PasangKunci, SalahToken, TebakRows } from "./interactive";
 
 type Props = { courseId: string; nodeKey: string };
 
 type Answer =
   | { type: "write"; query: string }
   | { type: "pilih"; choice: number }
-  | { type: "susun"; order: string[] };
+  | { type: "susun"; order: string[] }
+  | { type: "tebak"; rows: number[] }
+  | { type: "salah"; token: number; fix: number }
+  | { type: "pasang"; pairs: number[] };
 
 type Reward = { xp: number; score: number; lantern: number };
 
@@ -69,6 +73,9 @@ const LABEL_SOAL = {
   write: "Tulis query",
   pilih: "Pilih jawaban",
   susun: "Susun query",
+  tebak: "Tebak hasil",
+  salah: "Cari kesalahan",
+  pasang: "Pasangkan kunci",
 } as const;
 const CONFETTI_COLORS = [
   "#4F46E5",
@@ -145,6 +152,7 @@ function MissionPlay({
   const [code, setCode] = useState("");
   const [choice, setChoice] = useState<number | null>(null);
   const [placed, setPlaced] = useState<number[]>([]);
+  const [draft, setDraft] = useState<Answer | null>(null);
   const [run, setRun] = useState<RunOutcome | null>(null);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<Check | null>(null);
@@ -216,6 +224,7 @@ function MissionPlay({
     setCode("");
     setChoice(null);
     setPlaced([]);
+    setDraft(null);
     setRun(null);
     setResult(null);
     setHintTexts([]);
@@ -255,6 +264,12 @@ function MissionPlay({
       submit({ type: "write", query: code });
     } else if (question.type === "pilih") {
       if (choice !== null) submit({ type: "pilih", choice });
+    } else if (
+      question.type === "tebak" ||
+      question.type === "salah" ||
+      question.type === "pasang"
+    ) {
+      if (draft) submit(draft);
     } else {
       submit({
         type: "susun",
@@ -397,7 +412,9 @@ function MissionPlay({
       ? code.trim() !== ""
       : question.type === "pilih"
         ? choice !== null
-        : placed.length > 0;
+        : question.type === "susun"
+          ? placed.length > 0
+          : draft !== null;
   const bubble = result
     ? result.correct
       ? "Bukti ini sudah dicatat."
@@ -668,6 +685,36 @@ function MissionPlay({
                 );
               })}
             </fieldset>
+          ) : question.type === "tebak" ? (
+            <TebakRows
+              key={`tebak-${index}`}
+              columns={question.columns}
+              rows={question.rows}
+              disabled={check.isPending || result !== null}
+              onChange={(rows) =>
+                setDraft(rows ? { type: "tebak", rows } : null)
+              }
+            />
+          ) : question.type === "salah" ? (
+            <SalahToken
+              key={`salah-${index}`}
+              tokens={question.tokens}
+              options={question.options}
+              disabled={check.isPending || result !== null}
+              onChange={(answer) =>
+                setDraft(answer ? { type: "salah", ...answer } : null)
+              }
+            />
+          ) : question.type === "pasang" ? (
+            <PasangKunci
+              key={`pasang-${index}`}
+              kiri={question.kiri}
+              kanan={question.kanan}
+              disabled={check.isPending || result !== null}
+              onChange={(pairs) =>
+                setDraft(pairs ? { type: "pasang", pairs } : null)
+              }
+            />
           ) : (
             <SusunPieces
               pieces={question.pieces}
@@ -710,7 +757,9 @@ function MissionPlay({
               </span>
               <div>
                 <p className="mb-1 mt-1.5 font-display text-xl font-black">
-                  {result.correct ? "Benar. Buktinya cocok." : "Belum cocok dengan bukti."}
+                  {result.correct
+                    ? "Benar. Buktinya cocok."
+                    : "Belum cocok dengan bukti."}
                 </p>
                 <p className="text-[15px] leading-[1.45]">
                   {result.correct ? result.explanation : result.message}

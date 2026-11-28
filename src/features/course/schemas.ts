@@ -67,10 +67,90 @@ const arrangeQuestionSchema = z
     }
   });
 
+const guessQuestionSchema = z
+  .object({
+    node: z.string().min(1),
+    type: z.literal("tebak"),
+    prompt: z.string().min(1),
+    columns: z.array(z.string().min(1)).min(1),
+    rows: z.array(z.array(z.union([z.string(), z.number()]))).min(2),
+    answer: z.array(z.number().int().min(0)),
+    hints: z.array(z.string()),
+    explanation: z.string(),
+  })
+  .superRefine((question, ctx) => {
+    if (question.answer.some((row) => row >= question.rows.length)) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["answer"],
+        message: "answer menunjuk baris yang tidak ada.",
+      });
+    }
+  });
+
+const mistakeQuestionSchema = z
+  .object({
+    node: z.string().min(1),
+    type: z.literal("salah"),
+    prompt: z.string().min(1),
+    tokens: z.array(z.string().min(1)).min(2),
+    wrongIndex: z.number().int().min(0),
+    options: z.array(z.string().min(1)).min(2),
+    fixIndex: z.number().int().min(0),
+    hints: z.array(z.string()),
+    explanation: z.string(),
+  })
+  .superRefine((question, ctx) => {
+    if (question.wrongIndex >= question.tokens.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["wrongIndex"],
+        message: "wrongIndex melebihi jumlah token.",
+      });
+    }
+    if (question.fixIndex >= question.options.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["fixIndex"],
+        message: "fixIndex melebihi jumlah pilihan.",
+      });
+    }
+  });
+
+const pairQuestionSchema = z
+  .object({
+    node: z.string().min(1),
+    type: z.literal("pasang"),
+    prompt: z.string().min(1),
+    kiri: z.array(z.string().min(1)).min(2),
+    kanan: z.array(z.string().min(1)).min(2),
+    answer: z.array(z.number().int().min(0)),
+    hints: z.array(z.string()),
+    explanation: z.string(),
+  })
+  .superRefine((question, ctx) => {
+    const valid =
+      question.answer.length === question.kiri.length &&
+      question.kanan.length === question.kiri.length &&
+      new Set(question.answer).size === question.answer.length &&
+      question.answer.every((index) => index < question.kanan.length);
+    if (!valid) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["answer"],
+        message:
+          "answer harus memasangkan tiap sisi kiri dengan satu sisi kanan.",
+      });
+    }
+  });
+
 export const caseQuestionSchema = z.discriminatedUnion("type", [
   writeQuestionSchema,
   choiceQuestionSchema,
   arrangeQuestionSchema,
+  guessQuestionSchema,
+  mistakeQuestionSchema,
+  pairQuestionSchema,
 ]);
 
 export const caseBodySchema = z.object({

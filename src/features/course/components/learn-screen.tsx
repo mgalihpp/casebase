@@ -550,6 +550,8 @@ export function LearnScreen({ courseId }: Props) {
   const chips = nodes
     .filter((node) => node.type === "mission" && node.topic)
     .map((node) => node.topic as string);
+  const nextCase =
+    data.cases[data.cases.findIndex((item) => item.id === data.case?.id) + 1];
   const selectedIndex = nodes.findIndex((node) => node.key === selectedKey);
   const selected = selectedIndex >= 0 ? nodes[selectedIndex] : undefined;
   const ctaLabel = !current
@@ -805,7 +807,7 @@ export function LearnScreen({ courseId }: Props) {
             setNotice(
               current
                 ? "Selesaikan Interogasi dulu"
-                : "Kasus 02 sedang disiapkan",
+                : "Kasus baru sedang disiapkan",
             )
           }
           className="mt-1 flex min-h-16 w-full items-center gap-3 rounded-2xl border border-line bg-white px-3.5 py-3 text-left text-ink-soft"
@@ -818,10 +820,12 @@ export function LearnScreen({ courseId }: Props) {
               Kasus berikutnya
             </span>
             <span className="block font-display text-[17px] font-extrabold text-ink">
-              Kasus 02: {meta.next}
+              {nextCase
+                ? `Kasus ${nextCase.number}: ${nextCase.title}`
+                : `Segera: ${meta.next}`}
             </span>
             <span className="block text-[13px]">
-              {current ? "Terbuka setelah Interogasi selesai" : "Segera hadir"}
+              {nextCase ? "Terbuka setelah Interogasi selesai" : "Segera hadir"}
             </span>
           </span>
         </button>
