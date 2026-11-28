@@ -472,12 +472,12 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
           {question.prompt}
         </h2>
 
-        <div className="mb-2.5 flex items-end gap-2">
+        <div className="mb-3.5 flex items-end gap-2">
           <span className="h-[72px] w-[72px] shrink-0">
             <Mascot name={meta.abbr} size={72} mood={mood} />
           </span>
           {bubble ? (
-            <p className="rounded-2xl rounded-bl-sm border-[1.5px] border-line bg-white px-3 py-2.5 text-[15px] leading-snug">
+            <p className="rounded-[14px_14px_14px_4px] border-[1.5px] border-line bg-white px-3 py-2.5 text-[15px] leading-[1.45]">
               {bubble}
             </p>
           ) : null}
@@ -528,6 +528,23 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
                   onChange={(event) => setCode(event.target.value)}
                   className="absolute inset-0 h-full w-full resize-none overflow-hidden bg-transparent px-4 py-3.5 font-mono text-[16px] leading-[1.6] text-transparent caret-ind outline-none placeholder:text-ink-soft"
                 />
+              </div>
+
+              <div
+                role="group"
+                aria-label="Sisipkan kata kunci"
+                className="mt-2.5 flex flex-wrap gap-2"
+              >
+                {KETUKAN_KATA_KUNCI.map((keyword) => (
+                  <button
+                    key={keyword}
+                    type="button"
+                    onClick={() => insertKeyword(keyword)}
+                    className="min-h-11 rounded-xl border-[1.5px] border-b-[3px] border-line bg-white px-3.5 font-mono text-[15px] font-bold text-ind-7 active:translate-y-0.5"
+                  >
+                    {keyword}
+                  </button>
+                ))}
               </div>
 
               {hintTexts.map((text) => (
@@ -669,24 +686,6 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
           </div>
         ) : (
           <div className="grid gap-2.5 border-t border-line bg-white px-4 pb-4 pt-2.5">
-            {question.type === "write" ? (
-              <div
-                role="group"
-                aria-label="Sisipkan kata kunci"
-                className="-mx-4 flex gap-1.5 overflow-x-auto px-4"
-              >
-                {KETUKAN_KATA_KUNCI.map((keyword) => (
-                  <button
-                    key={keyword}
-                    type="button"
-                    onClick={() => insertKeyword(keyword)}
-                    className="min-h-11 shrink-0 rounded-xl border-[1.5px] border-b-[3px] border-line bg-white px-3 font-mono text-[15px] font-bold text-ind-7 active:translate-y-0.5"
-                  >
-                    {keyword}
-                  </button>
-                ))}
-              </div>
-            ) : null}
             <div
               className={`grid gap-2.5 ${question.type === "write" ? "grid-cols-2" : "grid-cols-1"}`}
             >
