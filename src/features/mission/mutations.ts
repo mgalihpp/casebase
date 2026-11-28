@@ -4,6 +4,7 @@ import type { z } from "zod";
 import { loadCaseBundle, statusOf } from "@/features/course/queries";
 import { profile } from "@/features/profile/schema";
 import { db } from "@/server/db";
+import { checkRule } from "./check-rules";
 import { gradeAnswer } from "./grader";
 import {
   applyWrongAnswer,
@@ -66,10 +67,34 @@ export async function checkAnswer(
     });
   }
 
-  const verdict = await gradeAnswer(question, bundle.body.seed, answer);
-  const isLastQuestion = questionIndex === questions.length - 1;
-  const nodeDone = verdict.correct && isLastQuestion;
   const caseId = bundle.caseRow.id;
+  const [active] = await db
+    .select({ questionIndex: missionAttempt.questionIndex })
+    .from(missionAttempt)
+    .where(
+      and(
+        eq(missionAttempt.userId, userId),
+        eq(missionAttempt.caseId, caseId),
+        eq(missionAttempt.nodeKey, nodeKey),
+        eq(missionAttempt.status, "active"),
+      ),
+    )
+    .limit(1);
+  const activeIndex = active?.questionIndex ?? 0;
+  if (activeIndex !== questionIndex) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Soal ini bukan posisi aktifmu. Muat ulang halaman.",
+    });
+  }
+
+  const verdict = await gradeAnswer(question, bundle.body.seed, answer);
+  const { nodeDone, advance } = checkRule({
+    activeIndex,
+    questionIndex,
+    total: questions.length,
+    correct: verdict.correct,
+  });
 
   const outcome = await db.transaction(async (tx) => {
     const attempt = await openAttempt(tx, userId, caseId, nodeKey, now);
@@ -80,8 +105,7 @@ export async function checkAnswer(
       : await applyWrongAnswer(tx, userId, now);
 
     if (!nodeDone) {
-      // Maju ke soal berikutnya hanya jika soal ini memang posisi aktif, agar jawaban ulang tidak menggeser posisi.
-      if (verdict.correct) {
+      if (advance) {
         await tx
           .update(missionAttempt)
           .set({ questionIndex: sql`${missionAttempt.questionIndex} + 1` })
