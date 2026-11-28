@@ -1,0 +1,275 @@
+{
+  "course": "sql",
+  "number": "07",
+  "title": "Peta Kejahatan Kota",
+  "story": "Selama empat bulan, polisi mencatat jumlah kejadian di tiga wilayah kota. Kepala analis ingin tahu wilayah mana yang melonjak, kapan puncaknya, dan bagaimana trennya dari bulan ke bulan.",
+  "bukti": [
+    "Tiga wilayah, empat bulan.",
+    "Utara tertinggi di bulan ketiga.",
+    "Timur naik tajam di bulan kedua terakhir."
+  ],
+  "tersangka": [
+    "Wilayah Utara, tertinggi sepanjang periode",
+    "Wilayah Timur, lonjakan paling cepat"
+  ],
+  "seed": "CREATE TABLE kejadian (id INTEGER, wilayah TEXT, bulan INTEGER, jumlah INTEGER); INSERT INTO kejadian VALUES (1,'Utara',1,12), (2,'Utara',2,15), (3,'Utara',3,21), (4,'Utara',4,18), (5,'Selatan',1,9), (6,'Selatan',2,11), (7,'Selatan',3,8), (8,'Selatan',4,14), (9,'Timur',1,5), (10,'Timur',2,7), (11,'Timur',3,13), (12,'Timur',4,19);",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Beri nomor urut",
+      "topic": "ROW_NUMBER",
+      "bukti": "Urutan bulan paling rawan",
+      "cerita": "Kita mulai dengan menyusun semua catatan, dari bulan yang paling rawan.",
+      "pelajaran": "ROW_NUMBER() memberi nomor urut pada setiap baris. OVER (ORDER BY ...) menentukan urutan penomorannya."
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Peringkat per wilayah",
+      "topic": "RANK dan PARTITION BY",
+      "bukti": "Peringkat bulan di tiap wilayah",
+      "cerita": "Setiap wilayah punya polanya sendiri. Kita beri peringkat bulan di dalam tiap wilayah.",
+      "pelajaran": "PARTITION BY membagi baris per kelompok, lalu RANK() memberi peringkat di dalam tiap kelompok tanpa menggabungkan barisnya."
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Total berjalan",
+      "topic": "SUM OVER",
+      "bukti": "Total kejadian berjalan per wilayah",
+      "cerita": "Analis ingin melihat jumlah kejadian yang terus bertambah dari bulan ke bulan.",
+      "pelajaran": "SUM() OVER (... ORDER BY bulan) menjumlahkan dari baris pertama sampai baris saat ini. Hasilnya disebut total berjalan."
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Selisih bulanan",
+      "topic": "LAG",
+      "bukti": "Perubahan kejadian dari bulan ke bulan",
+      "cerita": "Lonjakan terlihat dari selisih dengan bulan sebelumnya. Kita hitung perubahan tiap bulan.",
+      "pelajaran": "LAG() mengambil nilai dari baris sebelumnya. Bulan pertama tidak punya pembanding, jadi hasilnya NULL."
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi",
+      "bukti": "Bulan puncak tiap wilayah",
+      "cerita": "Laporan akhir hanya butuh satu baris per wilayah, yaitu bulan puncaknya.",
+      "pelajaran": "Beri peringkat di dalam subquery, lalu saring yang peringkatnya 1 di query luar. Fungsi window tidak bisa langsung dipakai di WHERE."
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Apa bedanya fungsi window dengan GROUP BY?",
+      "options": [
+        "Tidak ada bedanya",
+        "Window menjaga semua baris, GROUP BY meringkasnya",
+        "Window menghapus baris",
+        "GROUP BY menjaga semua baris"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "GROUP BY menggabungkan baris jadi satu per kelompok.",
+        "Fungsi window menambah kolom tanpa membuang baris.",
+        "Window ditulis dengan OVER."
+      ],
+      "explanation": "GROUP BY meringkas baris. Fungsi window menghitung sesuatu untuk tiap baris tanpa membuang baris lain."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun query yang memberi nomor urut kejadian dari yang terbanyak.",
+      "pieces": [
+        "SELECT wilayah, bulan, jumlah,",
+        "ROW_NUMBER() OVER",
+        "(ORDER BY jumlah DESC) AS urutan",
+        "FROM kejadian"
+      ],
+      "answer": [
+        "SELECT wilayah, bulan, jumlah,",
+        "ROW_NUMBER() OVER",
+        "(ORDER BY jumlah DESC) AS urutan",
+        "FROM kejadian"
+      ],
+      "hints": [
+        "ROW_NUMBER() diikuti OVER.",
+        "Urutan ditentukan di dalam OVER (ORDER BY ...).",
+        "Beri alias urutan."
+      ],
+      "explanation": "ROW_NUMBER() OVER (ORDER BY jumlah DESC) menomori baris dari jumlah terbesar."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Tampilkan wilayah, bulan, jumlah, dan kolom urutan: nomor urut baris dari jumlah terbesar ke terkecil.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "OVER"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT wilayah, bulan, jumlah, ROW_NUMBER() OVER (ORDER BY jumlah DESC) AS urutan FROM kejadian",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai ROW_NUMBER() OVER (...).",
+        "Di dalam OVER: ORDER BY jumlah DESC.",
+        "Beri nama kolomnya urutan dengan AS."
+      ],
+      "explanation": "Setiap baris mendapat nomor unik. Kejadian terbanyak (21) bernomor 1."
+    },
+    {
+      "node": "n2",
+      "type": "pilih",
+      "prompt": "RANK() OVER (PARTITION BY wilayah ORDER BY jumlah DESC). Siapa yang peringkat 1 di wilayah Selatan?",
+      "options": [
+        "Bulan 1 (9)",
+        "Bulan 3 (8)",
+        "Bulan 4 (14)",
+        "Bulan 2 (11)"
+      ],
+      "answerIndex": 2,
+      "hints": [
+        "PARTITION BY menghitung peringkat terpisah per wilayah.",
+        "Peringkat 1 adalah jumlah terbesar.",
+        "Selatan: 9, 11, 8, 14."
+      ],
+      "explanation": "Di wilayah Selatan jumlah terbesar adalah 14 pada bulan 4, jadi itu peringkat 1."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Tampilkan wilayah, bulan, jumlah, dan kolom peringkat: peringkat jumlah kejadian di dalam tiap wilayah, dari terbanyak.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "OVER",
+        "PARTITION BY"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT wilayah, bulan, jumlah, RANK() OVER (PARTITION BY wilayah ORDER BY jumlah DESC) AS peringkat FROM kejadian",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai RANK() OVER (...).",
+        "PARTITION BY wilayah memisahkan hitungan per wilayah.",
+        "... ORDER BY jumlah DESC) AS peringkat"
+      ],
+      "explanation": "Peringkat dihitung ulang dari 1 di tiap wilayah."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun query yang menghitung kejadian kumulatif per wilayah dari bulan ke bulan.",
+      "pieces": [
+        "SELECT wilayah, bulan,",
+        "SUM(jumlah) OVER",
+        "(PARTITION BY wilayah ORDER BY bulan)",
+        "AS kumulatif",
+        "FROM kejadian"
+      ],
+      "answer": [
+        "SELECT wilayah, bulan,",
+        "SUM(jumlah) OVER",
+        "(PARTITION BY wilayah ORDER BY bulan)",
+        "AS kumulatif",
+        "FROM kejadian"
+      ],
+      "hints": [
+        "SUM bisa dipakai sebagai window.",
+        "PARTITION BY wilayah, ORDER BY bulan.",
+        "Alias kumulatif."
+      ],
+      "explanation": "SUM ... OVER dengan ORDER BY menjumlah dari bulan pertama sampai bulan saat ini."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Tampilkan wilayah, bulan, dan kolom kumulatif: jumlah kejadian yang dijumlah dari bulan pertama sampai bulan itu, per wilayah.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "OVER",
+        "PARTITION BY"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT wilayah, bulan, SUM(jumlah) OVER (PARTITION BY wilayah ORDER BY bulan) AS kumulatif FROM kejadian",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai SUM(jumlah) OVER (...).",
+        "Partisi per wilayah, urut menurut bulan.",
+        "... ORDER BY bulan) AS kumulatif"
+      ],
+      "explanation": "Total kumulatif Utara: 12, 27, 48, 66."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "LAG(jumlah) OVER (PARTITION BY wilayah ORDER BY bulan) untuk Utara bulan 1 menghasilkan apa?",
+      "options": [
+        "0",
+        "12",
+        "15",
+        "NULL"
+      ],
+      "answerIndex": 3,
+      "hints": [
+        "LAG mengambil nilai dari baris sebelumnya.",
+        "Bulan 1 adalah baris pertama.",
+        "Tidak ada baris sebelumnya."
+      ],
+      "explanation": "Baris pertama tidak punya pendahulu, jadi LAG menghasilkan NULL."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Tampilkan wilayah, bulan, dan kolom selisih: jumlah bulan ini dikurangi jumlah bulan sebelumnya di wilayah yang sama.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "LAG",
+        "OVER"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT wilayah, bulan, jumlah - LAG(jumlah) OVER (PARTITION BY wilayah ORDER BY bulan) AS selisih FROM kejadian",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai LAG(jumlah) OVER (...).",
+        "Partisi per wilayah, urut menurut bulan.",
+        "jumlah - LAG(...) OVER (...) AS selisih"
+      ],
+      "explanation": "Bulan pertama tiap wilayah bernilai NULL."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Tampilkan wilayah, bulan, dan jumlah kejadian tertinggi di tiap wilayah. Satu baris per wilayah.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "OVER",
+        "PARTITION BY"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT wilayah, bulan, jumlah FROM (SELECT wilayah, bulan, jumlah, RANK() OVER (PARTITION BY wilayah ORDER BY jumlah DESC) AS r FROM kejadian) WHERE r = 1",
+      "pemeriksa": null,
+      "hints": [
+        "Hitung peringkat per wilayah dalam subquery.",
+        "Query luar menyaring peringkat 1.",
+        "... FROM (SELECT ..., RANK() OVER (...) AS r FROM kejadian) WHERE r = 1"
+      ],
+      "explanation": "Puncak kejahatan: Utara bulan 3 (21), Selatan bulan 4 (14), Timur bulan 4 (19)."
+    }
+  ]
+}

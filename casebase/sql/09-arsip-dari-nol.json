@@ -1,0 +1,273 @@
+{
+  "course": "sql",
+  "number": "09",
+  "title": "Arsip dari Nol",
+  "story": "Kantor polisi baru saja membuka divisi kejahatan keuangan. Arsip digitalnya masih kosong, dan kamu dipercaya merancang tabel, kolom, dan aturannya agar data tetap rapi sejak hari pertama.",
+  "bukti": [
+    "Arsip lama baru memuat dua kasus.",
+    "Belum ada tabel petugas, saksi, dan barang bukti.",
+    "Setiap barang bukti harus terkait ke satu arsip."
+  ],
+  "tersangka": [
+    "Inspektur Ratna, kepala divisi baru"
+  ],
+  "seed": "CREATE TABLE arsip_kasus (id INTEGER PRIMARY KEY, judul TEXT NOT NULL); INSERT INTO arsip_kasus VALUES (1,'Pencurian di Gudang'), (2,'Jejak Perusahaan Cangkang');",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Bangun tabel pertama",
+      "topic": "CREATE TABLE",
+      "bukti": "Tabel petugas",
+      "cerita": "Divisi baru butuh daftar petugas. Kita buat tabelnya dulu.",
+      "pelajaran": "CREATE TABLE membuat tabel baru. Setiap kolom ditulis dengan nama dan tipe datanya, misalnya id INTEGER."
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Kunci dan kewajiban",
+      "topic": "PRIMARY KEY dan NOT NULL",
+      "bukti": "Tabel saksi dengan aturan wajib isi",
+      "cerita": "Data saksi harus rapi: setiap saksi punya id unik dan namanya wajib diisi.",
+      "pelajaran": "PRIMARY KEY menjamin id tidak kembar, dan NOT NULL melarang kolom dibiarkan kosong."
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Tambah kolom",
+      "topic": "ALTER TABLE",
+      "bukti": "Kolom status di arsip kasus",
+      "cerita": "Arsip kasus perlu menyimpan status penyelidikan, padahal tabelnya sudah terlanjur dibuat.",
+      "pelajaran": "ALTER TABLE ... ADD COLUMN menambah kolom ke tabel yang sudah ada tanpa menghapus datanya."
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Hubungkan tabel",
+      "topic": "FOREIGN KEY",
+      "bukti": "Tabel barang bukti yang terhubung ke arsip",
+      "cerita": "Setiap barang bukti harus jelas berasal dari kasus mana.",
+      "pelajaran": "FOREIGN KEY ... REFERENCES menghubungkan kolom ke tabel lain, sehingga barang bukti tidak bisa merujuk ke arsip yang tidak ada."
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi",
+      "bukti": "Tabel petugas penanggung jawab kasus",
+      "cerita": "Ujian terakhir: rancang tabel penanggung jawab kasus lengkap dengan aturannya, lalu isi data pertamanya.",
+      "pelajaran": "Gabungkan PRIMARY KEY, NOT NULL, dan FOREIGN KEY dalam satu CREATE TABLE, lalu tambahkan data dengan INSERT INTO."
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Perintah mana yang membuat tabel baru?",
+      "options": [
+        "MAKE TABLE",
+        "CREATE TABLE",
+        "INSERT TABLE",
+        "NEW TABLE"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "Perintahnya diawali kata untuk membuat.",
+        "Tidak ada INSERT TABLE.",
+        "CREATE TABLE nama (kolom tipe, ...)."
+      ],
+      "explanation": "CREATE TABLE mendefinisikan tabel baru beserta kolom dan tipenya."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun perintah yang membuat tabel petugas dengan kolom id dan nama.",
+      "pieces": [
+        "CREATE TABLE petugas",
+        "(id INTEGER,",
+        "nama TEXT)"
+      ],
+      "answer": [
+        "CREATE TABLE petugas",
+        "(id INTEGER,",
+        "nama TEXT)"
+      ],
+      "hints": [
+        "Mulai dengan CREATE TABLE.",
+        "Kolom ditulis dalam kurung.",
+        "Tiap kolom: nama lalu tipe."
+      ],
+      "explanation": "Tiap kolom ditulis sebagai nama dan tipe, dipisah koma."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Buat tabel petugas dengan kolom id (INTEGER) dan nama (TEXT).",
+      "boleh": [
+        "CREATE"
+      ],
+      "wajib": [
+        "CREATE TABLE"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "CREATE TABLE petugas (id INTEGER, nama TEXT)",
+      "pemeriksa": "SELECT name, type FROM pragma_table_info('petugas')",
+      "hints": [
+        "Pakai CREATE TABLE petugas (...).",
+        "Dua kolom: id dan nama.",
+        "CREATE TABLE petugas (id INTEGER, nama ___)"
+      ],
+      "explanation": "Tipe INTEGER untuk angka bulat, TEXT untuk teks."
+    },
+    {
+      "node": "n2",
+      "type": "pilih",
+      "prompt": "Apa fungsi PRIMARY KEY?",
+      "options": [
+        "Menyembunyikan kolom",
+        "Menghapus duplikat otomatis dari tabel lain",
+        "Menandai kolom pengenal unik tiap baris",
+        "Mengurutkan tabel"
+      ],
+      "answerIndex": 2,
+      "hints": [
+        "Tiap baris butuh cara unik untuk dikenali.",
+        "Nilainya tidak boleh sama di dua baris.",
+        "Biasanya dipasang pada kolom id."
+      ],
+      "explanation": "PRIMARY KEY menjamin tiap baris punya pengenal unik dan tidak kosong."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Buat tabel saksi_baru: id INTEGER sebagai PRIMARY KEY, nama TEXT yang wajib diisi (NOT NULL), dan telepon TEXT.",
+      "boleh": [
+        "CREATE"
+      ],
+      "wajib": [
+        "CREATE TABLE",
+        "PRIMARY KEY",
+        "NOT NULL"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "CREATE TABLE saksi_baru (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, telepon TEXT)",
+      "pemeriksa": "SELECT name, type, \"notnull\", pk FROM pragma_table_info('saksi_baru')",
+      "hints": [
+        "Tambahkan PRIMARY KEY setelah tipe id.",
+        "NOT NULL ditulis setelah tipe kolom nama.",
+        "CREATE TABLE saksi_baru (id INTEGER PRIMARY KEY, nama TEXT ___, telepon TEXT)"
+      ],
+      "explanation": "PRIMARY KEY dan NOT NULL adalah constraint, aturan yang dijaga database."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun perintah yang menambah kolom status ke tabel arsip_kasus.",
+      "pieces": [
+        "ALTER TABLE arsip_kasus",
+        "ADD COLUMN",
+        "status TEXT"
+      ],
+      "answer": [
+        "ALTER TABLE arsip_kasus",
+        "ADD COLUMN",
+        "status TEXT"
+      ],
+      "hints": [
+        "Gunakan ALTER TABLE untuk mengubah tabel yang ada.",
+        "Lalu ADD COLUMN.",
+        "Terakhir nama kolom dan tipenya."
+      ],
+      "explanation": "ALTER TABLE ... ADD COLUMN menambah kolom tanpa membuang data lama."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Tambahkan kolom status bertipe TEXT ke tabel arsip_kasus.",
+      "boleh": [
+        "ALTER"
+      ],
+      "wajib": [
+        "ALTER TABLE",
+        "ADD COLUMN"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "ALTER TABLE arsip_kasus ADD COLUMN status TEXT",
+      "pemeriksa": "SELECT name, type FROM pragma_table_info('arsip_kasus')",
+      "hints": [
+        "Pakai ALTER TABLE.",
+        "Lalu ADD COLUMN nama_kolom tipe.",
+        "ALTER TABLE arsip_kasus ADD COLUMN status ___"
+      ],
+      "explanation": "Dua baris lama tetap ada. Kolom status baru berisi NULL."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "Tabel barang_bukti punya kolom arsip_id yang harus menunjuk ke arsip_kasus(id). Constraint apa yang dipakai?",
+      "options": [
+        "UNIQUE",
+        "CHECK",
+        "DEFAULT",
+        "FOREIGN KEY ... REFERENCES"
+      ],
+      "answerIndex": 3,
+      "hints": [
+        "Kolom ini menghubungkan dua tabel.",
+        "Constraint ini menjaga agar rujukan selalu ada.",
+        "FOREIGN KEY (kolom) REFERENCES tabel(kolom)."
+      ],
+      "explanation": "FOREIGN KEY menghubungkan kolom ke kunci tabel lain."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Buat tabel barang_bukti: id INTEGER PRIMARY KEY, arsip_id INTEGER yang merujuk arsip_kasus(id) lewat FOREIGN KEY, dan nama TEXT.",
+      "boleh": [
+        "CREATE"
+      ],
+      "wajib": [
+        "CREATE TABLE",
+        "FOREIGN KEY",
+        "REFERENCES"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "CREATE TABLE barang_bukti (id INTEGER PRIMARY KEY, arsip_id INTEGER, nama TEXT, FOREIGN KEY (arsip_id) REFERENCES arsip_kasus(id))",
+      "pemeriksa": "SELECT \"table\", \"from\", \"to\" FROM pragma_foreign_key_list('barang_bukti')",
+      "hints": [
+        "FOREIGN KEY ditulis setelah daftar kolom.",
+        "FOREIGN KEY (arsip_id) REFERENCES arsip_kasus(id).",
+        "... nama TEXT, FOREIGN KEY (arsip_id) REFERENCES ___(id))"
+      ],
+      "explanation": "Hubungan ini memastikan setiap barang bukti terkait ke arsip yang nyata."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Buat tabel petugas_kasus: id INTEGER PRIMARY KEY, nama TEXT NOT NULL, arsip_id INTEGER yang merujuk arsip_kasus(id). Lalu isi satu baris: (1, 'Inspektur Ratna', 1).",
+      "boleh": [
+        "CREATE",
+        "INSERT"
+      ],
+      "wajib": [
+        "CREATE TABLE",
+        "INSERT",
+        "PRIMARY KEY",
+        "REFERENCES"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "CREATE TABLE petugas_kasus (id INTEGER PRIMARY KEY, nama TEXT NOT NULL, arsip_id INTEGER, FOREIGN KEY (arsip_id) REFERENCES arsip_kasus(id)); INSERT INTO petugas_kasus VALUES (1, 'Inspektur Ratna', 1)",
+      "pemeriksa": "SELECT * FROM petugas_kasus",
+      "hints": [
+        "Dua perintah dipisah titik koma.",
+        "CREATE TABLE dulu, baru INSERT.",
+        "INSERT INTO petugas_kasus VALUES (1, 'Inspektur Ratna', 1)"
+      ],
+      "explanation": "Tabel dibuat lengkap dengan constraint, lalu satu baris pertama dimasukkan."
+    }
+  ]
+}

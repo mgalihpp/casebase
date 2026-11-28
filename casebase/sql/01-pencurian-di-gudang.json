@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "01",
   "title": "Pencurian di Gudang",
-  "story": "Brankas gudang PT Sinar Logam dibobol tengah malam, 13 Maret. Sembilan transfer keluar sejak malam sampai pagi.",
+  "story": "Malam 13 Maret, brankas gudang PT Sinar Logam dibobol. Paginya, bagian keuangan menemukan sembilan transfer keluar yang tidak pernah mereka setujui. Kamu dipanggil untuk menelusuri ke mana uang itu pergi.",
   "bukti": [
     "Tiga nama tercatat absen malam itu.",
     "Bayu absen, tapi kartu aksesnya dipakai pukul 23.38.",
@@ -19,19 +19,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Lihat semua bukti",
-      "topic": "SELECT dan FROM"
+      "topic": "SELECT dan FROM",
+      "bukti": "Catatan sembilan transfer malam kejadian",
+      "cerita": "Sebelum menuduh siapa pun, kita lihat dulu semua catatan transfer malam itu tanpa ada yang terlewat.",
+      "pelajaran": "SELECT menentukan kolom yang ingin ditampilkan, dan FROM menunjuk tabel asalnya. Tanda * berarti semua kolom."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Saring transfer besar",
-      "topic": "WHERE"
+      "topic": "WHERE",
+      "bukti": "Daftar transfer di atas 2 juta",
+      "cerita": "Sembilan transfer terlalu banyak untuk diperiksa satu per satu. Kita fokus ke transfer yang nilainya besar.",
+      "pelajaran": "WHERE menyaring baris. Hanya baris yang memenuhi syarat yang ikut tampil."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Tiga transfer terbesar",
-      "topic": "ORDER BY dan LIMIT"
+      "topic": "ORDER BY dan LIMIT",
+      "bukti": "Tiga transfer terbesar malam itu",
+      "cerita": "Transfer paling besar biasanya paling mencurigakan. Kita urutkan, lalu ambil tiga teratas.",
+      "pelajaran": "ORDER BY mengurutkan hasil, DESC membuatnya dari yang terbesar, dan LIMIT membatasi jumlah baris."
     },
     {
       "key": "n4",
@@ -42,12 +51,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Total per rekening",
-      "topic": "GROUP BY dan SUM"
+      "topic": "GROUP BY dan SUM",
+      "bukti": "Rekap total uang per rekening",
+      "cerita": "Satu rekening bisa mengirim beberapa kali. Kita jumlahkan uang dari tiap rekening untuk melihat mana yang paling banyak dikuras.",
+      "pelajaran": "GROUP BY mengelompokkan baris yang nilainya sama, lalu SUM menjumlahkan angka di tiap kelompok. AS memberi nama pada kolom hasilnya."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Rekening penerima transfer besar berulang",
+      "cerita": "Saatnya menghadapi tersangka. Buktikan rekening mana yang berkali-kali muncul di transfer besar malam itu.",
+      "pelajaran": "HAVING menyaring hasil setelah dikelompokkan. Pakai HAVING untuk syarat seperti COUNT(*) > 1, karena WHERE bekerja sebelum pengelompokan."
     }
   ],
   "questions": [

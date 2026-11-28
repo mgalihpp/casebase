@@ -1,0 +1,360 @@
+{
+  "course": "sql",
+  "number": "02",
+  "title": "Jejak Perusahaan Cangkang",
+  "story": "Sebuah dokumen bocor dari firma hukum di luar negeri. Isinya delapan perusahaan cangkang, dan auditor curiga satu orang bersembunyi di balik banyak perusahaan di Panama untuk menyimpan uang. Semua nama di kasus ini fiktif.",
+  "bukti": [
+    "Delapan perusahaan terdaftar di tiga yurisdiksi.",
+    "Satu nama muncul sebagai pemilik di banyak perusahaan.",
+    "Beberapa perusahaan dimiliki bersama oleh dua orang."
+  ],
+  "tersangka": [
+    "Hendra Kusuma, pengusaha, banyak tercatat sebagai pemilik",
+    "Bagas Pratama, perantara, pemilik di dua perusahaan",
+    "Dewi Larasati, konsultan, pemilik di dua perusahaan"
+  ],
+  "seed": "CREATE TABLE perusahaan (id INTEGER, nama TEXT, negara TEXT, tahun_dibuat INTEGER); INSERT INTO perusahaan VALUES (1,'Delta Horizon Ltd','Panama',2011), (2,'Biru Samudra Corp','Panama',2012), (3,'Karang Emas Inc','Seychelles',2013), (4,'Lintang Holdings','Panama',2014), (5,'Cemara Trading','Bermuda',2015), (6,'Nusa Prima Ltd','Seychelles',2016), (7,'Garuda Mitra Co','Panama',2017), (8,'Tirta Abadi Ltd','Bermuda',2018); CREATE TABLE pemilik (id INTEGER, nama_pemilik TEXT, perusahaan_id INTEGER, persen INTEGER); INSERT INTO pemilik VALUES (1,'Hendra Kusuma',1,60), (2,'Mira Anggraini',1,40), (3,'Hendra Kusuma',2,100), (4,'Dewi Larasati',3,100), (5,'Hendra Kusuma',4,55), (6,'Bagas Pratama',4,45), (7,'Hendra Kusuma',5,100), (8,'Sari Wulandari',6,100), (9,'Bagas Pratama',7,100), (10,'Dewi Larasati',8,50), (11,'Hendra Kusuma',8,50);",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Buka daftar perusahaan",
+      "topic": "SELECT dan FROM",
+      "bukti": "Daftar delapan perusahaan cangkang",
+      "cerita": "Kita mulai dari dokumen yang bocor: daftar lengkap perusahaannya.",
+      "pelajaran": "SELECT menentukan kolom yang ingin ditampilkan, dan FROM menunjuk tabel asalnya. Tanda * berarti semua kolom."
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Saring perusahaan Panama",
+      "topic": "WHERE",
+      "bukti": "Daftar perusahaan yang terdaftar di Panama",
+      "cerita": "Auditor curiga pada Panama. Kita sisihkan perusahaan dari negara lain.",
+      "pelajaran": "WHERE dengan tanda = mencocokkan nilai yang persis sama. Teks ditulis di antara tanda kutip tunggal, misalnya 'Panama'."
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Tiga perusahaan terbaru",
+      "topic": "ORDER BY dan LIMIT",
+      "bukti": "Tiga perusahaan yang paling baru dibuat",
+      "cerita": "Perusahaan cangkang sering dibuat terburu-buru menjelang uang dipindahkan. Kita lihat tiga yang paling baru.",
+      "pelajaran": "ORDER BY mengurutkan hasil, DESC membuatnya dari yang terbesar, dan LIMIT membatasi jumlah baris."
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Siapa pemilik siapa",
+      "topic": "JOIN",
+      "bukti": "Peta pemilik tiap perusahaan",
+      "cerita": "Nama perusahaan ada di satu tabel, pemiliknya di tabel lain. Kita sambungkan keduanya untuk tahu siapa di balik tiap perusahaan.",
+      "pelajaran": "JOIN menggabungkan dua tabel. ON menentukan kolom yang harus cocok, misalnya pemilik.perusahaan_id = perusahaan.id."
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi",
+      "bukti": "Nama di balik perusahaan-perusahaan Panama",
+      "cerita": "Satu nama terus muncul di dokumen. Buktikan siapa yang memiliki lebih dari dua perusahaan di Panama.",
+      "pelajaran": "Saring Panama dengan WHERE, kelompokkan per pemilik dengan GROUP BY, lalu pilih yang jumlahnya lebih dari dua dengan HAVING COUNT(*)."
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Kata kunci apa yang menunjuk tabel sumber data?",
+      "options": [
+        "FROM",
+        "WHERE",
+        "LIMIT",
+        "JOIN"
+      ],
+      "answerIndex": 0,
+      "hints": [
+        "Kata ini ditulis sebelum nama tabel.",
+        "Tanpa kata ini, database tidak tahu harus membaca tabel yang mana.",
+        "Contohnya: SELECT * ___ perusahaan."
+      ],
+      "explanation": "FROM menunjuk tabel sumber. WHERE menyaring baris, LIMIT membatasi jumlah baris, dan JOIN menggabungkan dua tabel."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun potongan berikut menjadi query SELECT * FROM perusahaan.",
+      "pieces": [
+        "perusahaan",
+        "SELECT",
+        "FROM",
+        "*"
+      ],
+      "answer": [
+        "SELECT",
+        "*",
+        "FROM",
+        "perusahaan"
+      ],
+      "hints": [
+        "Query selalu dimulai dengan kata SELECT.",
+        "Tanda * berarti semua kolom.",
+        "Kata FROM diikuti nama tabel."
+      ],
+      "explanation": "SELECT * FROM perusahaan mengambil semua kolom dari tabel perusahaan."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Tampilkan semua kolom dan semua baris dari tabel perusahaan.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "FROM"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "SELECT * FROM perusahaan",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai * untuk semua kolom.",
+        "Sebutkan nama tabel setelah FROM.",
+        "SELECT * FROM ___"
+      ],
+      "explanation": "SELECT * mengambil semua kolom, FROM menunjuk tabel perusahaan."
+    },
+    {
+      "node": "n2",
+      "type": "tebak",
+      "prompt": "Ketuk semua baris yang lolos WHERE negara = 'Panama'.",
+      "columns": [
+        "id",
+        "nama",
+        "negara"
+      ],
+      "rows": [
+        [
+          1,
+          "Delta Horizon Ltd",
+          "Panama"
+        ],
+        [
+          2,
+          "Biru Samudra Corp",
+          "Panama"
+        ],
+        [
+          3,
+          "Karang Emas Inc",
+          "Seychelles"
+        ],
+        [
+          4,
+          "Lintang Holdings",
+          "Panama"
+        ],
+        [
+          5,
+          "Cemara Trading",
+          "Bermuda"
+        ],
+        [
+          6,
+          "Nusa Prima Ltd",
+          "Seychelles"
+        ],
+        [
+          7,
+          "Garuda Mitra Co",
+          "Panama"
+        ],
+        [
+          8,
+          "Tirta Abadi Ltd",
+          "Bermuda"
+        ]
+      ],
+      "answer": [
+        0,
+        1,
+        3,
+        6
+      ],
+      "hints": [
+        "Lihat kolom negara tiap baris.",
+        "Panama muncul di empat baris.",
+        "Baris dengan Seychelles atau Bermuda tidak lolos."
+      ],
+      "explanation": "WHERE hanya meloloskan baris yang negaranya Panama: id 1, 2, 4, dan 7."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Tampilkan perusahaan yang terdaftar di Panama.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WHERE"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT * FROM perusahaan WHERE negara = 'Panama'",
+      "pemeriksa": null,
+      "hints": [
+        "Gunakan WHERE untuk menyaring baris.",
+        "Bandingkan kolom negara dengan teks. Teks ditulis dengan tanda kutip tunggal.",
+        "SELECT * FROM perusahaan WHERE negara = '___'"
+      ],
+      "explanation": "WHERE negara = 'Panama' menyisakan empat perusahaan yang terdaftar di Panama."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun kartu klausa menjadi query yang menampilkan 3 perusahaan terbaru.",
+      "pieces": [
+        "LIMIT 3",
+        "SELECT * FROM perusahaan",
+        "tahun_dibuat",
+        "DESC",
+        "ORDER BY"
+      ],
+      "answer": [
+        "SELECT * FROM perusahaan",
+        "ORDER BY",
+        "tahun_dibuat",
+        "DESC",
+        "LIMIT 3"
+      ],
+      "hints": [
+        "Query dibuka dengan SELECT * FROM perusahaan.",
+        "ORDER BY datang sebelum LIMIT.",
+        "DESC menaruh tahun terbesar di atas."
+      ],
+      "explanation": "Urutan klausa: SELECT, FROM, ORDER BY, lalu LIMIT. DESC membuat yang terbaru tampil lebih dulu."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Tampilkan 3 perusahaan yang paling baru dibuat.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "ORDER BY",
+        "LIMIT"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT * FROM perusahaan ORDER BY tahun_dibuat DESC LIMIT 3",
+      "pemeriksa": null,
+      "hints": [
+        "Urutkan dari tahun terbesar ke terkecil, lalu ambil beberapa baris teratas.",
+        "Pakai ORDER BY dengan DESC, lalu LIMIT.",
+        "SELECT * FROM perusahaan ORDER BY ___ DESC LIMIT ___"
+      ],
+      "explanation": "ORDER BY tahun_dibuat DESC menaruh perusahaan terbaru di atas, LIMIT 3 mengambil tiga teratas."
+    },
+    {
+      "node": "n5",
+      "type": "pasang",
+      "prompt": "Pasangkan tiap perusahaan dengan pemilik yang kuncinya sama (id dan perusahaan_id).",
+      "kiri": [
+        "Karang Emas Inc · id 3",
+        "Cemara Trading · id 5",
+        "Nusa Prima Ltd · id 6",
+        "Garuda Mitra Co · id 7"
+      ],
+      "kanan": [
+        "Bagas Pratama · perusahaan_id 7",
+        "Dewi Larasati · perusahaan_id 3",
+        "Hendra Kusuma · perusahaan_id 5",
+        "Sari Wulandari · perusahaan_id 6"
+      ],
+      "answer": [
+        1,
+        2,
+        3,
+        0
+      ],
+      "hints": [
+        "JOIN mencocokkan perusahaan.id dengan pemilik.perusahaan_id.",
+        "Cari angka yang sama di kedua sisi.",
+        "Perusahaan id 3 berpasangan dengan perusahaan_id 3."
+      ],
+      "explanation": "Setiap pemilik menunjuk perusahaannya lewat perusahaan_id. Kunci yang sama berarti pasangan yang sama."
+    },
+    {
+      "node": "n5",
+      "type": "salah",
+      "prompt": "Query ini salah. Ketuk bagian yang keliru, lalu pilih perbaikannya.",
+      "tokens": [
+        "SELECT nama, nama_pemilik",
+        "FROM perusahaan",
+        "JOIN pemilik",
+        "ON",
+        "pemilik.id",
+        "=",
+        "perusahaan.id"
+      ],
+      "wrongIndex": 4,
+      "options": [
+        "pemilik.perusahaan_id",
+        "pemilik.nama_pemilik",
+        "pemilik.persen",
+        "perusahaan.nama"
+      ],
+      "fixIndex": 0,
+      "hints": [
+        "JOIN mencocokkan kunci yang berhubungan.",
+        "pemilik.id hanya nomor urut pemilik.",
+        "Rujukan ke perusahaan ada di kolom perusahaan_id."
+      ],
+      "explanation": "pemilik.id hanya nomor baris pemilik. Rujukan ke perusahaan ada di pemilik.perusahaan_id."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Tampilkan nama perusahaan beserta nama pemiliknya. Gabungkan tabel perusahaan dan pemilik.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "JOIN"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT nama, nama_pemilik FROM perusahaan JOIN pemilik ON pemilik.perusahaan_id = perusahaan.id",
+      "pemeriksa": null,
+      "hints": [
+        "Kolom perusahaan_id di tabel pemilik menunjuk ke kolom id di tabel perusahaan.",
+        "Pakai JOIN lalu ON untuk menyebut kolom yang dicocokkan.",
+        "SELECT nama, nama_pemilik FROM perusahaan JOIN pemilik ON pemilik.perusahaan_id = ___"
+      ],
+      "explanation": "JOIN ... ON mencocokkan setiap pemilik dengan perusahaannya, sehingga nama perusahaan dan nama pemilik tampil dalam satu baris."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Tampilkan pemilik yang tercatat di lebih dari 2 perusahaan Panama.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "JOIN",
+        "GROUP BY",
+        "HAVING"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT nama_pemilik FROM perusahaan JOIN pemilik ON pemilik.perusahaan_id = perusahaan.id WHERE negara = 'Panama' GROUP BY nama_pemilik HAVING COUNT(*) > 2",
+      "pemeriksa": null,
+      "hints": [
+        "Gabungkan dulu perusahaan dan pemilik, lalu saring negara Panama dengan WHERE.",
+        "Kelompokkan per nama pemilik dengan GROUP BY, lalu filter kelompok dengan HAVING COUNT(*).",
+        "... WHERE negara = 'Panama' GROUP BY nama_pemilik HAVING COUNT(*) ___ 2"
+      ],
+      "explanation": "JOIN menghubungkan pemilik dengan perusahaannya, WHERE menyisakan perusahaan Panama, GROUP BY mengelompokkan per pemilik, dan HAVING COUNT(*) > 2 hanya menyisakan yang muncul lebih dari dua kali. Jawabannya Hendra Kusuma."
+    }
+  ]
+}

@@ -76,7 +76,10 @@ describe("gradeAnswer: susun", () => {
   it("benar jika urutan potongan sama persis", async () => {
     const answer: Answer = { type: "susun", order: ["SELECT", "*", "FROM"] };
     const verdict = await gradeAnswer(susun, "seed", answer);
-    expect(verdict).toEqual({ correct: true, message: "Benar. Buktinya cocok." });
+    expect(verdict).toEqual({
+      correct: true,
+      message: "Benar. Buktinya cocok.",
+    });
   });
 
   it("salah jika urutan berbeda", async () => {
@@ -114,7 +117,10 @@ describe("gradeAnswer: write", () => {
       type: "write",
       query: "SELECT 1 AS n FROM t",
     });
-    expect(verdict).toEqual({ correct: true, message: "Benar. Buktinya cocok." });
+    expect(verdict).toEqual({
+      correct: true,
+      message: "Benar. Buktinya cocok.",
+    });
     expect(sandbox).toHaveBeenCalledTimes(1);
     expect(sandbox.mock.calls[0][0]).toEqual([
       { seed: "seed-x", prelude: null, query: "SELECT 1 AS n FROM t" },
@@ -148,5 +154,83 @@ describe("gradeAnswer: jenis jawaban tidak cocok", () => {
       message: "Jenis jawaban tidak sesuai soal.",
     });
     expect(sandbox).not.toHaveBeenCalled();
+  });
+});
+
+describe("gradeAnswer: tebak, salah, pasang", () => {
+  const tebak: CaseQuestion = {
+    node: "n1",
+    type: "tebak",
+    prompt: "Baris mana?",
+    columns: ["id"],
+    rows: [[1], [2], [3]],
+    answer: [0, 2],
+    hints: [],
+    explanation: "",
+  };
+  const salah: CaseQuestion = {
+    node: "n1",
+    type: "salah",
+    prompt: "Mana yang keliru?",
+    tokens: ["a", "b", "c"],
+    wrongIndex: 1,
+    options: ["x", "y"],
+    fixIndex: 0,
+    hints: [],
+    explanation: "",
+  };
+  const pasang: CaseQuestion = {
+    node: "n1",
+    type: "pasang",
+    prompt: "Pasangkan",
+    kiri: ["a", "b"],
+    kanan: ["y", "x"],
+    answer: [1, 0],
+    hints: [],
+    explanation: "",
+  };
+
+  it("tebak benar tanpa peduli urutan ketuk dan ketukan ganda", async () => {
+    const verdict = await gradeAnswer(tebak, "seed", {
+      type: "tebak",
+      rows: [2, 0, 2],
+    });
+    expect(verdict.correct).toBe(true);
+  });
+
+  it("tebak salah jika ada baris kurang atau lebih", async () => {
+    expect(
+      (await gradeAnswer(tebak, "seed", { type: "tebak", rows: [0] })).correct,
+    ).toBe(false);
+    expect(
+      (await gradeAnswer(tebak, "seed", { type: "tebak", rows: [0, 1, 2] }))
+        .correct,
+    ).toBe(false);
+  });
+
+  it("salah butuh token dan perbaikan yang tepat", async () => {
+    const ok = { type: "salah", token: 1, fix: 0 } as const;
+    expect((await gradeAnswer(salah, "seed", ok)).correct).toBe(true);
+    expect(
+      (await gradeAnswer(salah, "seed", { ...ok, token: 2 })).correct,
+    ).toBe(false);
+    expect((await gradeAnswer(salah, "seed", { ...ok, fix: 1 })).correct).toBe(
+      false,
+    );
+  });
+
+  it("pasang benar hanya jika setiap pasangan cocok", async () => {
+    expect(
+      (await gradeAnswer(pasang, "seed", { type: "pasang", pairs: [1, 0] }))
+        .correct,
+    ).toBe(true);
+    expect(
+      (await gradeAnswer(pasang, "seed", { type: "pasang", pairs: [0, 1] }))
+        .correct,
+    ).toBe(false);
+    expect(
+      (await gradeAnswer(pasang, "seed", { type: "pasang", pairs: [1] }))
+        .correct,
+    ).toBe(false);
   });
 });

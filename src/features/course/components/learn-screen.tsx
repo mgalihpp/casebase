@@ -12,6 +12,7 @@ import {
   useOpenChest,
 } from "@/features/course/hooks";
 import { useStreak } from "@/features/progress/hooks";
+import { GiftChest } from "@/features/course/components/gift-chest";
 
 type Props = { courseId: string };
 
@@ -64,7 +65,7 @@ function StarIcon({ size }: IconProps) {
 function FlameIcon({ size }: IconProps) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="6 1 12 17"
       width={size}
       height={size}
       fill="currentColor"
@@ -75,10 +76,25 @@ function FlameIcon({ size }: IconProps) {
   );
 }
 
+function CoinIcon({ size }: IconProps) {
+  return (
+    <svg
+      viewBox="3 3 18 18"
+      width={size}
+      height={size}
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5.5" fill="#fff" fillOpacity="0.35" />
+    </svg>
+  );
+}
+
 function HeartIcon({ size }: IconProps) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="3 7 18 15"
       width={size}
       height={size}
       fill="currentColor"
@@ -327,12 +343,13 @@ export function LearnScreen({ courseId }: Props) {
   }
 
   const streakCount = streak.data?.streak ?? 0;
+  const coins = streak.data?.coins ?? 0;
   const titleOpacity = clamp((scrollY - 30) / 16, 0, 1);
   const scrolled = scrollY > 20;
 
   const nav = (
     <header
-      className={`fixed inset-x-0 top-0 z-20 mx-auto flex h-14 max-w-[430px] items-center px-2 backdrop-blur-xl ${scrolled ? "border-b border-ink/15 bg-app/90" : "bg-app/70"}`}
+      className={`fixed inset-x-0 top-0 z-20 mx-auto flex h-14 max-w-[430px] items-center px-2 backdrop-blur-xl border-b ${scrolled ? "border-ink/15 bg-app/90" : "border-transparent bg-app/70"}`}
     >
       <button
         type="button"
@@ -361,14 +378,18 @@ export function LearnScreen({ courseId }: Props) {
         type="button"
         onClick={() => setStreakOpen(true)}
         aria-haspopup="dialog"
-        aria-label={`Status harian: ${streakCount} hari beruntun, ${hearts} nyawa`}
+        aria-label={`Status harian: ${streakCount} hari beruntun, ${hearts} nyawa, ${coins} koin petunjuk`}
         className="ml-auto flex min-h-11 items-center gap-2.5 font-display text-base font-extrabold"
       >
-        <span className="flex items-center gap-[3px] text-[#B45309]">
+        <span className="flex items-center gap-1 leading-none text-[#B45309]">
           <FlameIcon size={18} />
           {streakCount}
         </span>
-        <span className="flex items-center gap-[3px] text-[#BE123C]">
+        <span className="flex items-center gap-1 leading-none text-[#D97706]">
+          <CoinIcon size={18} />
+          {coins}
+        </span>
+        <span className="flex items-center gap-1 leading-none text-[#BE123C]">
           <HeartIcon size={18} />
           {hearts}
         </span>
@@ -492,7 +513,7 @@ export function LearnScreen({ courseId }: Props) {
           </div>
           <div className="rounded-2xl border border-line bg-white p-3">
             <span className="block font-display text-xl font-black">
-              {streak.data?.coins ?? 0}
+              {coins}
             </span>
             <span className="text-[13px] text-ink-soft">Koin petunjuk</span>
           </div>
@@ -550,12 +571,14 @@ export function LearnScreen({ courseId }: Props) {
   const chips = nodes
     .filter((node) => node.type === "mission" && node.topic)
     .map((node) => node.topic as string);
+  const nextCase =
+    data.cases[data.cases.findIndex((item) => item.id === data.case?.id) + 1];
   const selectedIndex = nodes.findIndex((node) => node.key === selectedKey);
   const selected = selectedIndex >= 0 ? nodes[selectedIndex] : undefined;
   const ctaLabel = !current
     ? "Ulangi interogasi"
     : current.type === "chest"
-      ? "Buka kotak bukti"
+      ? "Klaim reward kotak bukti"
       : `Lanjutkan: ${current.title ?? "misi"}`;
 
   function poke() {
@@ -805,7 +828,7 @@ export function LearnScreen({ courseId }: Props) {
             setNotice(
               current
                 ? "Selesaikan Interogasi dulu"
-                : "Kasus 02 sedang disiapkan",
+                : "Kasus baru sedang disiapkan",
             )
           }
           className="mt-1 flex min-h-16 w-full items-center gap-3 rounded-2xl border border-line bg-white px-3.5 py-3 text-left text-ink-soft"
@@ -818,10 +841,12 @@ export function LearnScreen({ courseId }: Props) {
               Kasus berikutnya
             </span>
             <span className="block font-display text-[17px] font-extrabold text-ink">
-              Kasus 02: {meta.next}
+              {nextCase
+                ? `Kasus ${nextCase.number}: ${nextCase.title}`
+                : `Segera: ${meta.next}`}
             </span>
             <span className="block text-[13px]">
-              {current ? "Terbuka setelah Interogasi selesai" : "Segera hadir"}
+              {nextCase ? "Terbuka setelah Interogasi selesai" : "Segera hadir"}
             </span>
           </span>
         </button>
@@ -864,17 +889,17 @@ export function LearnScreen({ courseId }: Props) {
             total={nodes.length}
             courseId={courseId}
             onClose={() => setSelectedKey(null)}
+            claiming={openChest.isPending}
             onOpenChest={() => {
               if (!selected) return;
-              setSelectedKey(null);
               openChest.mutate(
                 { courseId, nodeKey: selected.key },
                 {
                   onSuccess: ({ gained }) =>
                     setNotice(
                       gained > 0
-                        ? `+${gained} koin petunjuk`
-                        : "Kotak ini sudah pernah dibuka.",
+                        ? `+${gained} koin petunjuk diklaim`
+                        : "Reward kotak ini sudah diklaim.",
                     ),
                   onError: () =>
                     setNotice("Kotak belum bisa dibuka. Coba sekali lagi."),
@@ -895,6 +920,7 @@ function NodeDetail({
   courseId,
   onClose,
   onOpenChest,
+  claiming,
 }: {
   node: PathNode;
   index: number;
@@ -902,38 +928,40 @@ function NodeDetail({
   courseId: string;
   onClose: () => void;
   onOpenChest: () => void;
+  claiming: boolean;
 }) {
   const meta = `Misi ${index + 1} dari ${total}`;
-  const topic = node.topic ? `${node.topic}. ` : "";
-
   if (node.type === "chest") {
     if (node.status === "locked") {
       return (
         <NodeSheet
           meta={meta}
-          text="Kotak ini terbuka setelah misi sebelumnya tuntas."
+          text="Selesaikan misi sebelumnya untuk membuka kotak ini."
           buttonLabel="Mengerti"
           onClick={onClose}
         />
       );
     }
-    if (node.status === "done") {
-      return (
-        <NodeSheet
-          meta={meta}
-          text="Kotak ini sudah dibuka. Isinya 5 koin petunjuk untuk misi sulit."
-          buttonLabel="Oke"
-          onClick={onClose}
-        />
-      );
-    }
     return (
-      <NodeSheet
-        meta={meta}
-        text="Kotak ini siap dibuka. Isinya koin petunjuk."
-        buttonLabel="Buka kotak"
-        onClick={onOpenChest}
-      />
+      <div className="flex flex-col">
+        <p className="text-sm font-semibold text-ink-soft">{meta}</p>
+        <ChestReward
+          coins={node.coins ?? 5}
+          claimed={node.status === "done"}
+        />
+        <button
+          type="button"
+          onClick={onOpenChest}
+          disabled={node.status === "done" || claiming}
+          className={`${buttonPrimary} mt-[18px] disabled:opacity-60`}
+        >
+          {node.status === "done"
+            ? "Sudah diklaim"
+            : claiming
+              ? "Mengklaim…"
+              : "Klaim reward"}
+        </button>
+      </div>
     );
   }
 
@@ -941,7 +969,8 @@ function NodeDetail({
     return (
       <NodeSheet
         meta={meta}
-        text={`Tuntaskan misi sebelumnya untuk membuka misi ini.${node.topic ? ` Materi: ${node.topic}.` : ""}`}
+        topic={node.topic}
+        text="Tuntaskan misi sebelumnya untuk membuka misi ini."
         buttonLabel="Mengerti"
         onClick={onClose}
       />
@@ -954,11 +983,11 @@ function NodeDetail({
   return (
     <div className="flex flex-col">
       <p className="text-sm font-semibold text-ink-soft">{meta}</p>
+      <TopicLine topic={node.topic} />
       <p className="mt-1.5 text-base leading-normal">
-        {topic}
         {done
-          ? "Misi ini sudah tuntas. Ulangi untuk latihan."
-          : "Misi singkat. Jawabanmu langsung dinilai."}
+          ? "Kamu sudah menuntaskan misi ini. Ulangi kapan saja untuk latihan."
+          : "Selesaikan misi ini untuk menambah bukti ke berkasmu."}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <span className="rounded-full bg-[#FEF3C7] px-2.5 py-1.5 text-[13px] font-semibold text-[#78350F]">
@@ -967,6 +996,7 @@ function NodeDetail({
       </div>
       <Link
         href={`/belajar/${courseId}/misi/${node.key}`}
+        onClick={onClose}
         className={`${buttonPrimary} mt-[18px]`}
       >
         {done ? "Ulangi misi" : "Mulai misi"}
@@ -975,25 +1005,60 @@ function NodeDetail({
   );
 }
 
+function ChestReward({
+  coins,
+  claimed,
+}: {
+  coins: number;
+  claimed: boolean;
+}) {
+  return (
+    <div className="mt-3 flex items-center justify-center gap-5 rounded-2xl bg-app py-5">
+      <GiftChest claimed={claimed} />
+      <span
+        key={claimed ? "claimed" : "open"}
+        className={`flex items-center gap-1.5 font-display text-[32px] font-black leading-none ${claimed ? "anim-pop-in text-[#D97706]" : "text-ink-soft"}`}
+      >
+        <CoinIcon size={32} />+{coins}
+      </span>
+    </div>
+  );
+}
+
+function TopicLine({ topic }: { topic?: string | null }) {
+  if (!topic) return null;
+  return (
+    <p className="mt-1.5 text-base font-semibold leading-normal">
+      Materi: {topic}
+    </p>
+  );
+}
+
 function NodeSheet({
   meta,
+  topic,
   text,
   buttonLabel,
+  disabled,
   onClick,
 }: {
   meta: string;
+  topic?: string | null;
   text: string;
   buttonLabel: string;
+  disabled?: boolean;
   onClick: () => void;
 }) {
   return (
     <div className="flex flex-col">
       <p className="text-sm font-semibold text-ink-soft">{meta}</p>
+      <TopicLine topic={topic} />
       <p className="mt-1.5 text-base leading-normal">{text}</p>
       <button
         type="button"
         onClick={onClick}
-        className={`${buttonPrimary} mt-[18px]`}
+        disabled={disabled}
+        className={`${buttonPrimary} mt-[18px] disabled:opacity-60`}
       >
         {buttonLabel}
       </button>

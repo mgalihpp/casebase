@@ -1,0 +1,311 @@
+{
+  "course": "sql",
+  "number": "06",
+  "title": "Rantai Transaksi Mencurigakan",
+  "story": "Uang 900 juta berpindah melewati tiga rekening hanya dalam tiga hari, dan jumlahnya nyaris tidak berkurang. Pola seperti ini mirip pencucian uang. Kamu menelusuri alirannya langkah demi langkah.",
+  "bukti": [
+    "Delapan transaksi dalam enam hari.",
+    "Tiga rekening menerima dan meneruskan nominal hampir sama.",
+    "Sisa uang bermuara ke toko kecil."
+  ],
+  "tersangka": [
+    "Hendra Kusuma, sumber dana",
+    "PT Lintang Abadi, Yayasan Cahaya, dan Bagas Pratama, perantara",
+    "Mira Anggraini, penerima akhir"
+  ],
+  "seed": "CREATE TABLE rekening (id INTEGER, pemilik TEXT, bank TEXT); INSERT INTO rekening VALUES (1,'Hendra Kusuma','Bank A'), (2,'PT Lintang Abadi','Bank B'), (3,'Yayasan Cahaya','Bank C'), (4,'Bagas Pratama','Bank A'), (5,'Mira Anggraini','Bank B'), (6,'Toko Sembako Jaya','Bank C'); CREATE TABLE transaksi (id INTEGER, dari_id INTEGER, ke_id INTEGER, jumlah INTEGER, tanggal TEXT); INSERT INTO transaksi VALUES (1,1,2,900,'2025-03-01'), (2,2,3,880,'2025-03-02'), (3,3,4,860,'2025-03-03'), (4,6,5,50,'2025-03-03'), (5,4,5,840,'2025-03-04'), (6,5,6,30,'2025-03-05'), (7,1,6,40,'2025-03-06'), (8,2,6,20,'2025-03-06');",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Beri nama hasil sementara",
+      "topic": "CTE",
+      "bukti": "Daftar transaksi di atas 500",
+      "cerita": "Transaksi kecil hanya mengaburkan jejak. Kita kumpulkan yang besar dan beri nama supaya mudah dipakai.",
+      "pelajaran": "CTE adalah hasil sementara yang diberi nama dengan WITH nama AS (...). Setelah itu, nama tersebut bisa dipakai seperti tabel."
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Uang keluar per rekening",
+      "topic": "CTE dan GROUP BY",
+      "bukti": "Rekap uang keluar per rekening",
+      "cerita": "Kita hitung berapa banyak uang yang keluar dari tiap rekening, lalu cari yang paling aktif mengirim.",
+      "pelajaran": "Di dalam CTE kamu bisa memakai GROUP BY dan SUM. Hasilnya bisa disaring lagi di query utama."
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Penerima terbesar",
+      "topic": "CTE dan ORDER BY",
+      "bukti": "Rekening penerima terbesar",
+      "cerita": "Sekarang dari sisi penerima: rekening mana yang menampung uang paling banyak?",
+      "pelajaran": "Hasil CTE bisa diurutkan seperti tabel biasa. Pakai ORDER BY total DESC dan LIMIT 1 untuk mengambil yang teratas."
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Nama dan total",
+      "topic": "CTE dan JOIN",
+      "bukti": "Nama penerima dan total uangnya",
+      "cerita": "Nomor rekening saja belum cukup. Kita butuh nama pemiliknya.",
+      "pelajaran": "CTE bisa digabung dengan tabel lain lewat JOIN. Sambungkan hasil CTE dengan tabel rekening lewat kolom id."
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi",
+      "bukti": "Daftar rekening perantara",
+      "cerita": "Rekening perantara menerima uang lalu segera meneruskannya. Temukan rekening yang menerima sekaligus mengirim dalam jumlah besar.",
+      "pelajaran": "Satu WITH bisa memuat beberapa CTE yang dipisah koma. Buat CTE uang masuk dan uang keluar, lalu gabungkan keduanya."
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Apa fungsi WITH ... AS pada query?",
+      "options": [
+        "Menambah kolom permanen",
+        "Memberi nama pada hasil query sementara",
+        "Menghapus tabel",
+        "Mengurutkan hasil"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "WITH membuat tabel sementara untuk satu query.",
+        "Nama itu dipakai di query utama.",
+        "Ia tidak disimpan setelah query selesai."
+      ],
+      "explanation": "WITH membuat CTE, hasil sementara bernama yang dipakai query utama dan hilang setelah query selesai."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun query yang memberi nama 'besar' pada transaksi di atas 500, lalu menampilkannya.",
+      "pieces": [
+        "WITH besar AS",
+        "(SELECT * FROM transaksi WHERE jumlah > 500)",
+        "SELECT * FROM besar"
+      ],
+      "answer": [
+        "WITH besar AS",
+        "(SELECT * FROM transaksi WHERE jumlah > 500)",
+        "SELECT * FROM besar"
+      ],
+      "hints": [
+        "Mulai dari WITH nama AS.",
+        "Isi CTE ditulis dalam tanda kurung.",
+        "Query utama membaca nama CTE."
+      ],
+      "explanation": "CTE besar menyimpan transaksi di atas 500. Query utama tinggal membacanya."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Buat CTE bernama besar berisi transaksi dengan jumlah lebih dari 500, lalu tampilkan semua isinya.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WITH"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "WITH besar AS (SELECT * FROM transaksi WHERE jumlah > 500) SELECT * FROM besar",
+      "pemeriksa": null,
+      "hints": [
+        "Mulai dengan WITH besar AS (...).",
+        "Isi kurung: SELECT * FROM transaksi WHERE jumlah > 500.",
+        "Setelahnya: SELECT * FROM besar"
+      ],
+      "explanation": "Ada lima transaksi di atas 500. Itulah jejak uang utama."
+    },
+    {
+      "node": "n2",
+      "type": "tebak",
+      "prompt": "CTE keluar menghitung total uang keluar per rekening. Ketuk rekening yang lolos WHERE total > 800.",
+      "columns": [
+        "dari_id",
+        "total"
+      ],
+      "rows": [
+        [
+          1,
+          940
+        ],
+        [
+          2,
+          900
+        ],
+        [
+          3,
+          860
+        ],
+        [
+          4,
+          840
+        ],
+        [
+          5,
+          30
+        ],
+        [
+          6,
+          50
+        ]
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "hints": [
+        "Bandingkan kolom total dengan 800.",
+        "Rekening 5 dan 6 hanya mengirim puluhan.",
+        "Empat rekening teratas lolos."
+      ],
+      "explanation": "Rekening 1 (940), 2 (900), 3 (860), dan 4 (840) melewati 800."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Hitung total uang keluar per rekening (kolom dari_id dan total) dalam CTE bernama keluar, lalu tampilkan yang totalnya di atas 800.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WITH",
+        "GROUP BY"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "WITH keluar AS (SELECT dari_id, SUM(jumlah) AS total FROM transaksi GROUP BY dari_id) SELECT * FROM keluar WHERE total > 800",
+      "pemeriksa": null,
+      "hints": [
+        "Di dalam CTE: SUM(jumlah) AS total dikelompokkan per dari_id.",
+        "Query utama menyaring total dengan WHERE.",
+        "SELECT * FROM keluar WHERE total > 800"
+      ],
+      "explanation": "Empat rekening mengirim lebih dari 800: 1, 2, 3, dan 4."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun query yang mencari rekening penerima uang terbesar.",
+      "pieces": [
+        "WITH masuk AS",
+        "(SELECT ke_id, SUM(jumlah) AS total FROM transaksi GROUP BY ke_id)",
+        "SELECT * FROM masuk",
+        "ORDER BY total DESC",
+        "LIMIT 1"
+      ],
+      "answer": [
+        "WITH masuk AS",
+        "(SELECT ke_id, SUM(jumlah) AS total FROM transaksi GROUP BY ke_id)",
+        "SELECT * FROM masuk",
+        "ORDER BY total DESC",
+        "LIMIT 1"
+      ],
+      "hints": [
+        "CTE menghitung total per penerima.",
+        "Query utama mengurutkan dari terbesar.",
+        "LIMIT 1 mengambil teratas."
+      ],
+      "explanation": "CTE merangkum total masuk. Query utama mengurutkan dan mengambil satu."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Dengan CTE bernama masuk (kolom ke_id dan total), tampilkan rekening yang menerima uang terbanyak.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WITH",
+        "ORDER BY",
+        "LIMIT"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "WITH masuk AS (SELECT ke_id, SUM(jumlah) AS total FROM transaksi GROUP BY ke_id) SELECT * FROM masuk ORDER BY total DESC LIMIT 1",
+      "pemeriksa": null,
+      "hints": [
+        "Hitung SUM(jumlah) per ke_id di CTE.",
+        "Urutkan total dari besar ke kecil.",
+        "... ORDER BY total DESC LIMIT 1"
+      ],
+      "explanation": "Rekening 2 menerima 900, yang terbesar."
+    },
+    {
+      "node": "n5",
+      "type": "salah",
+      "prompt": "CTE ini menghasilkan satu baris saja. Ketuk bagian yang kurang, lalu pilih perbaikannya.",
+      "tokens": [
+        "WITH masuk AS",
+        "(SELECT ke_id, SUM(jumlah) AS total",
+        "FROM transaksi)",
+        "SELECT * FROM masuk"
+      ],
+      "wrongIndex": 2,
+      "options": [
+        "FROM transaksi GROUP BY ke_id)",
+        "FROM transaksi ORDER BY ke_id)",
+        "FROM transaksi WHERE ke_id)",
+        "FROM transaksi LIMIT ke_id)"
+      ],
+      "fixIndex": 0,
+      "hints": [
+        "SUM digabung dengan kolom biasa.",
+        "Kolom ke_id perlu dikelompokkan.",
+        "Tambahkan GROUP BY ke_id."
+      ],
+      "explanation": "Agregat dengan kolom biasa butuh GROUP BY agar total dihitung per rekening."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Tampilkan nama pemilik dan total uang yang diterimanya (kolom pemilik dan total), hanya untuk yang menerima lebih dari 800. Pakai CTE dan JOIN.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WITH",
+        "JOIN"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "WITH masuk AS (SELECT ke_id, SUM(jumlah) AS total FROM transaksi GROUP BY ke_id) SELECT pemilik, total FROM rekening JOIN masuk ON masuk.ke_id = rekening.id WHERE total > 800",
+      "pemeriksa": null,
+      "hints": [
+        "CTE masuk menghitung total per ke_id.",
+        "JOIN-kan ke rekening untuk mendapat nama pemilik.",
+        "... JOIN masuk ON masuk.ke_id = rekening.id WHERE total > 800"
+      ],
+      "explanation": "CTE merangkum, JOIN menempelkan nama pemilik. Hasilnya empat rekening."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Cari rekening perantara: yang menerima lebih dari 800 sekaligus mengirim lebih dari 800. Tampilkan kolom pemilik. Pakai dua CTE: masuk dan keluar.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WITH",
+        "JOIN"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "WITH masuk AS (SELECT ke_id AS id, SUM(jumlah) AS total_masuk FROM transaksi GROUP BY ke_id), keluar AS (SELECT dari_id AS id, SUM(jumlah) AS total_keluar FROM transaksi GROUP BY dari_id) SELECT rekening.pemilik FROM rekening JOIN masuk ON masuk.id = rekening.id JOIN keluar ON keluar.id = rekening.id WHERE total_masuk > 800 AND total_keluar > 800",
+      "pemeriksa": null,
+      "hints": [
+        "Dua CTE dipisah koma setelah satu kata WITH.",
+        "Beri alias id agar mudah di-JOIN ke rekening.",
+        "... WHERE total_masuk > 800 AND total_keluar > 800"
+      ],
+      "explanation": "Rekening perantara menerima dan meneruskan uang yang hampir sama. Hasilnya PT Lintang Abadi, Yayasan Cahaya, dan Bagas Pratama."
+    }
+  ]
+}

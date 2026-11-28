@@ -210,7 +210,7 @@ export async function openChest(
   if (status === "locked") {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Kotak ini terbuka setelah misi sebelumnya tuntas.",
+      message: "Selesaikan misi sebelumnya untuk membuka kotak ini.",
     });
   }
 

@@ -1,0 +1,274 @@
+{
+  "course": "sql",
+  "number": "10",
+  "title": "Dalang di Balik Layar",
+  "story": "Inilah kasus penutup. Tiga petunjuk akhirnya terkumpul: daftar orang, catatan transaksi, dan kehadiran di gudang. Dengan semua yang sudah kamu pelajari, saatnya menunjuk dalang yang selama ini bersembunyi.",
+  "bukti": [
+    "Lima orang, delapan transaksi, enam catatan kehadiran.",
+    "Dua orang hadir di Gudang Utara setelah jam 22.",
+    "Satu orang punya total transaksi di atas 4000."
+  ],
+  "tersangka": [
+    "Darmawan, manajer",
+    "Gita, staf gudang",
+    "Fikri, satpam, hadir lebih awal"
+  ],
+  "seed": "CREATE TABLE orang (id INTEGER, nama TEXT, pekerjaan TEXT); INSERT INTO orang VALUES (1,'Darmawan','Manajer'), (2,'Eka Putri','Kasir'), (3,'Fikri','Satpam'), (4,'Gita','Staf gudang'), (5,'Hari','Sopir'); CREATE TABLE transaksi (id INTEGER, orang_id INTEGER, jumlah INTEGER, tanggal TEXT); INSERT INTO transaksi VALUES (1,1,2500,'2025-05-01'), (2,1,1800,'2025-05-03'), (3,2,300,'2025-05-02'), (4,3,150,'2025-05-04'), (5,4,2200,'2025-05-05'), (6,5,400,'2025-05-06'), (7,4,900,'2025-05-07'), (8,2,200,'2025-05-08'); CREATE TABLE kehadiran (id INTEGER, orang_id INTEGER, lokasi TEXT, jam TEXT); INSERT INTO kehadiran VALUES (1,1,'Gudang Utara','22:30'), (2,3,'Gudang Utara','20:10'), (3,4,'Gudang Utara','23:05'), (4,5,'Gudang Selatan','23:40'), (5,2,'Kantor','09:00'), (6,1,'Kantor','08:30'); CREATE VIEW v_transaksi AS SELECT orang.nama AS nama, transaksi.jumlah AS jumlah, transaksi.tanggal AS tanggal FROM orang JOIN transaksi ON transaksi.orang_id = orang.id;",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Simpan query",
+      "topic": "CREATE VIEW",
+      "bukti": "View transaksi besar",
+      "cerita": "Penyidik akan sering memeriksa transaksi besar. Kita simpan query-nya supaya bisa dipakai ulang.",
+      "pelajaran": "CREATE VIEW menyimpan query dengan sebuah nama. View dibaca seperti tabel, dan isinya selalu mengikuti data terbaru."
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "View dengan JOIN",
+      "topic": "View dan JOIN",
+      "bukti": "View ringkasan transaksi per orang",
+      "cerita": "Penyidik ingin langsung melihat nama orang di samping transaksinya.",
+      "pelajaran": "View bisa berisi JOIN, jadi orang yang membacanya tidak perlu menulis ulang penggabungan tabel."
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "View dari view",
+      "topic": "View bertumpuk",
+      "bukti": "View total transaksi per orang",
+      "cerita": "Dari ringkasan transaksi, kita hitung total uang tiap orang.",
+      "pelajaran": "View bisa dibangun dari view lain. Di sini sumbernya adalah view v_transaksi yang sudah ada."
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Membaca view",
+      "topic": "SELECT dari view",
+      "bukti": "Pemilik transaksi terbesar",
+      "cerita": "Siapa pemilik transaksi terbesar? Jawabannya ada di view yang sudah disiapkan.",
+      "pelajaran": "Membaca view sama seperti membaca tabel: SELECT ... FROM nama_view, lalu ORDER BY dan LIMIT seperti biasa."
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi",
+      "bukti": "View tersangka utama",
+      "cerita": "Semua petunjuk mengarah ke satu orang. Satukan kehadiran di gudang dan total transaksinya untuk menunjuk dalangnya.",
+      "pelajaran": "Gabungkan tiga tabel dengan JOIN, saring dengan WHERE, kelompokkan per orang, lalu simpan hasilnya sebagai view."
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Apa itu view?",
+      "options": [
+        "Pengguna database",
+        "Query tersimpan yang bisa dibaca seperti tabel",
+        "Salinan tabel beserta datanya",
+        "Indeks untuk mempercepat query"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "View tidak menyimpan data sendiri.",
+        "Ia menyimpan rumus query.",
+        "Setiap dibaca, query-nya dijalankan."
+      ],
+      "explanation": "View adalah query yang diberi nama. Ia dibaca seperti tabel, tetapi datanya diambil dari tabel asal."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun perintah yang membuat view transaksi_besar.",
+      "pieces": [
+        "CREATE VIEW transaksi_besar AS",
+        "SELECT * FROM transaksi",
+        "WHERE jumlah > 1000"
+      ],
+      "answer": [
+        "CREATE VIEW transaksi_besar AS",
+        "SELECT * FROM transaksi",
+        "WHERE jumlah > 1000"
+      ],
+      "hints": [
+        "Mulai dengan CREATE VIEW nama AS.",
+        "Lalu query yang disimpan.",
+        "Tutup dengan syarat WHERE."
+      ],
+      "explanation": "CREATE VIEW nama AS query menyimpan query dengan nama."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Buat view transaksi_besar berisi transaksi dengan jumlah lebih dari 1000.",
+      "boleh": [
+        "CREATE"
+      ],
+      "wajib": [
+        "CREATE VIEW"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "CREATE VIEW transaksi_besar AS SELECT * FROM transaksi WHERE jumlah > 1000",
+      "pemeriksa": "SELECT * FROM transaksi_besar",
+      "hints": [
+        "Pakai CREATE VIEW nama AS ...",
+        "Isi view: SELECT * FROM transaksi WHERE jumlah > 1000.",
+        "CREATE VIEW transaksi_besar AS SELECT ..."
+      ],
+      "explanation": "View ini memuat tiga transaksi besar: id 1, 2, dan 5."
+    },
+    {
+      "node": "n2",
+      "type": "pilih",
+      "prompt": "View ringkasan menggabungkan orang dan transaksi dengan JOIN. Apa keuntungannya?",
+      "options": [
+        "Query jadi pasti lebih cepat",
+        "Tabel asal bisa dihapus",
+        "JOIN tidak perlu ditulis ulang tiap kali",
+        "Data tersalin dan lebih aman"
+      ],
+      "answerIndex": 2,
+      "hints": [
+        "View menyimpan query, termasuk JOIN-nya.",
+        "Pembaca cukup menulis SELECT dari view.",
+        "Tidak ada data yang disalin."
+      ],
+      "explanation": "View menyembunyikan JOIN yang rumit di balik satu nama sederhana."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Buat view ringkasan berisi nama orang dan jumlah transaksinya (kolom nama dan jumlah). Gabungkan orang dan transaksi.",
+      "boleh": [
+        "CREATE"
+      ],
+      "wajib": [
+        "CREATE VIEW",
+        "JOIN"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "CREATE VIEW ringkasan AS SELECT nama, jumlah FROM orang JOIN transaksi ON transaksi.orang_id = orang.id",
+      "pemeriksa": "SELECT * FROM ringkasan",
+      "hints": [
+        "CREATE VIEW ringkasan AS lalu query JOIN.",
+        "Cocokkan transaksi.orang_id dengan orang.id.",
+        "... JOIN transaksi ON transaksi.orang_id = ___"
+      ],
+      "explanation": "View ringkasan memuat delapan baris, satu per transaksi."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun perintah yang membuat view total_per_orang.",
+      "pieces": [
+        "CREATE VIEW total_per_orang AS",
+        "SELECT nama, SUM(jumlah) AS total",
+        "FROM v_transaksi",
+        "GROUP BY nama"
+      ],
+      "answer": [
+        "CREATE VIEW total_per_orang AS",
+        "SELECT nama, SUM(jumlah) AS total",
+        "FROM v_transaksi",
+        "GROUP BY nama"
+      ],
+      "hints": [
+        "View bisa dibuat dari view lain.",
+        "Ringkas dengan SUM dan GROUP BY.",
+        "Beri alias total."
+      ],
+      "explanation": "View v_transaksi sudah menggabungkan orang dan transaksi, jadi view baru cukup meringkasnya."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Buat view total_per_orang (kolom nama dan total) dari view v_transaksi yang sudah ada.",
+      "boleh": [
+        "CREATE"
+      ],
+      "wajib": [
+        "CREATE VIEW",
+        "GROUP BY"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "CREATE VIEW total_per_orang AS SELECT nama, SUM(jumlah) AS total FROM v_transaksi GROUP BY nama",
+      "pemeriksa": "SELECT * FROM total_per_orang",
+      "hints": [
+        "Baca dari v_transaksi, bukan dari tabel.",
+        "Jumlahkan per nama dengan GROUP BY.",
+        "SELECT nama, SUM(jumlah) AS total FROM v_transaksi GROUP BY nama"
+      ],
+      "explanation": "View bisa ditumpuk. Lima orang punya total masing-masing."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "SELECT nama FROM v_transaksi ORDER BY jumlah DESC LIMIT 1. Apa yang dibaca query ini?",
+      "options": [
+        "Tabel orang saja",
+        "Tabel transaksi saja",
+        "Tidak ada, view tidak bisa di-SELECT",
+        "View v_transaksi seperti tabel biasa"
+      ],
+      "answerIndex": 3,
+      "hints": [
+        "View dipakai di FROM seperti tabel.",
+        "Join-nya sudah tersimpan di view.",
+        "Query luar tinggal mengurutkan."
+      ],
+      "explanation": "View dibaca dengan SELECT biasa. Query luar tidak perlu tahu cara view itu disusun."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Dari view v_transaksi, tampilkan nama orang dengan satu transaksi terbesar.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "ORDER BY",
+        "LIMIT"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT nama FROM v_transaksi ORDER BY jumlah DESC LIMIT 1",
+      "pemeriksa": null,
+      "hints": [
+        "Baca dari v_transaksi di FROM.",
+        "Urutkan jumlah dari terbesar.",
+        "... ORDER BY jumlah DESC LIMIT 1"
+      ],
+      "explanation": "Transaksi terbesar bernilai 2500, milik Darmawan."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Buat view tersangka_utama (kolom nama dan total): orang yang hadir di 'Gudang Utara' setelah jam '22:00' dan total transaksinya lebih dari 4000.",
+      "boleh": [
+        "CREATE"
+      ],
+      "wajib": [
+        "CREATE VIEW",
+        "JOIN",
+        "GROUP BY",
+        "HAVING"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "CREATE VIEW tersangka_utama AS SELECT orang.nama AS nama, SUM(transaksi.jumlah) AS total FROM orang JOIN transaksi ON transaksi.orang_id = orang.id JOIN kehadiran ON kehadiran.orang_id = orang.id WHERE kehadiran.lokasi = 'Gudang Utara' AND kehadiran.jam > '22:00' GROUP BY orang.nama HAVING SUM(transaksi.jumlah) > 4000",
+      "pemeriksa": "SELECT nama, total FROM tersangka_utama",
+      "hints": [
+        "Gabungkan orang, transaksi, dan kehadiran.",
+        "Saring lokasi dan jam dengan WHERE, lalu total dengan HAVING.",
+        "... GROUP BY orang.nama HAVING SUM(transaksi.jumlah) > 4000"
+      ],
+      "explanation": "Dua orang hadir di Gudang Utara setelah 22:00, tetapi hanya Darmawan yang totalnya melewati 4000. Dialah dalang di balik layar."
+    }
+  ]
+}

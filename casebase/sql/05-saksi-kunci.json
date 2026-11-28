@@ -1,0 +1,284 @@
+{
+  "course": "sql",
+  "number": "05",
+  "title": "Saksi Kunci",
+  "story": "Dalam satu malam, beberapa kejadian terjadi di sudut kota yang berbeda. Anehnya, beberapa saksi menyebut plat mobil yang sama. Kamu menyusuri kesaksian mereka sampai ke pemilik kendaraan itu.",
+  "bukti": [
+    "Empat kejadian, lima saksi.",
+    "Satu plat disebut oleh tiga saksi.",
+    "Satu saksi tidak melihat plat sama sekali."
+  ],
+  "tersangka": [
+    "Hendro Gunawan, pemilik Avanza",
+    "Citra Dewanti, pemilik Brio",
+    "Fajar Nugroho, pemilik Xenia, tidak pernah disebut"
+  ],
+  "seed": "CREATE TABLE kejadian (id INTEGER, lokasi TEXT, jam TEXT, jenis TEXT); INSERT INTO kejadian VALUES (1,'Pasar Baru','21:15','pencurian'), (2,'Stasiun','22:40','penjambretan'), (3,'Pasar Baru','23:05','pencurian'), (4,'Terminal','23:50','perampokan'); CREATE TABLE saksi (id INTEGER, nama TEXT, kejadian_id INTEGER, melihat_plat TEXT); INSERT INTO saksi VALUES (1,'Wati',1,'B 1234 XY'), (2,'Agus',3,'B 1234 XY'), (3,'Rini',3,'D 9876 QW'), (4,'Bambang',2,NULL), (5,'Salma',4,'B 1234 XY'); CREATE TABLE kendaraan (plat TEXT, pemilik TEXT, merek TEXT); INSERT INTO kendaraan VALUES ('B 1234 XY','Hendro Gunawan','Avanza'), ('D 9876 QW','Citra Dewanti','Brio'), ('B 5555 AA','Fajar Nugroho','Xenia');",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Bandingkan dengan satu nilai",
+      "topic": "Subquery",
+      "bukti": "Kejadian yang terjadi lebih larut",
+      "cerita": "Kejadian pertama jadi patokan waktu. Kita cari kejadian lain yang terjadi lebih larut.",
+      "pelajaran": "Subquery adalah query di dalam query. Hasilnya, misalnya jam kejadian pertama, bisa dipakai sebagai pembanding di WHERE."
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Plat yang dilihat saksi",
+      "topic": "IN dengan subquery",
+      "bukti": "Kendaraan yang terlihat saksi",
+      "cerita": "Saksi menyebut beberapa plat. Kita cari kendaraan mana saja yang pernah mereka lihat.",
+      "pelajaran": "IN memeriksa apakah sebuah nilai ada di dalam daftar. Daftarnya bisa berasal dari subquery."
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Saksi pencurian",
+      "topic": "Subquery bertingkat",
+      "bukti": "Nama saksi kasus pencurian",
+      "cerita": "Kita butuh keterangan saksi pencurian saja. Jalurnya: cari kejadiannya dulu, lalu saksinya.",
+      "pelajaran": "Subquery bisa dipakai untuk berpindah antartabel: ambil id kejadian pencurian, lalu cari saksi dengan kejadian_id tersebut."
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Kendaraan tak terlihat",
+      "topic": "NOT IN dan NULL",
+      "bukti": "Kendaraan yang tak pernah terlihat",
+      "cerita": "Kendaraan yang tidak pernah terlihat bisa jadi kendaraan untuk kabur. Hati-hati, ada saksi yang tidak melihat plat sama sekali.",
+      "pelajaran": "NOT IN adalah kebalikan IN. Kalau daftarnya berisi NULL, NOT IN tidak meloloskan apa pun, jadi buang NULL dulu dengan IS NOT NULL."
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi",
+      "bukti": "Pemilik plat yang paling sering disebut",
+      "cerita": "Satu plat disebut berulang kali. Temukan pemilik kendaraan itu.",
+      "pelajaran": "Di dalam subquery, kelompokkan plat dengan GROUP BY, urutkan dengan COUNT(*) dari yang terbanyak, lalu ambil satu dengan LIMIT 1."
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Apa itu subquery?",
+      "options": [
+        "Query tanpa FROM",
+        "Query di dalam query lain",
+        "Query yang berjalan lebih lambat",
+        "Query yang mengubah data"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "Subquery ditulis dalam tanda kurung.",
+        "Hasilnya dipakai oleh query luar.",
+        "Ia bisa muncul di WHERE."
+      ],
+      "explanation": "Subquery adalah SELECT yang bersarang di dalam query lain. Hasilnya dipakai query luar."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun query yang mencari kejadian setelah kejadian nomor 1.",
+      "pieces": [
+        "SELECT * FROM kejadian",
+        "WHERE jam >",
+        "(SELECT jam FROM kejadian WHERE id = 1)"
+      ],
+      "answer": [
+        "SELECT * FROM kejadian",
+        "WHERE jam >",
+        "(SELECT jam FROM kejadian WHERE id = 1)"
+      ],
+      "hints": [
+        "Query luar membaca kejadian.",
+        "Syarat jam dibandingkan dengan hasil subquery.",
+        "Subquery ditutup dengan tanda kurung."
+      ],
+      "explanation": "Subquery mengembalikan jam kejadian 1 (21:15). Query luar menampilkan kejadian yang lebih larut."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Tampilkan kejadian yang jamnya lebih larut daripada kejadian nomor 1. Ambil jam kejadian 1 dengan subquery.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WHERE"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT * FROM kejadian WHERE jam > (SELECT jam FROM kejadian WHERE id = 1)",
+      "pemeriksa": null,
+      "hints": [
+        "Bandingkan kolom jam dengan hasil subquery.",
+        "Subquery: (SELECT jam FROM kejadian WHERE id = 1).",
+        "SELECT * FROM kejadian WHERE jam > (...)"
+      ],
+      "explanation": "Subquery menghasilkan satu nilai, jam 21:15. Tiga kejadian lain lebih larut."
+    },
+    {
+      "node": "n2",
+      "type": "tebak",
+      "prompt": "Query: SELECT * FROM kendaraan WHERE plat IN (SELECT melihat_plat FROM saksi). Ketuk kendaraan yang akan tampil.",
+      "columns": [
+        "plat",
+        "pemilik"
+      ],
+      "rows": [
+        [
+          "B 1234 XY",
+          "Hendro Gunawan"
+        ],
+        [
+          "D 9876 QW",
+          "Citra Dewanti"
+        ],
+        [
+          "B 5555 AA",
+          "Fajar Nugroho"
+        ]
+      ],
+      "answer": [
+        0,
+        1
+      ],
+      "hints": [
+        "IN memeriksa apakah plat ada dalam daftar hasil subquery.",
+        "Plat yang dilihat saksi: B 1234 XY dan D 9876 QW.",
+        "B 5555 AA tidak pernah disebut."
+      ],
+      "explanation": "IN mencocokkan plat dengan semua plat yang dilihat saksi. B 5555 AA tidak termasuk."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Tampilkan kendaraan yang platnya pernah dilihat saksi.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "IN"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT * FROM kendaraan WHERE plat IN (SELECT melihat_plat FROM saksi)",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai IN dengan subquery.",
+        "Subquery mengambil kolom melihat_plat dari saksi.",
+        "... WHERE plat IN (SELECT ___ FROM saksi)"
+      ],
+      "explanation": "IN dengan subquery menyaring kendaraan berdasarkan daftar plat dari tabel lain."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun query yang mencari nama saksi dari kejadian pencurian.",
+      "pieces": [
+        "SELECT nama FROM saksi",
+        "WHERE kejadian_id IN",
+        "(SELECT id FROM kejadian WHERE jenis = 'pencurian')"
+      ],
+      "answer": [
+        "SELECT nama FROM saksi",
+        "WHERE kejadian_id IN",
+        "(SELECT id FROM kejadian WHERE jenis = 'pencurian')"
+      ],
+      "hints": [
+        "Query luar membaca saksi.",
+        "Subquery mencari id kejadian pencurian.",
+        "Cocokkan dengan IN."
+      ],
+      "explanation": "Subquery mengambil id kejadian pencurian (1 dan 3), query luar menampilkan saksinya."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Tampilkan nama saksi dari kejadian berjenis 'pencurian'.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "IN"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT nama FROM saksi WHERE kejadian_id IN (SELECT id FROM kejadian WHERE jenis = 'pencurian')",
+      "pemeriksa": null,
+      "hints": [
+        "Cari dulu id kejadian pencurian dengan subquery.",
+        "Pakai IN di query luar.",
+        "... WHERE kejadian_id IN (SELECT id FROM kejadian WHERE jenis = '___')"
+      ],
+      "explanation": "Hasilnya Wati, Agus, dan Rini."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "Query: SELECT * FROM kendaraan WHERE plat NOT IN (SELECT melihat_plat FROM saksi) tidak menampilkan apa pun. Mengapa?",
+      "options": [
+        "Tidak ada kendaraan yang cocok",
+        "NOT IN tidak boleh dipakai dengan subquery",
+        "Kolom plat bertipe angka",
+        "Ada NULL di hasil subquery"
+      ],
+      "answerIndex": 3,
+      "hints": [
+        "Saksi Bambang tidak melihat plat apa pun.",
+        "Kolom melihat_plat miliknya berisi NULL.",
+        "NOT IN dengan NULL menghasilkan tidak diketahui."
+      ],
+      "explanation": "Jika daftar NOT IN memuat NULL, tidak ada baris yang lolos. Saring NULL dari subquery."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Tampilkan kendaraan yang platnya tidak pernah dilihat saksi. Awas, ada saksi tanpa plat.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "NOT IN",
+        "IS NOT NULL"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT * FROM kendaraan WHERE plat NOT IN (SELECT melihat_plat FROM saksi WHERE melihat_plat IS NOT NULL)",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai NOT IN dengan subquery.",
+        "Buang NULL di subquery.",
+        "... WHERE melihat_plat IS NOT NULL"
+      ],
+      "explanation": "Tanpa NULL di daftar, NOT IN bekerja normal. Hasilnya B 5555 AA."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Tampilkan pemilik kendaraan yang platnya paling banyak disebut saksi.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "GROUP BY",
+        "ORDER BY",
+        "LIMIT"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT pemilik FROM kendaraan WHERE plat = (SELECT melihat_plat FROM saksi GROUP BY melihat_plat ORDER BY COUNT(*) DESC LIMIT 1)",
+      "pemeriksa": null,
+      "hints": [
+        "Subquery: hitung plat per kelompok, urutkan dari terbanyak, ambil satu.",
+        "Query luar mencocokkan plat dengan hasil subquery.",
+        "(SELECT melihat_plat FROM saksi GROUP BY melihat_plat ORDER BY COUNT(*) DESC LIMIT 1)"
+      ],
+      "explanation": "Plat B 1234 XY disebut tiga saksi. Pemiliknya Hendro Gunawan."
+    }
+  ]
+}

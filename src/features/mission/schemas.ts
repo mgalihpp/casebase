@@ -14,6 +14,19 @@ export const answerInput = z.discriminatedUnion("type", [
   z.object({ type: z.literal("write"), query: z.string().max(4000) }),
   z.object({ type: z.literal("pilih"), choice: z.number().int().min(0) }),
   z.object({ type: z.literal("susun"), order: z.array(z.string()) }),
+  z.object({
+    type: z.literal("tebak"),
+    rows: z.array(z.number().int().min(0)).max(100),
+  }),
+  z.object({
+    type: z.literal("salah"),
+    token: z.number().int().min(0),
+    fix: z.number().int().min(0),
+  }),
+  z.object({
+    type: z.literal("pasang"),
+    pairs: z.array(z.number().int().min(0)).max(20),
+  }),
 ]);
 
 export const checkInput = startInput.extend({

@@ -1,0 +1,273 @@
+{
+  "course": "sql",
+  "number": "03",
+  "title": "Rekaman CCTV yang Hilang",
+  "story": "Semalam, rekaman kamera di sebuah gudang tiba-tiba terputus. Arsip penyidik jadi berantakan: ada barang bukti yang belum dicatat, catatan yang keliru, dan log kamera yang rusak. Tugasmu merapikannya sebelum penyelidikan berlanjut.",
+  "bukti": [
+    "Kamera K2 mati dua kali pada malam kejadian.",
+    "Lima barang bukti sudah tercatat di gudang.",
+    "Log kamera lain tetap aktif."
+  ],
+  "tersangka": [
+    "Rudi Hartono, satpam malam, jaga di pos saat K2 mati",
+    "Tono Wijaya, teknisi CCTV, terakhir memeriksa kamera"
+  ],
+  "seed": "CREATE TABLE log_cctv (id INTEGER, kamera TEXT, jam TEXT, status TEXT); INSERT INTO log_cctv VALUES (1,'K1','20:00','aktif'), (2,'K2','21:30','aktif'), (3,'K2','22:15','mati'), (4,'K3','22:40','aktif'), (5,'K2','23:05','mati'), (6,'K1','23:30','aktif'), (7,'K3','21:00','aktif'); CREATE TABLE barang_bukti (id INTEGER, nama TEXT, lokasi TEXT, kondisi TEXT); INSERT INTO barang_bukti VALUES (1,'Linggis','Gudang B','baik'), (2,'Sarung tangan','Gudang B','baik'), (3,'Pecahan kaca','Pintu belakang','baik'), (4,'Kartu akses','Pos satpam','baik'), (5,'Jaket hitam','Parkiran','baik');",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Catat barang bukti",
+      "topic": "INSERT",
+      "bukti": "Catatan kunci cadangan di pos satpam",
+      "cerita": "Petugas menemukan kunci cadangan di pos satpam, tapi belum tercatat di arsip. Kita tambahkan sekarang.",
+      "pelajaran": "INSERT INTO menambah baris baru. Isi VALUES harus urut sesuai kolom tabel."
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Perbarui kondisi barang",
+      "topic": "UPDATE",
+      "bukti": "Catatan kondisi pecahan kaca",
+      "cerita": "Hasil pemeriksaan ulang menunjukkan pecahan kaca ternyata rusak. Catatannya perlu diperbarui.",
+      "pelajaran": "UPDATE mengubah data yang sudah ada. SET menentukan nilai barunya, dan WHERE memastikan hanya baris yang dimaksud yang berubah."
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Buang log rusak",
+      "topic": "DELETE",
+      "bukti": "Log CCTV yang masih bisa dipakai",
+      "cerita": "Log kamera yang berstatus mati tidak berguna untuk penyelidikan. Kita bersihkan dari arsip.",
+      "pelajaran": "DELETE FROM menghapus baris. Selalu pakai WHERE, karena tanpa WHERE semua baris ikut terhapus."
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Tandai log lama",
+      "topic": "UPDATE dengan WHERE",
+      "bukti": "Arsip log sebelum jam 22.00",
+      "cerita": "Rekaman sebelum jam 22.00 terjadi jauh sebelum kejadian. Kita tandai sebagai arsip supaya tidak tercampur.",
+      "pelajaran": "UPDATE dengan WHERE bisa mengubah banyak baris sekaligus. Teks jam bisa dibandingkan dengan < karena formatnya seragam."
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi",
+      "bukti": "Log CCTV yang sudah dibersihkan",
+      "cerita": "Penyidik meminta log yang bersih dan lengkap. Hapus log yang rusak, lalu catat rekaman baru yang ditemukan.",
+      "pelajaran": "Dua perintah bisa dijalankan berurutan dengan pemisah titik koma. Jalankan DELETE dulu, baru INSERT."
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Perintah apa yang menambah baris baru ke sebuah tabel?",
+      "options": [
+        "SELECT",
+        "INSERT",
+        "UPDATE",
+        "DELETE"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "Perintah ini memasukkan data, bukan mengubah atau membacanya.",
+        "Nama perintahnya berarti menyisipkan.",
+        "INSERT INTO nama_tabel VALUES (...)."
+      ],
+      "explanation": "INSERT menambah baris baru. UPDATE mengubah baris yang ada, DELETE menghapus, dan SELECT hanya membaca."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun potongan berikut menjadi query yang menambah barang bukti.",
+      "pieces": [
+        "VALUES",
+        "INSERT INTO",
+        "barang_bukti",
+        "(6, 'Kunci cadangan', 'Pos satpam', 'baik')"
+      ],
+      "answer": [
+        "INSERT INTO",
+        "barang_bukti",
+        "VALUES",
+        "(6, 'Kunci cadangan', 'Pos satpam', 'baik')"
+      ],
+      "hints": [
+        "Mulai dengan INSERT INTO.",
+        "Nama tabel ditulis setelah INSERT INTO.",
+        "Nilai baris ditulis setelah VALUES."
+      ],
+      "explanation": "INSERT INTO tabel VALUES (...) menambah satu baris dengan nilai sesuai urutan kolom."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Tambahkan barang bukti baru ke tabel barang_bukti: id 6, nama 'Kunci cadangan', lokasi 'Pos satpam', kondisi 'baik'.",
+      "boleh": [
+        "INSERT"
+      ],
+      "wajib": [
+        "INSERT"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "INSERT INTO barang_bukti VALUES (6, 'Kunci cadangan', 'Pos satpam', 'baik')",
+      "pemeriksa": "SELECT * FROM barang_bukti",
+      "hints": [
+        "Pakai INSERT INTO diikuti nama tabel.",
+        "Isi nilai sesuai urutan kolom: id, nama, lokasi, kondisi.",
+        "INSERT INTO barang_bukti VALUES (6, ___, ___, ___)"
+      ],
+      "explanation": "INSERT INTO ... VALUES menambah satu baris. Teks ditulis dengan tanda kutip tunggal."
+    },
+    {
+      "node": "n2",
+      "type": "pilih",
+      "prompt": "Query UPDATE barang_bukti SET kondisi = 'rusak' tanpa WHERE dijalankan. Baris mana yang berubah?",
+      "options": [
+        "Tidak ada baris",
+        "Hanya baris yang kondisinya 'baik'",
+        "Semua lima baris",
+        "Hanya baris pertama"
+      ],
+      "answerIndex": 2,
+      "hints": [
+        "Tanpa WHERE, tidak ada yang membatasi baris.",
+        "Perintah ini berlaku ke seluruh tabel.",
+        "Selalu cek WHERE sebelum menjalankan UPDATE."
+      ],
+      "explanation": "UPDATE tanpa WHERE mengubah semua baris. Karena itu WHERE hampir selalu dipakai."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Ubah kondisi barang bukti dengan id 3 menjadi 'rusak'.",
+      "boleh": [
+        "UPDATE"
+      ],
+      "wajib": [
+        "UPDATE",
+        "WHERE"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "UPDATE barang_bukti SET kondisi = 'rusak' WHERE id = 3",
+      "pemeriksa": "SELECT * FROM barang_bukti",
+      "hints": [
+        "Pakai UPDATE, lalu SET untuk kolom yang diubah.",
+        "Batasi dengan WHERE id = 3 supaya baris lain aman.",
+        "UPDATE barang_bukti SET kondisi = 'rusak' WHERE id = ___"
+      ],
+      "explanation": "SET menentukan nilai baru, WHERE memastikan hanya baris id 3 yang berubah."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun query yang menghapus semua log kamera yang berstatus mati.",
+      "pieces": [
+        "WHERE status = 'mati'",
+        "DELETE FROM",
+        "log_cctv"
+      ],
+      "answer": [
+        "DELETE FROM",
+        "log_cctv",
+        "WHERE status = 'mati'"
+      ],
+      "hints": [
+        "Mulai dengan DELETE FROM.",
+        "Lalu nama tabel.",
+        "Syarat baris yang dihapus ditulis di WHERE."
+      ],
+      "explanation": "DELETE FROM tabel WHERE syarat menghapus baris yang memenuhi syarat."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Hapus semua log CCTV yang berstatus 'mati'.",
+      "boleh": [
+        "DELETE"
+      ],
+      "wajib": [
+        "DELETE",
+        "WHERE"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "DELETE FROM log_cctv WHERE status = 'mati'",
+      "pemeriksa": "SELECT * FROM log_cctv",
+      "hints": [
+        "Pakai DELETE FROM diikuti nama tabel.",
+        "Tambahkan WHERE agar log yang aktif tidak ikut hilang.",
+        "DELETE FROM log_cctv WHERE status = '___'"
+      ],
+      "explanation": "DELETE FROM ... WHERE status = 'mati' membuang dua log yang mati dan membiarkan sisanya."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "Penyidik menulis: UPDATE log_cctv SET status = 'arsip' WHERE jam < '22:00'. Berapa baris yang berubah?",
+      "options": [
+        "2",
+        "7",
+        "4",
+        "3"
+      ],
+      "answerIndex": 3,
+      "hints": [
+        "Cek jam tiap baris: 20:00, 21:30, 21:00 kurang dari 22:00.",
+        "Jam lain adalah 22:15 ke atas.",
+        "Hitung baris yang lolos WHERE."
+      ],
+      "explanation": "Tiga log (id 1, 2, 7) berjam di bawah 22:00, jadi tiga baris berubah."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Tandai semua log yang direkam sebelum jam '22:00' dengan status 'arsip'.",
+      "boleh": [
+        "UPDATE"
+      ],
+      "wajib": [
+        "UPDATE",
+        "WHERE"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "UPDATE log_cctv SET status = 'arsip' WHERE jam < '22:00'",
+      "pemeriksa": "SELECT * FROM log_cctv",
+      "hints": [
+        "Gunakan UPDATE dengan SET status.",
+        "Syarat jam ditulis di WHERE dengan tanda <.",
+        "UPDATE log_cctv SET status = 'arsip' WHERE jam < '___'"
+      ],
+      "explanation": "Jam berupa teks berformat HH:MM, jadi perbandingan teks bekerja sama dengan urutan waktu."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Hapus semua log yang berstatus 'mati', lalu tambahkan log baru: id 8, kamera 'K1', jam '23:45', status 'aktif'.",
+      "boleh": [
+        "DELETE",
+        "INSERT"
+      ],
+      "wajib": [
+        "DELETE",
+        "INSERT",
+        "WHERE"
+      ],
+      "aturanKolom": "tepat",
+      "answer": "DELETE FROM log_cctv WHERE status = 'mati'; INSERT INTO log_cctv VALUES (8, 'K1', '23:45', 'aktif')",
+      "pemeriksa": "SELECT * FROM log_cctv",
+      "hints": [
+        "Dua perintah dipisah titik koma.",
+        "Pertama DELETE dengan WHERE, kedua INSERT.",
+        "DELETE FROM log_cctv WHERE ...; INSERT INTO log_cctv VALUES (8, ...)"
+      ],
+      "explanation": "Dua perintah dijalankan berurutan: baris mati dibuang, lalu catatan pengganti ditambahkan."
+    }
+  ]
+}
