@@ -79,7 +79,21 @@ export async function checkAnswer(
       ? await readHearts(userId, now)
       : await applyWrongAnswer(tx, userId, now);
 
-    if (!nodeDone) return { hearts, reward: null };
+    if (!nodeDone) {
+      // Maju ke soal berikutnya hanya jika soal ini memang posisi aktif, agar jawaban ulang tidak menggeser posisi.
+      if (verdict.correct) {
+        await tx
+          .update(missionAttempt)
+          .set({ questionIndex: sql`${missionAttempt.questionIndex} + 1` })
+          .where(
+            and(
+              eq(missionAttempt.id, attempt.id),
+              eq(missionAttempt.questionIndex, questionIndex),
+            ),
+          );
+      }
+      return { hearts, reward: null };
+    }
 
     await tx
       .delete(nodeFailure)

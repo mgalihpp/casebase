@@ -92,16 +92,56 @@ function rupiah(value: unknown) {
   return `Rp${Number(value).toLocaleString("id-ID")}`;
 }
 
+type MissionData = NonNullable<ReturnType<typeof useMissionStart>["data"]>;
+
 export function MissionScreen({ courseId, nodeKey }: Props) {
+  const router = useRouter();
+  const { data, error, isPending } = useMissionStart(courseId, nodeKey);
+
+  if (error?.data?.code === "UNAUTHORIZED") {
+    router.replace("/masuk");
+    return null;
+  }
+
+  if (error) {
+    return (
+      <main className={pageClass}>
+        <p className="mt-10 text-center text-ink-soft">{error.message}</p>
+        <Link
+          href={`/belajar/${courseId}`}
+          className="mt-4 text-center font-display font-black text-ind"
+        >
+          Kembali ke Belajar
+        </Link>
+      </main>
+    );
+  }
+
+  if (isPending || !data || !findCourse(courseId)) {
+    return (
+      <main className={pageClass} aria-busy="true">
+        <div className="mt-6 h-12 anim-skeleton rounded-2xl bg-line" />
+      </main>
+    );
+  }
+
+  return <MissionPlay courseId={courseId} nodeKey={nodeKey} data={data} />;
+}
+
+// Dipisah dari MissionScreen agar posisi soal bisa diisi dari data server saat pertama dirender.
+function MissionPlay({
+  courseId,
+  nodeKey,
+  data,
+}: Props & { data: MissionData }) {
   const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
-  const { data, error, isPending } = useMissionStart(courseId, nodeKey);
   const check = useMissionCheck();
   const hint = useMissionHint();
   const meta = findCourse(courseId);
 
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(data.questionIndex);
   const [code, setCode] = useState("");
   const [choice, setChoice] = useState<number | null>(null);
   const [placed, setPlaced] = useState<number[]>([]);
@@ -148,32 +188,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
     return () => clearTimeout(id);
   }, [toast]);
 
-  if (error?.data?.code === "UNAUTHORIZED") {
-    router.replace("/masuk");
-    return null;
-  }
-
-  if (error) {
-    return (
-      <main className={pageClass}>
-        <p className="mt-10 text-center text-ink-soft">{error.message}</p>
-        <Link
-          href={`/belajar/${courseId}`}
-          className="mt-4 text-center font-display font-black text-ind"
-        >
-          Kembali ke Belajar
-        </Link>
-      </main>
-    );
-  }
-
-  if (isPending || !data || !meta) {
-    return (
-      <main className={pageClass} aria-busy="true">
-        <div className="mt-6 h-12 anim-skeleton rounded-2xl bg-line" />
-      </main>
-    );
-  }
+  if (!meta) return null;
 
   const total = data.questions.length;
   const hintsUsed = data.hintsOpened.reduce(
@@ -215,7 +230,13 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
           setAttempts((count) => count + 1);
           setHeartsLeft(outcome.hearts);
           if (outcome.reward) setReward(outcome.reward);
-          if (outcome.correct) return;
+          if (outcome.correct) {
+            // Posisi soal di server sudah maju; segarkan cache agar pindah halaman tidak memakai posisi lama.
+            void queryClient.invalidateQueries({
+              queryKey: trpc.mission.start.queryKey(),
+            });
+            return;
+          }
           setMistakes((count) => count + 1);
         },
         onError: (failure) => {

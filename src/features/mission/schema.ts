@@ -63,6 +63,7 @@ export const missionAttempt = pgTable(
       .notNull()
       .default("active"),
     hints: integer("hints").notNull().default(0),
+    questionIndex: integer("question_index").notNull().default(0),
     answered: integer("answered").notNull().default(0),
     correct: integer("correct").notNull().default(0),
     fastCorrect: integer("fast_correct").notNull().default(0),

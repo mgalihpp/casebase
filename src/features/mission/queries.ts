@@ -68,7 +68,10 @@ export async function startMission(
   const questions = rawQuestions.map(toPublicQuestion);
 
   const [active] = await db
-    .select({ id: missionAttempt.id })
+    .select({
+      id: missionAttempt.id,
+      questionIndex: missionAttempt.questionIndex,
+    })
     .from(missionAttempt)
     .where(
       and(
@@ -104,6 +107,10 @@ export async function startMission(
     ...(await readHeartsDetail(userId, new Date())),
     coins: me?.coins ?? 0,
     hintsOpened,
+    questionIndex: Math.min(
+      active?.questionIndex ?? 0,
+      Math.max(0, questions.length - 1),
+    ),
     course: { id: bundle.course.id, name: bundle.course.name },
     case: {
       number: bundle.body.number,
