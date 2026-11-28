@@ -7,11 +7,13 @@ import { Mascot } from "@/components/ui/mascot";
 import {
   buttonPrimary,
   fieldClass,
+  fieldClassFor,
   inputClass,
   labelClass,
   pageClass,
 } from "@/components/ui/styles";
 import { authClient } from "@/lib/auth-client";
+import { markBackNavigation } from "@/lib/nav-direction";
 import { ForgotPasswordSheet } from "./forgot-password-sheet";
 import { GoogleSignInButton } from "./google-sign-in-button";
 
@@ -24,10 +26,12 @@ export function LoginForm() {
   const [notice, setNotice] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setFormError(null);
+    setAttempt((n) => n + 1);
     if (!email.trim() || !password) {
       setFormError("Email dan kata sandi wajib diisi.");
       return;
@@ -48,12 +52,17 @@ export function LoginForm() {
   }
 
   return (
-    <div className={`${pageClass} pt-[env(safe-area-inset-top)]`}>
+    <div
+      className={`${pageClass} anim-slide-in-right pt-[env(safe-area-inset-top)]`}
+    >
       <div className="py-2">
         <button
           type="button"
           aria-label="Kembali"
-          onClick={() => router.push("/")}
+          onClick={() => {
+            markBackNavigation();
+            router.push("/");
+          }}
           className="grid min-h-11 min-w-11 place-items-center rounded-full text-ink-soft"
         >
           <svg
@@ -104,7 +113,7 @@ export function LoginForm() {
           <label htmlFor="li-email" className={labelClass}>
             Email
           </label>
-          <div className={fieldClass}>
+          <div className={fieldClassFor(!!formError)}>
             <input
               id="li-email"
               type="email"
@@ -122,7 +131,7 @@ export function LoginForm() {
           <label htmlFor="li-pw" className={labelClass}>
             Kata sandi
           </label>
-          <div className={fieldClass}>
+          <div className={fieldClassFor(!!formError)}>
             <input
               id="li-pw"
               type={showPassword ? "text" : "password"}
@@ -155,13 +164,20 @@ export function LoginForm() {
         </div>
 
         {notice && (
-          <p role="status" className="px-1 text-sm font-bold text-ok">
+          <p
+            role="status"
+            className="anim-pop-in px-1 text-sm font-bold text-ok"
+          >
             {notice}
           </p>
         )}
 
         {formError && (
-          <p role="alert" className="px-1 text-sm font-bold text-bad">
+          <p
+            key={attempt}
+            role="alert"
+            className="anim-shake px-1 text-sm font-bold text-bad"
+          >
             {formError}
           </p>
         )}

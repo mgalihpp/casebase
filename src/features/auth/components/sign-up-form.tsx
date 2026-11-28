@@ -7,11 +7,13 @@ import { Mascot } from "@/components/ui/mascot";
 import {
   buttonPrimary,
   fieldClass,
+  fieldClassFor,
   inputClass,
   labelClass,
   pageClass,
 } from "@/components/ui/styles";
 import { authClient } from "@/lib/auth-client";
+import { markBackNavigation } from "@/lib/nav-direction";
 import { GoogleSignInButton } from "./google-sign-in-button";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,10 +38,26 @@ export function SignUpForm() {
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  async function continueAsGuest() {
+    setFormError(null);
+    setSubmitting(true);
+    const { error } = await authClient.signIn.anonymous();
+    setSubmitting(false);
+
+    if (error) {
+      setFormError("Belum bisa mulai sekarang. Coba lagi sebentar.");
+      setAttempt((value) => value + 1);
+      return;
+    }
+    router.push("/onboarding/selesai");
+  }
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setFormError(null);
+    setAttempt((n) => n + 1);
     const errors = validate(name, email, password);
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) return;
@@ -64,12 +82,17 @@ export function SignUpForm() {
   }
 
   return (
-    <div className={`${pageClass} pt-[env(safe-area-inset-top)]`}>
+    <div
+      className={`${pageClass} anim-slide-in-right pt-[env(safe-area-inset-top)]`}
+    >
       <div className="py-2">
         <button
           type="button"
           aria-label="Kembali"
-          onClick={() => router.push("/")}
+          onClick={() => {
+            markBackNavigation();
+            router.push("/");
+          }}
           className="grid min-h-11 min-w-11 place-items-center rounded-full text-ink-soft"
         >
           <svg
@@ -121,7 +144,7 @@ export function SignUpForm() {
           <label htmlFor="su-name" className={labelClass}>
             Nama
           </label>
-          <div className={fieldClass}>
+          <div className={fieldClassFor(!!fieldErrors.name)}>
             <input
               id="su-name"
               type="text"
@@ -136,6 +159,7 @@ export function SignUpForm() {
           </div>
           {fieldErrors.name && (
             <p
+              key={attempt}
               id="su-name-err"
               role="alert"
               className="mt-1.5 px-1 text-sm font-bold text-bad"
@@ -149,7 +173,7 @@ export function SignUpForm() {
           <label htmlFor="su-email" className={labelClass}>
             Email
           </label>
-          <div className={fieldClass}>
+          <div className={fieldClassFor(!!fieldErrors.email)}>
             <input
               id="su-email"
               type="email"
@@ -165,6 +189,7 @@ export function SignUpForm() {
           </div>
           {fieldErrors.email && (
             <p
+              key={attempt}
               id="su-email-err"
               role="alert"
               className="mt-1.5 px-1 text-sm font-bold text-bad"
@@ -178,7 +203,7 @@ export function SignUpForm() {
           <label htmlFor="su-pw" className={labelClass}>
             Kata sandi
           </label>
-          <div className={fieldClass}>
+          <div className={fieldClassFor(!!fieldErrors.password)}>
             <input
               id="su-pw"
               type={showPassword ? "text" : "password"}
@@ -200,6 +225,7 @@ export function SignUpForm() {
           </div>
           {fieldErrors.password && (
             <p
+              key={attempt}
               id="su-pw-err"
               role="alert"
               className="mt-1.5 px-1 text-sm font-bold text-bad"
@@ -222,7 +248,11 @@ export function SignUpForm() {
         </p>
 
         {formError && (
-          <p role="alert" className="px-1 text-sm font-bold text-bad">
+          <p
+            key={attempt}
+            role="alert"
+            className="px-1 text-sm font-bold text-bad"
+          >
             {formError}
           </p>
         )}
@@ -233,7 +263,8 @@ export function SignUpForm() {
           </button>
           <button
             type="button"
-            onClick={() => router.push("/")}
+            disabled={submitting}
+            onClick={continueAsGuest}
             className="mt-3 min-h-11 w-full text-center font-bold text-ind"
           >
             Nanti saja
