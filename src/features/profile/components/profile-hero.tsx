@@ -135,9 +135,11 @@ export function ProfileSkeleton() {
 export function ProfileHero({
   data,
   onSignOut,
+  children,
 }: {
   data: ProfileHeroData;
   onSignOut: () => void;
+  children?: React.ReactNode;
 }) {
   const streak = useStreak();
   const [openBadge, setOpenBadge] = useState<Badge | null>(null);
@@ -221,6 +223,8 @@ export function ProfileHero({
           </button>
         ))}
       </div>
+
+      {children}
 
       <h2 className="mb-2 font-display text-[20px] font-extrabold">Lainnya</h2>
       <div className="overflow-hidden rounded-2xl border border-line bg-white">
