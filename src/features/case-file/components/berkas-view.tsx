@@ -222,69 +222,17 @@ export function BerkasView() {
       ))}
 
       {filterOpen ? (
-        <Sheet title="Filter berkas" onClose={() => setFilterOpen(false)}>
-          <h3 className="mb-2 mt-3 font-body text-[15px] font-bold">Status</h3>
-          <div className="flex rounded-[10px] bg-[#76748C]/12 p-0.5">
-            {(["semua", "aktif", "selesai", "arsip"] as Status[]).map((s) => (
-              <button
-                key={s}
-                type="button"
-                aria-pressed={status === s}
-                onClick={() => setStatus(s)}
-                className="min-h-10 flex-1 rounded-lg font-body text-sm font-semibold"
-                style={{ background: status === s ? "#fff" : "transparent" }}
-              >
-                {STATUS_LABEL[s]}
-              </button>
-            ))}
-          </div>
-          <h3 className="mb-2 mt-5 font-body text-[15px] font-bold">Kursus</h3>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              aria-pressed={course === null}
-              onClick={() => setCourse(null)}
-              className="min-h-11 rounded-full border-[1.5px] px-3.5 font-body text-[15px] font-semibold"
-              style={{
-                borderColor: course === null ? "#4F46E5" : "#E4E1F0",
-                background: course === null ? "#EEEDFD" : "#fff",
-              }}
-            >
-              Semua
-            </button>
-            <button
-              type="button"
-              aria-pressed={course === "sql"}
-              onClick={() => setCourse("sql")}
-              className="min-h-11 rounded-full border-[1.5px] px-3.5 font-body text-[15px] font-semibold"
-              style={{
-                borderColor: course === "sql" ? "#4F46E5" : "#E4E1F0",
-                background: course === "sql" ? "#EEEDFD" : "#fff",
-              }}
-            >
-              SQL Dasar
-            </button>
-          </div>
-          <div className="mt-6 grid grid-cols-2 gap-2.5">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => {
-                setStatus("semua");
-                setCourse(null);
-              }}
-            >
-              Atur ulang
-            </button>
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={() => setFilterOpen(false)}
-            >
-              Tampilkan {items.length} berkas
-            </button>
-          </div>
-        </Sheet>
+        <FilterSheet
+          status={status}
+          course={course}
+          q={q}
+          onClose={() => setFilterOpen(false)}
+          onApply={(next) => {
+            setStatus(next.status);
+            setCourse(next.course);
+            setFilterOpen(false);
+          }}
+        />
       ) : null}
 
       {menuFor ? (
@@ -347,6 +295,97 @@ export function BerkasView() {
         </div>
       ) : null}
     </AppShell>
+  );
+}
+
+function FilterSheet({
+  status: initialStatus,
+  course: initialCourse,
+  q,
+  onClose,
+  onApply,
+}: {
+  status: Status;
+  course: string | null;
+  q: string;
+  onClose: () => void;
+  onApply: (next: { status: Status; course: string | null }) => void;
+}) {
+  const trpc = useTRPC();
+  const [status, setStatus] = useState(initialStatus);
+  const [course, setCourse] = useState(initialCourse);
+  const preview = useQuery({
+    ...trpc.caseFile.list.queryOptions({ status, course, q }),
+    placeholderData: (prev) => prev,
+  });
+  const count = preview.data?.length;
+
+  return (
+    <Sheet title="Filter berkas" onClose={onClose}>
+      <h3 className="mb-2 mt-3 font-body text-[15px] font-bold">Status</h3>
+      <div className="flex rounded-[10px] bg-[#76748C]/12 p-0.5">
+        {(["semua", "aktif", "selesai", "arsip"] as Status[]).map((s) => (
+          <button
+            key={s}
+            type="button"
+            aria-pressed={status === s}
+            onClick={() => setStatus(s)}
+            className="min-h-10 flex-1 rounded-lg font-body text-sm font-semibold"
+            style={{ background: status === s ? "#fff" : "transparent" }}
+          >
+            {STATUS_LABEL[s]}
+          </button>
+        ))}
+      </div>
+      <h3 className="mb-2 mt-5 font-body text-[15px] font-bold">Kursus</h3>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          aria-pressed={course === null}
+          onClick={() => setCourse(null)}
+          className="min-h-11 rounded-full border-[1.5px] px-3.5 font-body text-[15px] font-semibold"
+          style={{
+            borderColor: course === null ? "#4F46E5" : "#E4E1F0",
+            background: course === null ? "#EEEDFD" : "#fff",
+          }}
+        >
+          Semua
+        </button>
+        <button
+          type="button"
+          aria-pressed={course === "sql"}
+          onClick={() => setCourse("sql")}
+          className="min-h-11 rounded-full border-[1.5px] px-3.5 font-body text-[15px] font-semibold"
+          style={{
+            borderColor: course === "sql" ? "#4F46E5" : "#E4E1F0",
+            background: course === "sql" ? "#EEEDFD" : "#fff",
+          }}
+        >
+          SQL Dasar
+        </button>
+      </div>
+      <div className="mt-6 grid grid-cols-2 gap-2.5">
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => {
+            setStatus("semua");
+            setCourse(null);
+          }}
+        >
+          Atur ulang
+        </button>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => onApply({ status, course })}
+        >
+          {count === undefined
+            ? "Tampilkan berkas"
+            : `Tampilkan ${count} berkas`}
+        </button>
+      </div>
+    </Sheet>
   );
 }
 
@@ -582,7 +621,8 @@ function FileRow({
               ) : null}
             </span>
             <span className="mt-0.5 block truncate text-[13px] text-ink-soft">
-              {item.courseLabel}, {item.doneCount} dari {item.totalNodes} misi selesai
+              {item.courseLabel}, {item.doneCount} dari {item.totalNodes} misi
+              selesai
             </span>
             <span
               className="mt-1.5 inline-block rounded-full px-2 py-0.5 font-body text-[11.5px] font-bold tracking-wide"
@@ -678,7 +718,8 @@ function ContextMenu({
               {item.title}
             </span>
             <span className="block text-[13px] text-ink-soft">
-              {item.courseLabel}, {item.doneCount} dari {item.totalNodes} misi selesai
+              {item.courseLabel}, {item.doneCount} dari {item.totalNodes} misi
+              selesai
             </span>
           </span>
         </div>
