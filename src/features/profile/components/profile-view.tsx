@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   buttonGhost,
-  buttonPrimary,
   buttonSecondary,
   fieldClass,
   inputClass,
@@ -18,11 +17,14 @@ import {
   REMINDER_OPTIONS,
   type ReminderKey,
 } from "@/features/onboarding/data";
-import { ProfileHero } from "@/features/profile/components/profile-hero";
+import {
+  ProfileHero,
+  ProfileSkeleton,
+} from "@/features/profile/components/profile-hero";
 import { authClient } from "@/lib/auth-client";
 import { useTRPC } from "@/trpc/client";
 
-type Confirm = "sign-out" | "delete-account" | null;
+type Confirm = "delete-account" | null;
 
 export function ProfileView() {
   const router = useRouter();
@@ -48,6 +50,7 @@ export function ProfileView() {
   }, [session, sessionPending, router]);
 
   const data = profileQuery.data;
+  const loading = sessionPending || (session && profileQuery.isPending);
 
   async function changeSettings(input: {
     dailyTarget?: DailyTarget;
@@ -96,197 +99,158 @@ export function ProfileView() {
     }
   }
 
-  if (sessionPending || (session && profileQuery.isPending)) {
-    return (
-      <div className={`${pageClass} anim-tab-in items-center justify-center`}>
-        <p role="status" className="text-ink-soft">
-          Memuat profil…
-        </p>
-      </div>
-    );
-  }
-
-  if (!data) return null;
-
   return (
-    <div className={`${pageClass} anim-tab-in gap-5 pt-8 pb-28`}>
-      <header>
-        <h1 className="font-display text-3xl font-black">Profil</h1>
-      </header>
+    <div className={`${pageClass} anim-tab-in pt-8 pb-28`}>
+      <h1 className="pt-0.5 font-display text-[34px] leading-[41px] font-black tracking-[0.2px]">
+        Profil
+      </h1>
 
-      <ProfileHero data={data} />
+      {loading ? <ProfileSkeleton /> : null}
+      {!loading && data ? (
+        <>
+          <ProfileHero data={data} onSignOut={handleSignOut} />
 
-      <section
-        aria-labelledby="daily-target"
-        className="anim-row-in rounded-2xl border-2 border-line bg-white p-4"
-      >
-        <h2 id="daily-target" className="font-display text-lg font-black">
-          Target harian
-        </h2>
-        <div className="mt-3 grid grid-cols-4 gap-2">
-          {DAILY_TARGET_OPTIONS.map(([value]) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={data.dailyTarget === value}
-              onClick={() => changeSettings({ dailyTarget: value })}
-              className={`min-h-11 rounded-xl border-2 text-sm font-bold ${data.dailyTarget === value ? "border-ind bg-ind-soft" : "border-line"}`}
-            >
-              {value} mnt
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section
-        style={{ animationDelay: "0.07s" }}
-        aria-labelledby="reminder"
-        className="anim-row-in rounded-2xl border-2 border-line bg-white p-4"
-      >
-        <h2 id="reminder" className="font-display text-lg font-black">
-          Pengingat
-        </h2>
-        <div className="mt-3 grid gap-2">
-          {REMINDER_OPTIONS.map(([value, title]) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={data.reminder === value}
-              onClick={() => changeSettings({ reminder: value })}
-              className={`min-h-11 rounded-xl border-2 px-3 text-left font-bold ${data.reminder === value ? "border-ind bg-ind-soft" : "border-line"}`}
-            >
-              {title}
-            </button>
-          ))}
-          {data.reminder && (
-            <button
-              type="button"
-              className={buttonGhost}
-              onClick={() => changeSettings({ reminder: null })}
-            >
-              Matikan pengingat
-            </button>
-          )}
-        </div>
-      </section>
-
-      <section
-        style={{ animationDelay: "0.14s" }}
-        aria-labelledby="class"
-        className="anim-row-in rounded-2xl border-2 border-line bg-white p-4"
-      >
-        <h2 id="class" className="font-display text-lg font-black">
-          Kelas
-        </h2>
-        {data.classroom ? (
-          <p className="mt-2 text-ink-soft">
-            {data.classroom.name} · {data.classroom.lecturer}
-          </p>
-        ) : (
-          <div className="mt-3">
-            <label htmlFor="profile-class-code" className={labelClass}>
-              Kode kelas
-            </label>
-            <div className={fieldClass}>
-              <input
-                id="profile-class-code"
-                type="text"
-                autoCapitalize="characters"
-                value={classCode}
-                onChange={(e) => setClassCode(e.target.value)}
-                className={inputClass}
-              />
+          <section
+            aria-labelledby="daily-target"
+            className="anim-row-in mt-6 rounded-2xl border-2 border-line bg-white p-4"
+          >
+            <h2 id="daily-target" className="font-display text-lg font-black">
+              Target harian
+            </h2>
+            <div className="mt-3 grid grid-cols-4 gap-2">
+              {DAILY_TARGET_OPTIONS.map(([value]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={data.dailyTarget === value}
+                  onClick={() => changeSettings({ dailyTarget: value })}
+                  className={`min-h-11 rounded-xl border-2 text-sm font-bold ${data.dailyTarget === value ? "border-ind bg-ind-soft" : "border-line"}`}
+                >
+                  {value} mnt
+                </button>
+              ))}
             </div>
-            {classError && (
-              <p
-                key={attempt}
-                role="alert"
-                className="mt-2 text-sm font-bold text-bad"
-              >
-                {classError}
+          </section>
+
+          <section
+            style={{ animationDelay: "0.07s" }}
+            aria-labelledby="reminder"
+            className="anim-row-in rounded-2xl border-2 border-line bg-white p-4"
+          >
+            <h2 id="reminder" className="font-display text-lg font-black">
+              Pengingat
+            </h2>
+            <div className="mt-3 grid gap-2">
+              {REMINDER_OPTIONS.map(([value, title]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={data.reminder === value}
+                  onClick={() => changeSettings({ reminder: value })}
+                  className={`min-h-11 rounded-xl border-2 px-3 text-left font-bold ${data.reminder === value ? "border-ind bg-ind-soft" : "border-line"}`}
+                >
+                  {title}
+                </button>
+              ))}
+              {data.reminder && (
+                <button
+                  type="button"
+                  className={buttonGhost}
+                  onClick={() => changeSettings({ reminder: null })}
+                >
+                  Matikan pengingat
+                </button>
+              )}
+            </div>
+          </section>
+
+          <section
+            style={{ animationDelay: "0.14s" }}
+            aria-labelledby="class"
+            className="anim-row-in rounded-2xl border-2 border-line bg-white p-4"
+          >
+            <h2 id="class" className="font-display text-lg font-black">
+              Kelas
+            </h2>
+            {data.classroom ? (
+              <p className="mt-2 text-ink-soft">
+                {data.classroom.name} · {data.classroom.lecturer}
               </p>
+            ) : (
+              <div className="mt-3">
+                <label htmlFor="profile-class-code" className={labelClass}>
+                  Kode kelas
+                </label>
+                <div className={fieldClass}>
+                  <input
+                    id="profile-class-code"
+                    type="text"
+                    autoCapitalize="characters"
+                    value={classCode}
+                    onChange={(e) => setClassCode(e.target.value)}
+                    className={inputClass}
+                  />
+                </div>
+                {classError && (
+                  <p
+                    key={attempt}
+                    role="alert"
+                    className="mt-2 text-sm font-bold text-bad"
+                  >
+                    {classError}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  className={`${buttonSecondary} mt-3`}
+                  onClick={handleJoinClass}
+                >
+                  Gabung kelas
+                </button>
+              </div>
             )}
-            <button
-              type="button"
-              className={`${buttonSecondary} mt-3`}
-              onClick={handleJoinClass}
-            >
-              Gabung kelas
-            </button>
-          </div>
-        )}
-      </section>
+          </section>
 
-      {error && (
-        <p role="alert" className="text-sm font-bold text-bad">
-          {error}
-        </p>
-      )}
+          {error && (
+            <p role="alert" className="text-sm font-bold text-bad">
+              {error}
+            </p>
+          )}
 
-      <section
-        className="anim-row-in grid gap-3 pb-8"
-        style={{ animationDelay: "0.21s" }}
-      >
-        {confirm === "sign-out" ? (
-          <div className="grid gap-2 rounded-2xl border-2 border-line bg-white p-4">
-            <p className="font-bold">
-              Keluar dari akun? Progresmu tetap tersimpan.
-            </p>
-            <button
-              type="button"
-              className={buttonPrimary}
-              onClick={handleSignOut}
-            >
-              Ya, keluar
-            </button>
-            <button
-              type="button"
-              className={buttonGhost}
-              onClick={() => setConfirm(null)}
-            >
-              Batal
-            </button>
-          </div>
-        ) : confirm === "delete-account" ? (
-          <div className="grid gap-2 rounded-2xl border-2 border-bad bg-white p-4">
-            <p className="font-bold text-bad">
-              Hapus akun? Semua progres, berkas, dan keanggotaan kelas akan
-              hilang dan tidak bisa dikembalikan.
-            </p>
-            <button
-              type="button"
-              className="flex min-h-13 w-full items-center justify-center rounded-2xl bg-bad font-display font-black text-white"
-              onClick={handleDeleteAccount}
-            >
-              Ya, hapus akun saya
-            </button>
-            <button
-              type="button"
-              className={buttonGhost}
-              onClick={() => setConfirm(null)}
-            >
-              Batal
-            </button>
-          </div>
-        ) : (
-          <>
-            <button
-              type="button"
-              className={buttonSecondary}
-              onClick={() => setConfirm("sign-out")}
-            >
-              Keluar
-            </button>
-            <button
-              type="button"
-              className={buttonGhost}
-              onClick={() => setConfirm("delete-account")}
-            >
-              Hapus akun
-            </button>
-          </>
-        )}
-      </section>
+          <section className="anim-row-in grid gap-3 pb-8">
+            {confirm === "delete-account" ? (
+              <div className="grid gap-2 rounded-2xl border-2 border-bad bg-white p-4">
+                <p className="font-bold text-bad">
+                  Hapus akun? Semua progres, berkas, dan keanggotaan kelas akan
+                  hilang dan tidak bisa dikembalikan.
+                </p>
+                <button
+                  type="button"
+                  className="flex min-h-13 w-full items-center justify-center rounded-2xl bg-bad font-display font-black text-white"
+                  onClick={handleDeleteAccount}
+                >
+                  Ya, hapus akun saya
+                </button>
+                <button
+                  type="button"
+                  className={buttonGhost}
+                  onClick={() => setConfirm(null)}
+                >
+                  Batal
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={buttonGhost}
+                onClick={() => setConfirm("delete-account")}
+              >
+                Hapus akun
+              </button>
+            )}
+          </section>
+        </>
+      ) : null}
     </div>
   );
 }
