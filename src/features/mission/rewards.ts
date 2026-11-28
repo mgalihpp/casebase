@@ -1,6 +1,9 @@
 export const HEARTS_MAX = 5;
 export const HEART_REGEN_MS = 4 * 60 * 60 * 1000;
-export const HINT_MAX = 3;
+export const FAST_ANSWER_MS = 30_000;
+export const QUERY_KILAT_TARGET = 5;
+export const CHECKS_PER_MINUTE = 20;
+export const HINT_COIN_COST = 1;
 export const HINT_PENALTY = 10;
 export const XP_FIRST = 10;
 export const XP_REPEAT = 5;

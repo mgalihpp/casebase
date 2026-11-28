@@ -21,7 +21,7 @@ export const profile = pgTable(
     coins: integer("coins").notNull().default(0),
     lantern: integer("lantern").notNull().default(0),
     lastMissionDate: text("last_mission_date"),
-    leagueTier: text("league_tier").notNull().default("Safir"),
+    leagueTier: text("league_tier").notNull().default("Perunggu"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [

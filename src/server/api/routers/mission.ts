@@ -1,6 +1,7 @@
 import {
   checkAnswer,
   failMission,
+  openChest,
   takeHint,
 } from "@/features/mission/mutations";
 import { startMission } from "@/features/mission/queries";
@@ -23,4 +24,8 @@ export const missionRouter = createTRPCRouter({
   fail: authedProcedure
     .input(startInput)
     .mutation(({ input, ctx }) => failMission(ctx.user.id, input)),
+
+  openChest: authedProcedure
+    .input(startInput)
+    .mutation(({ input, ctx }) => openChest(ctx.user.id, input)),
 });

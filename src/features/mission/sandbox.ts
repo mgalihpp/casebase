@@ -73,7 +73,8 @@ export function runSandbox(jobs: Job[]): Promise<RunOutcome[]> {
       if (message.type === "ready") {
         // Batas 3 detik dihitung setelah mesin siap, seperti SDD 3.8.
         timer = setTimeout(
-          () => finish(jobs.map(() => ({ ok: false, message: TIMEOUT_MESSAGE }))),
+          () =>
+            finish(jobs.map(() => ({ ok: false, message: TIMEOUT_MESSAGE }))),
           SANDBOX_TIMEOUT_MS,
         );
         worker.postMessage({ jobs });
@@ -90,9 +91,7 @@ export function runSandbox(jobs: Job[]): Promise<RunOutcome[]> {
       }
     });
     worker.on("error", (error) => {
-      finish(
-        jobs.map(() => ({ ok: false, message: explainSqlError(error) })),
-      );
+      finish(jobs.map(() => ({ ok: false, message: explainSqlError(error) })));
     });
   });
 }

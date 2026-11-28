@@ -58,7 +58,8 @@ export function mainCommand(statement: string): string | null {
   const flush = () => {
     const upper = word.toUpperCase();
     word = "";
-    return depth === 0 && ["SELECT", "INSERT", "UPDATE", "DELETE"].includes(upper)
+    return depth === 0 &&
+      ["SELECT", "INSERT", "UPDATE", "DELETE"].includes(upper)
       ? upper
       : null;
   };
@@ -89,11 +90,7 @@ function escapeRegExp(text: string) {
 
 /** Mencocokkan kata kunci wajib seperti `ORDER BY` dengan spasi bebas di antara kata. */
 export function containsKeyword(query: string, keyword: string) {
-  const pattern = keyword
-    .trim()
-    .split(/\s+/)
-    .map(escapeRegExp)
-    .join("\\s+");
+  const pattern = keyword.trim().split(/\s+/).map(escapeRegExp).join("\\s+");
   return new RegExp(`\\b${pattern}\\b`, "i").test(query);
 }
 
@@ -158,12 +155,17 @@ export async function judgeWrite(
   const allowed = question.boleh.map((b) => b.toUpperCase());
   for (const statement of splitStatements(query)) {
     const command = mainCommand(statement);
-    if (!command || !KNOWN_COMMANDS.includes(command) || !allowed.includes(command)) {
+    if (
+      !command ||
+      !KNOWN_COMMANDS.includes(command) ||
+      !allowed.includes(command)
+    ) {
       return {
         correct: false,
-        message: command && KNOWN_COMMANDS.includes(command)
-          ? `Perintah ${command} belum dipakai di misi ini.`
-          : "Perintah pertama belum dikenali. Periksa penulisannya.",
+        message:
+          command && KNOWN_COMMANDS.includes(command)
+            ? `Perintah ${command} belum dipakai di misi ini.`
+            : "Perintah pertama belum dikenali. Periksa penulisannya.",
       };
     }
   }
