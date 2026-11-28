@@ -29,6 +29,13 @@
       "when": 1795830983197,
       "tag": "0003_guest_anonymous_user",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795837884618,
+      "tag": "0004_sprint3_4_gamifikasi_berkas_liga",
+      "breakpoints": true
     }
   ]
 }

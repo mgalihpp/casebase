@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { readHearts } from "@/features/mission/progression";
 import { nodeProgress } from "@/features/mission/schema";
 import { computeStreak, toJakartaDate } from "@/features/progress/streak";
 import { db } from "@/server/db";
@@ -21,6 +22,7 @@ export const progressRouter = createTRPCRouter({
     return {
       streak: computeStreak(dates, today),
       doneToday: dates.includes(today),
+      hearts: await readHearts(ctx.user.id, new Date()),
     };
   }),
 });

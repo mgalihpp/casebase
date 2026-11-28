@@ -14,8 +14,6 @@ type Props = { courseId: string };
 // Pola geser node dari peta misi di desain (zig-zag).
 const OFFSETS = [0, -48, 0, 48, 0, -48];
 const STEP_HEIGHT = 44;
-// Nyawa di desain berjumlah 5. Data streak belum menyediakan nyawa, jadi nilai ini tetap di UI.
-const HEARTS = 5;
 const WEEK_LABELS = ["S", "S", "R", "K", "J", "S", "M"];
 
 type IconProps = { size: number; stroke?: number };
@@ -243,6 +241,7 @@ export function LearnScreen({ courseId }: Props) {
   const { data, isPending, error, refetch } = useCoursePath(courseId);
   const courses = useCourseList();
   const streak = useStreak();
+  const hearts = streak.data?.hearts ?? 5;
   const meta = findCourse(courseId);
   const [caseOpen, setCaseOpen] = useState(false);
   const [mood, setMood] = useState<MascotMood>("idle");
@@ -357,7 +356,7 @@ export function LearnScreen({ courseId }: Props) {
         type="button"
         onClick={() => setStreakOpen(true)}
         aria-haspopup="dialog"
-        aria-label={`Status harian: ${streakCount} hari beruntun, ${HEARTS} nyawa`}
+        aria-label={`Status harian: ${streakCount} hari beruntun, ${hearts} nyawa`}
         className="ml-auto flex min-h-11 items-center gap-2.5 font-display text-base font-extrabold"
       >
         <span className="flex items-center gap-[3px] text-[#B45309]">
@@ -366,7 +365,7 @@ export function LearnScreen({ courseId }: Props) {
         </span>
         <span className="flex items-center gap-[3px] text-[#BE123C]">
           <HeartIcon size={18} />
-          {HEARTS}
+          {hearts}
         </span>
       </button>
     </header>
@@ -473,7 +472,7 @@ export function LearnScreen({ courseId }: Props) {
               <span className="text-[#BE123C]">
                 <HeartIcon size={20} />
               </span>
-              {HEARTS}/5
+              {hearts}/5
             </span>
             <span className="text-[13px] text-ink-soft">
               Nyawa, bertambah 1 tiap 4 jam

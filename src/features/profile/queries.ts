@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { classMember, classroom } from "@/features/class/schema";
+import { heartsNow } from "@/features/mission/rewards";
 import { db } from "@/server/db";
 import { user } from "@/server/db/auth-schema";
 import { profile } from "./schema";
@@ -15,6 +16,11 @@ export async function getMyProfile(userId: string) {
       course: profile.course,
       level: profile.level,
       onboardingCompletedAt: profile.onboardingCompletedAt,
+      xp: profile.xp,
+      lantern: profile.lantern,
+      leagueTier: profile.leagueTier,
+      hearts: profile.hearts,
+      heartsUpdatedAt: profile.heartsUpdatedAt,
     })
     .from(profile)
     .innerJoin(user, eq(user.id, profile.userId))
@@ -30,5 +36,10 @@ export async function getMyProfile(userId: string) {
     .where(eq(classMember.userId, userId))
     .limit(1);
 
-  return { ...row, classroom: myClass ?? null };
+  const { heartsUpdatedAt, hearts, ...rest } = row;
+  return {
+    ...rest,
+    hearts: heartsNow(hearts, heartsUpdatedAt, new Date()),
+    classroom: myClass ?? null,
+  };
 }
