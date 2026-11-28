@@ -27,11 +27,15 @@ type Answer =
   | { type: "pilih"; choice: number }
   | { type: "susun"; order: string[] };
 
+type Reward = { xp: number; score: number; lantern: number };
+
 type Check = {
   correct: boolean;
   message: string;
   explanation: string | null;
   nodeDone: boolean;
+  hearts: number;
+  reward: Reward | null;
 };
 
 type Sheet = "petunjuk" | "skema" | "keluar" | null;
@@ -133,7 +137,8 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<Check | null>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const [hearts, setHearts] = useState(HEARTS);
+  const [heartsLeft, setHeartsLeft] = useState<number | null>(null);
+  const [reward, setReward] = useState<Reward | null>(null);
   const [mistakes, setMistakes] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
@@ -179,6 +184,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
   }
 
   const total = data.questions.length;
+  const hearts = heartsLeft ?? data.hearts ?? HEARTS;
   const xp = Math.max(0, total * XP_PER_SOAL - hintsUsed * BIAYA_PETUNJUK);
   const score = Math.max(0, 100 - hintsUsed * 10 - mistakes * 5);
   const accuracy = Math.round((total / Math.max(attempts, total)) * 100);
@@ -210,12 +216,15 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
         onSuccess: (outcome) => {
           setResult(outcome);
           setAttempts((count) => count + 1);
+          setHeartsLeft(outcome.hearts);
+          if (outcome.reward) setReward(outcome.reward);
           if (outcome.correct) return;
           setMistakes((count) => count + 1);
-          setHearts((left) => Math.max(0, left - 1));
         },
         onError: (failure) => {
           if (failure.data?.code === "UNAUTHORIZED") router.replace("/masuk");
+          else if (failure.data?.code === "PRECONDITION_FAILED")
+            setToast(failure.message);
           else setToast(GAGAL_KIRIM);
         },
       },
@@ -312,12 +321,12 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
           Satu bukti lagi masuk ke berkas. Pelakunya makin dekat.
         </p>
         <dl className="mt-6 grid w-full grid-cols-3 gap-2 rounded-2xl border-[1.5px] border-line bg-white py-3">
-          <Stat label="XP" value={`+${xp}`} delay={0.35} />
+          <Stat label="XP" value={`+${reward?.xp ?? xp}`} delay={0.35} />
           <Stat label="Akurasi" value={`${accuracy}%`} delay={0.5} tone />
           <Stat label="Waktu" value={formatTime(elapsed)} delay={0.65} />
         </dl>
         <p className="mt-3.5 text-sm text-ink-soft">
-          Skor {score} dari 100, memakai {hintsUsed} petunjuk
+          Skor {reward?.score ?? score} dari 100, memakai {hintsUsed} petunjuk
         </p>
         <Link href={`/belajar/${courseId}`} className={`${buttonPrimary} mt-8`}>
           Lanjut

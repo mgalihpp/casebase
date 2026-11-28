@@ -1,5 +1,7 @@
+import { caseFileRouter } from "./routers/case-file";
 import { classRouter } from "./routers/class";
 import { courseRouter } from "./routers/course";
+import { leagueRouter } from "./routers/league";
 import { missionRouter } from "./routers/mission";
 import { onboardingRouter } from "./routers/onboarding";
 import { profileRouter } from "./routers/profile";
@@ -15,6 +17,8 @@ export const appRouter = createTRPCRouter({
   course: courseRouter,
   mission: missionRouter,
   progress: progressRouter,
+  caseFile: caseFileRouter,
+  league: leagueRouter,
 });
 
 export type AppRouter = typeof appRouter;

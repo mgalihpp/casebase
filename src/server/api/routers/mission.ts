@@ -1,5 +1,9 @@
-import { checkAnswer, failMission } from "@/features/mission/mutations";
-import { getHint, startMission } from "@/features/mission/queries";
+import {
+  checkAnswer,
+  failMission,
+  takeHint,
+} from "@/features/mission/mutations";
+import { startMission } from "@/features/mission/queries";
 import { checkInput, hintInput, startInput } from "@/features/mission/schemas";
 import { authedProcedure, createTRPCRouter } from "../trpc";
 
@@ -10,7 +14,7 @@ export const missionRouter = createTRPCRouter({
 
   hint: authedProcedure
     .input(hintInput)
-    .query(({ input, ctx }) => getHint(ctx.user.id, input)),
+    .mutation(({ input, ctx }) => takeHint(ctx.user.id, input)),
 
   check: authedProcedure
     .input(checkInput)
