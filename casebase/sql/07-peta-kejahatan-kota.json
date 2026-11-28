@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "07",
   "title": "Peta Kejahatan Kota",
-  "story": "Polisi mencatat jumlah kejadian per wilayah selama empat bulan. Analis ingin tahu wilayah mana yang melonjak, kapan puncaknya, dan bagaimana tren tiap wilayah. Data fiktif.",
+  "story": "Selama empat bulan, polisi mencatat jumlah kejadian di tiga wilayah kota. Kepala analis ingin tahu wilayah mana yang melonjak, kapan puncaknya, dan bagaimana trennya dari bulan ke bulan.",
   "bukti": [
     "Tiga wilayah, empat bulan.",
     "Utara tertinggi di bulan ketiga.",
@@ -18,19 +18,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Beri nomor urut",
-      "topic": "ROW_NUMBER"
+      "topic": "ROW_NUMBER",
+      "bukti": "Urutan bulan paling rawan",
+      "cerita": "Kita mulai dengan menyusun semua catatan, dari bulan yang paling rawan.",
+      "pelajaran": "ROW_NUMBER() memberi nomor urut pada setiap baris. OVER (ORDER BY ...) menentukan urutan penomorannya."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Peringkat per wilayah",
-      "topic": "RANK dan PARTITION BY"
+      "topic": "RANK dan PARTITION BY",
+      "bukti": "Peringkat bulan di tiap wilayah",
+      "cerita": "Setiap wilayah punya polanya sendiri. Kita beri peringkat bulan di dalam tiap wilayah.",
+      "pelajaran": "PARTITION BY membagi baris per kelompok, lalu RANK() memberi peringkat di dalam tiap kelompok tanpa menggabungkan barisnya."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Total berjalan",
-      "topic": "SUM OVER"
+      "topic": "SUM OVER",
+      "bukti": "Total kejadian berjalan per wilayah",
+      "cerita": "Analis ingin melihat jumlah kejadian yang terus bertambah dari bulan ke bulan.",
+      "pelajaran": "SUM() OVER (... ORDER BY bulan) menjumlahkan dari baris pertama sampai baris saat ini. Hasilnya disebut total berjalan."
     },
     {
       "key": "n4",
@@ -41,12 +50,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Selisih bulanan",
-      "topic": "LAG"
+      "topic": "LAG",
+      "bukti": "Perubahan kejadian dari bulan ke bulan",
+      "cerita": "Lonjakan terlihat dari selisih dengan bulan sebelumnya. Kita hitung perubahan tiap bulan.",
+      "pelajaran": "LAG() mengambil nilai dari baris sebelumnya. Bulan pertama tidak punya pembanding, jadi hasilnya NULL."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Bulan puncak tiap wilayah",
+      "cerita": "Laporan akhir hanya butuh satu baris per wilayah, yaitu bulan puncaknya.",
+      "pelajaran": "Beri peringkat di dalam subquery, lalu saring yang peringkatnya 1 di query luar. Fungsi window tidak bisa langsung dipakai di WHERE."
     }
   ],
   "questions": [

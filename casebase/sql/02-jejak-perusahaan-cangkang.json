@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "02",
   "title": "Jejak Perusahaan Cangkang",
-  "story": "Bocoran dokumen sebuah firma hukum di luar negeri memuat delapan perusahaan cangkang. Auditor curiga satu orang berdiri di balik banyak perusahaan di Panama untuk menyembunyikan uang. Semua nama dalam kasus ini fiktif.",
+  "story": "Sebuah dokumen bocor dari firma hukum di luar negeri. Isinya delapan perusahaan cangkang, dan auditor curiga satu orang bersembunyi di balik banyak perusahaan di Panama untuk menyimpan uang. Semua nama di kasus ini fiktif.",
   "bukti": [
     "Delapan perusahaan terdaftar di tiga yurisdiksi.",
     "Satu nama muncul sebagai pemilik di banyak perusahaan.",
@@ -19,19 +19,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Buka daftar perusahaan",
-      "topic": "SELECT dan FROM"
+      "topic": "SELECT dan FROM",
+      "bukti": "Daftar delapan perusahaan cangkang",
+      "cerita": "Kita mulai dari dokumen yang bocor: daftar lengkap perusahaannya.",
+      "pelajaran": "SELECT menentukan kolom yang ingin ditampilkan, dan FROM menunjuk tabel asalnya. Tanda * berarti semua kolom."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Saring perusahaan Panama",
-      "topic": "WHERE"
+      "topic": "WHERE",
+      "bukti": "Daftar perusahaan yang terdaftar di Panama",
+      "cerita": "Auditor curiga pada Panama. Kita sisihkan perusahaan dari negara lain.",
+      "pelajaran": "WHERE dengan tanda = mencocokkan nilai yang persis sama. Teks ditulis di antara tanda kutip tunggal, misalnya 'Panama'."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Tiga perusahaan terbaru",
-      "topic": "ORDER BY dan LIMIT"
+      "topic": "ORDER BY dan LIMIT",
+      "bukti": "Tiga perusahaan yang paling baru dibuat",
+      "cerita": "Perusahaan cangkang sering dibuat terburu-buru menjelang uang dipindahkan. Kita lihat tiga yang paling baru.",
+      "pelajaran": "ORDER BY mengurutkan hasil, DESC membuatnya dari yang terbesar, dan LIMIT membatasi jumlah baris."
     },
     {
       "key": "n4",
@@ -42,12 +51,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Siapa pemilik siapa",
-      "topic": "JOIN"
+      "topic": "JOIN",
+      "bukti": "Peta pemilik tiap perusahaan",
+      "cerita": "Nama perusahaan ada di satu tabel, pemiliknya di tabel lain. Kita sambungkan keduanya untuk tahu siapa di balik tiap perusahaan.",
+      "pelajaran": "JOIN menggabungkan dua tabel. ON menentukan kolom yang harus cocok, misalnya pemilik.perusahaan_id = perusahaan.id."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Nama di balik perusahaan-perusahaan Panama",
+      "cerita": "Satu nama terus muncul di dokumen. Buktikan siapa yang memiliki lebih dari dua perusahaan di Panama.",
+      "pelajaran": "Saring Panama dengan WHERE, kelompokkan per pemilik dengan GROUP BY, lalu pilih yang jumlahnya lebih dari dua dengan HAVING COUNT(*)."
     }
   ],
   "questions": [

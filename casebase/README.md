@@ -25,7 +25,7 @@ casebase/
 Satu kasus = satu file JSON, sesuai SDD 5.1 (`docs/claude/SDD.md`).
 
 - `course`, `number`, `title`, `story`, `seed`: identitas dan data contoh kasus.
-- `nodes`: 6 node per kasus (3 misi, 1 kotak bukti, 1 misi, 1 interogasi).
+- `nodes`: 6 node per kasus (3 misi, 1 kotak bukti, 1 misi, 1 interogasi). Tiap misi dan interogasi wajib punya `bukti`: nama bukti yang didapat setelah tuntas, ditampilkan di briefing. Tulis sebagai nama barang bukti, bukan kesimpulannya, supaya tidak membocorkan jawaban. Briefing juga memakai `cerita` (satu atau dua kalimat cerita yang membuka misi) dan `pelajaran` (penjelasan singkat materi misi). Keduanya wajib untuk misi dan interogasi.
 - `questions`: soal per node. `answer` adalah kunci jawaban dan tidak boleh dikirim ke browser.
 - `boleh`, `wajib`, `aturanKolom`: batasan query yang diterima.
 - `pemeriksa`: diisi hanya untuk soal yang mengubah data.

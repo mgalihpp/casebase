@@ -12,6 +12,7 @@ import {
   pageClass,
 } from "@/components/ui/styles";
 import { findCourse } from "@/features/course/data";
+import { LABEL_SOAL, shouldShowBriefing } from "@/features/mission/briefing";
 import { type RunOutcome, runSql } from "@/features/mission/engine/run-sql";
 import { highlight, type Token } from "@/features/mission/highlight";
 import {
@@ -19,8 +20,11 @@ import {
   useMissionHint,
   useMissionStart,
 } from "@/features/mission/hooks";
+import { keywordChips, parseTables } from "@/features/mission/keywords";
+import { xpFor } from "@/features/mission/rewards";
 import { useTRPC } from "@/trpc/client";
 import { PasangKunci, SalahToken, TebakRows } from "./interactive";
+import { MissionBriefing } from "./mission-briefing";
 
 type Props = { courseId: string; nodeKey: string };
 
@@ -50,33 +54,6 @@ const HINT_MAX = 3;
 const XP_PER_SOAL = 10;
 const BIAYA_PETUNJUK = 10;
 const GAGAL_KIRIM = "Jawaban belum terkirim. Cek koneksimu, lalu coba lagi.";
-const KETUKAN_KATA_KUNCI = [
-  "SELECT",
-  "*",
-  "FROM",
-  "transaksi",
-  "ORDER BY",
-  "jumlah",
-  "DESC",
-  "LIMIT",
-  "3",
-  "WHERE",
-  ",",
-];
-const KOLOM_TRANSAKSI = [
-  ["id", "INTEGER"],
-  ["rekening", "TEXT"],
-  ["jumlah", "INTEGER"],
-  ["waktu", "TEXT"],
-];
-const LABEL_SOAL = {
-  write: "Tulis query",
-  pilih: "Pilih jawaban",
-  susun: "Susun query",
-  tebak: "Tebak hasil",
-  salah: "Cari kesalahan",
-  pasang: "Pasangkan kunci",
-} as const;
 const CONFETTI_COLORS = [
   "#4F46E5",
   "#0E7490",
@@ -162,10 +139,13 @@ function MissionPlay({
   const [mistakes, setMistakes] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [hintTexts, setHintTexts] = useState<string[]>([]);
-  const [startedAt] = useState(() => Date.now());
+  const [startedAt, setStartedAt] = useState(() => Date.now());
   const [elapsed, setElapsed] = useState(0);
   const [finished, setFinished] = useState(false);
   const [sheet, setSheet] = useState<Sheet>(null);
+  const [briefing, setBriefing] = useState(() =>
+    shouldShowBriefing(data.questionIndex),
+  );
 
   const question = data?.questions[index];
 
@@ -199,6 +179,7 @@ function MissionPlay({
   if (!meta) return null;
 
   const total = data.questions.length;
+  const tables = parseTables(data.case.seed);
   const hintsUsed = data.hintsOpened.reduce(
     (sum, list) => sum + list.length,
     0,
@@ -327,6 +308,9 @@ function MissionPlay({
     void queryClient.invalidateQueries({
       queryKey: trpc.course.path.queryKey(),
     });
+    void queryClient.invalidateQueries({
+      queryKey: trpc.progress.streak.queryKey(),
+    });
     setElapsed(Math.floor((Date.now() - startedAt) / 1000));
     setFinished(true);
   }
@@ -338,6 +322,25 @@ function MissionPlay({
       <OutOfHearts
         nextHeartAt={data.nextHeartAt}
         onBack={() => router.replace(`/belajar/${courseId}`)}
+      />
+    );
+  }
+
+  if (briefing && !finished) {
+    return (
+      <MissionBriefing
+        mascot={meta.abbr}
+        caseNumber={data.case.number}
+        caseStory={data.case.story}
+        node={data.node}
+        questions={data.questions}
+        xp={xpFor(data.status === "done")}
+        onStart={() => {
+          setStartedAt(Date.now());
+          setBriefing(false);
+          window.scrollTo({ top: 0 });
+        }}
+        onClose={() => router.push(`/belajar/${courseId}`)}
       />
     );
   }
@@ -593,7 +596,7 @@ function MissionPlay({
                 aria-label="Sisipkan kata kunci"
                 className="mt-2.5 flex flex-wrap gap-2"
               >
-                {KETUKAN_KATA_KUNCI.map((keyword) => (
+                {keywordChips(question.kataKunci, tables).map((keyword) => (
                   <button
                     key={keyword}
                     type="button"
@@ -853,22 +856,27 @@ function MissionPlay({
       <BottomSheet open={sheet === "skema"} onClose={closeSheet} title="Skema">
         <div className="flex flex-col gap-4">
           <p className="text-[15px] text-ink-soft">
-            Kolom yang bisa dipakai di tabel ini.
+            Tabel dan kolom yang bisa dipakai di kasus ini.
           </p>
-          <div className="overflow-hidden rounded-2xl border-[1.5px] border-line">
-            <p className="bg-[#EEEDFD] px-3.5 py-2.5 font-mono text-[15px] font-bold text-[#3730A3]">
-              transaksi
-            </p>
-            {KOLOM_TRANSAKSI.map(([name, type]) => (
-              <div
-                key={name}
-                className="flex justify-between border-t border-line px-3.5 py-3 font-mono text-[15px]"
-              >
-                <span>{name}</span>
-                <span className="text-ink-soft">{type}</span>
-              </div>
-            ))}
-          </div>
+          {tables.map((table) => (
+            <div
+              key={table.name}
+              className="overflow-hidden rounded-2xl border-[1.5px] border-line"
+            >
+              <p className="bg-[#EEEDFD] px-3.5 py-2.5 font-mono text-[15px] font-bold text-[#3730A3]">
+                {table.name}
+              </p>
+              {table.columns.map((column) => (
+                <div
+                  key={column.name}
+                  className="flex justify-between border-t border-line px-3.5 py-3 font-mono text-[15px]"
+                >
+                  <span>{column.name}</span>
+                  <span className="text-ink-soft">{column.type}</span>
+                </div>
+              ))}
+            </div>
+          ))}
           <button
             type="button"
             onClick={closeSheet}

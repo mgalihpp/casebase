@@ -5,6 +5,7 @@ import { loadCaseBundle, statusOf } from "@/features/course/queries";
 import type { CaseQuestion } from "@/features/course/schemas";
 import { profile } from "@/features/profile/schema";
 import { db } from "@/server/db";
+import { answerKeywords } from "./keywords";
 import { readHeartsDetail } from "./progression";
 import { missionAttempt, missionHint } from "./schema";
 import type { startInput } from "./schemas";
@@ -18,6 +19,7 @@ function toPublicQuestion(question: CaseQuestion) {
         prompt: question.prompt,
         boleh: question.boleh,
         wajib: question.wajib,
+        kataKunci: answerKeywords(question.answer),
       };
     case "pilih":
       return {
@@ -144,6 +146,9 @@ export async function startMission(
       type: node.type,
       title: node.title ?? null,
       topic: node.topic ?? null,
+      bukti: node.bukti ?? null,
+      cerita: node.cerita ?? null,
+      pelajaran: node.pelajaran ?? null,
     },
     status,
     questions,

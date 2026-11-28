@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "10",
   "title": "Dalang di Balik Layar",
-  "story": "Kasus penutup. Tiga potongan petunjuk muncul: daftar orang, transaksi, dan catatan kehadiran di gudang. Gabungkan semua keterampilanmu untuk menunjuk dalang yang selama ini bersembunyi. Semua nama fiktif.",
+  "story": "Inilah kasus penutup. Tiga petunjuk akhirnya terkumpul: daftar orang, catatan transaksi, dan kehadiran di gudang. Dengan semua yang sudah kamu pelajari, saatnya menunjuk dalang yang selama ini bersembunyi.",
   "bukti": [
     "Lima orang, delapan transaksi, enam catatan kehadiran.",
     "Dua orang hadir di Gudang Utara setelah jam 22.",
@@ -19,19 +19,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Simpan query",
-      "topic": "CREATE VIEW"
+      "topic": "CREATE VIEW",
+      "bukti": "View transaksi besar",
+      "cerita": "Penyidik akan sering memeriksa transaksi besar. Kita simpan query-nya supaya bisa dipakai ulang.",
+      "pelajaran": "CREATE VIEW menyimpan query dengan sebuah nama. View dibaca seperti tabel, dan isinya selalu mengikuti data terbaru."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "View dengan JOIN",
-      "topic": "View dan JOIN"
+      "topic": "View dan JOIN",
+      "bukti": "View ringkasan transaksi per orang",
+      "cerita": "Penyidik ingin langsung melihat nama orang di samping transaksinya.",
+      "pelajaran": "View bisa berisi JOIN, jadi orang yang membacanya tidak perlu menulis ulang penggabungan tabel."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "View dari view",
-      "topic": "View bertumpuk"
+      "topic": "View bertumpuk",
+      "bukti": "View total transaksi per orang",
+      "cerita": "Dari ringkasan transaksi, kita hitung total uang tiap orang.",
+      "pelajaran": "View bisa dibangun dari view lain. Di sini sumbernya adalah view v_transaksi yang sudah ada."
     },
     {
       "key": "n4",
@@ -42,12 +51,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Membaca view",
-      "topic": "SELECT dari view"
+      "topic": "SELECT dari view",
+      "bukti": "Pemilik transaksi terbesar",
+      "cerita": "Siapa pemilik transaksi terbesar? Jawabannya ada di view yang sudah disiapkan.",
+      "pelajaran": "Membaca view sama seperti membaca tabel: SELECT ... FROM nama_view, lalu ORDER BY dan LIMIT seperti biasa."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "View tersangka utama",
+      "cerita": "Semua petunjuk mengarah ke satu orang. Satukan kehadiran di gudang dan total transaksinya untuk menunjuk dalangnya.",
+      "pelajaran": "Gabungkan tiga tabel dengan JOIN, saring dengan WHERE, kelompokkan per orang, lalu simpan hasilnya sebagai view."
     }
   ],
   "questions": [

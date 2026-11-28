@@ -6,6 +6,9 @@ export const caseNodeSchema = z.object({
   type: z.enum(["mission", "chest", "boss"]),
   title: z.string().optional(),
   topic: z.string().optional(),
+  bukti: z.string().optional(),
+  cerita: z.string().optional(),
+  pelajaran: z.string().optional(),
   coins: z.number().int().optional(),
 });
 

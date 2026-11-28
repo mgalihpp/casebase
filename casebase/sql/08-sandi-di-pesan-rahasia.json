@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "08",
   "title": "Sandi di Pesan Rahasia",
-  "story": "Ponsel seorang pegawai disita. Isinya delapan pesan, sebagian menyinggung transfer uang pada larut malam. Sisir pesan dengan pola teks, tanggal, dan kelas nominal. Semua pesan fiktif.",
+  "story": "Ponsel seorang pegawai disita. Di dalamnya ada delapan pesan, dan sebagian menyinggung transfer uang larut malam. Kamu menyisir pesan-pesan itu untuk menemukan pola yang disembunyikan.",
   "bukti": [
     "Delapan pesan dalam dua bulan.",
     "Pesan terkait transfer banyak dikirim lewat jam 22.",
@@ -18,19 +18,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Cari kata kunci",
-      "topic": "LIKE"
+      "topic": "LIKE",
+      "bukti": "Pesan yang menyebut transfer",
+      "cerita": "Kita mulai dari kata yang paling mencurigakan: transfer.",
+      "pelajaran": "LIKE mencari pola teks. Tanda % berarti teks apa saja, jadi '%transfer%' cocok dengan pesan yang memuat kata itu di bagian mana pun."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Olah teks",
-      "topic": "UPPER dan LENGTH"
+      "topic": "UPPER dan LENGTH",
+      "bukti": "Panjang pesan tiap pengirim",
+      "cerita": "Nama pengirim ditulis tidak seragam. Kita rapikan, sekalian lihat seberapa panjang pesan mereka.",
+      "pelajaran": "UPPER() mengubah teks jadi huruf besar, dan LENGTH() menghitung jumlah karakternya."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Saring per bulan",
-      "topic": "Fungsi tanggal"
+      "topic": "Fungsi tanggal",
+      "bukti": "Pesan bulan Maret",
+      "cerita": "Transfer pertama terjadi di bulan Maret. Kita kumpulkan pesan dari bulan itu.",
+      "pelajaran": "strftime('%m', kolom) mengambil bulan dari tanggal dalam bentuk teks dua digit, misalnya '03'."
     },
     {
       "key": "n4",
@@ -41,12 +50,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Beri label nominal",
-      "topic": "CASE"
+      "topic": "CASE",
+      "bukti": "Label nominal tiap pesan",
+      "cerita": "Setiap pesan menyebut nominal. Kita beri label supaya polanya mudah dibaca.",
+      "pelajaran": "CASE WHEN ... THEN ... ELSE ... END memberi nilai berbeda sesuai syarat. Syarat diperiksa dari atas, dan yang pertama cocok yang dipakai."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Rekap transfer larut malam per kelas nominal",
+      "cerita": "Saatnya menunjukkan pola lengkapnya: transfer larut malam, dikelompokkan menurut besar nominalnya.",
+      "pelajaran": "Hasil CASE bisa dikelompokkan dengan GROUP BY. Saring dulu dengan WHERE, lalu hitung tiap kelas dengan COUNT(*)."
     }
   ],
   "questions": [

@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "09",
   "title": "Arsip dari Nol",
-  "story": "Kantor polisi baru membuka divisi kejahatan keuangan dan harus membangun arsip digitalnya dari nol. Kamu merancang tabel, kolom, dan aturannya agar data tetap rapi. Semua nama fiktif.",
+  "story": "Kantor polisi baru saja membuka divisi kejahatan keuangan. Arsip digitalnya masih kosong, dan kamu dipercaya merancang tabel, kolom, dan aturannya agar data tetap rapi sejak hari pertama.",
   "bukti": [
     "Arsip lama baru memuat dua kasus.",
     "Belum ada tabel petugas, saksi, dan barang bukti.",
@@ -17,19 +17,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Bangun tabel pertama",
-      "topic": "CREATE TABLE"
+      "topic": "CREATE TABLE",
+      "bukti": "Tabel petugas",
+      "cerita": "Divisi baru butuh daftar petugas. Kita buat tabelnya dulu.",
+      "pelajaran": "CREATE TABLE membuat tabel baru. Setiap kolom ditulis dengan nama dan tipe datanya, misalnya id INTEGER."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Kunci dan kewajiban",
-      "topic": "PRIMARY KEY dan NOT NULL"
+      "topic": "PRIMARY KEY dan NOT NULL",
+      "bukti": "Tabel saksi dengan aturan wajib isi",
+      "cerita": "Data saksi harus rapi: setiap saksi punya id unik dan namanya wajib diisi.",
+      "pelajaran": "PRIMARY KEY menjamin id tidak kembar, dan NOT NULL melarang kolom dibiarkan kosong."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Tambah kolom",
-      "topic": "ALTER TABLE"
+      "topic": "ALTER TABLE",
+      "bukti": "Kolom status di arsip kasus",
+      "cerita": "Arsip kasus perlu menyimpan status penyelidikan, padahal tabelnya sudah terlanjur dibuat.",
+      "pelajaran": "ALTER TABLE ... ADD COLUMN menambah kolom ke tabel yang sudah ada tanpa menghapus datanya."
     },
     {
       "key": "n4",
@@ -40,12 +49,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Hubungkan tabel",
-      "topic": "FOREIGN KEY"
+      "topic": "FOREIGN KEY",
+      "bukti": "Tabel barang bukti yang terhubung ke arsip",
+      "cerita": "Setiap barang bukti harus jelas berasal dari kasus mana.",
+      "pelajaran": "FOREIGN KEY ... REFERENCES menghubungkan kolom ke tabel lain, sehingga barang bukti tidak bisa merujuk ke arsip yang tidak ada."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Tabel petugas penanggung jawab kasus",
+      "cerita": "Ujian terakhir: rancang tabel penanggung jawab kasus lengkap dengan aturannya, lalu isi data pertamanya.",
+      "pelajaran": "Gabungkan PRIMARY KEY, NOT NULL, dan FOREIGN KEY dalam satu CREATE TABLE, lalu tambahkan data dengan INSERT INTO."
     }
   ],
   "questions": [

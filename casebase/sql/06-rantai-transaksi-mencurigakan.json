@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "06",
   "title": "Rantai Transaksi Mencurigakan",
-  "story": "Uang sebesar 900 juta berpindah lewat tiga rekening dalam tiga hari, nyaris tanpa susut. Pola ini mirip pencucian uang. Rangkum aliran uangnya langkah demi langkah dengan CTE. Semua nama fiktif.",
+  "story": "Uang 900 juta berpindah melewati tiga rekening hanya dalam tiga hari, dan jumlahnya nyaris tidak berkurang. Pola seperti ini mirip pencucian uang. Kamu menelusuri alirannya langkah demi langkah.",
   "bukti": [
     "Delapan transaksi dalam enam hari.",
     "Tiga rekening menerima dan meneruskan nominal hampir sama.",
@@ -19,19 +19,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Beri nama hasil sementara",
-      "topic": "CTE"
+      "topic": "CTE",
+      "bukti": "Daftar transaksi di atas 500",
+      "cerita": "Transaksi kecil hanya mengaburkan jejak. Kita kumpulkan yang besar dan beri nama supaya mudah dipakai.",
+      "pelajaran": "CTE adalah hasil sementara yang diberi nama dengan WITH nama AS (...). Setelah itu, nama tersebut bisa dipakai seperti tabel."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Uang keluar per rekening",
-      "topic": "CTE dan GROUP BY"
+      "topic": "CTE dan GROUP BY",
+      "bukti": "Rekap uang keluar per rekening",
+      "cerita": "Kita hitung berapa banyak uang yang keluar dari tiap rekening, lalu cari yang paling aktif mengirim.",
+      "pelajaran": "Di dalam CTE kamu bisa memakai GROUP BY dan SUM. Hasilnya bisa disaring lagi di query utama."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Penerima terbesar",
-      "topic": "CTE dan ORDER BY"
+      "topic": "CTE dan ORDER BY",
+      "bukti": "Rekening penerima terbesar",
+      "cerita": "Sekarang dari sisi penerima: rekening mana yang menampung uang paling banyak?",
+      "pelajaran": "Hasil CTE bisa diurutkan seperti tabel biasa. Pakai ORDER BY total DESC dan LIMIT 1 untuk mengambil yang teratas."
     },
     {
       "key": "n4",
@@ -42,12 +51,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Nama dan total",
-      "topic": "CTE dan JOIN"
+      "topic": "CTE dan JOIN",
+      "bukti": "Nama penerima dan total uangnya",
+      "cerita": "Nomor rekening saja belum cukup. Kita butuh nama pemiliknya.",
+      "pelajaran": "CTE bisa digabung dengan tabel lain lewat JOIN. Sambungkan hasil CTE dengan tabel rekening lewat kolom id."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Daftar rekening perantara",
+      "cerita": "Rekening perantara menerima uang lalu segera meneruskannya. Temukan rekening yang menerima sekaligus mengirim dalam jumlah besar.",
+      "pelajaran": "Satu WITH bisa memuat beberapa CTE yang dipisah koma. Buat CTE uang masuk dan uang keluar, lalu gabungkan keduanya."
     }
   ],
   "questions": [

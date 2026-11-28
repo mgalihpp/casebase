@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "05",
   "title": "Saksi Kunci",
-  "story": "Tiga kejadian di kota terjadi dalam satu malam. Beberapa saksi menyebut plat mobil yang sama. Susuri kesaksian mereka sampai ke pemilik kendaraan. Semua nama fiktif.",
+  "story": "Dalam satu malam, beberapa kejadian terjadi di sudut kota yang berbeda. Anehnya, beberapa saksi menyebut plat mobil yang sama. Kamu menyusuri kesaksian mereka sampai ke pemilik kendaraan itu.",
   "bukti": [
     "Empat kejadian, lima saksi.",
     "Satu plat disebut oleh tiga saksi.",
@@ -19,19 +19,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Bandingkan dengan satu nilai",
-      "topic": "Subquery"
+      "topic": "Subquery",
+      "bukti": "Kejadian yang terjadi lebih larut",
+      "cerita": "Kejadian pertama jadi patokan waktu. Kita cari kejadian lain yang terjadi lebih larut.",
+      "pelajaran": "Subquery adalah query di dalam query. Hasilnya, misalnya jam kejadian pertama, bisa dipakai sebagai pembanding di WHERE."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Plat yang dilihat saksi",
-      "topic": "IN dengan subquery"
+      "topic": "IN dengan subquery",
+      "bukti": "Kendaraan yang terlihat saksi",
+      "cerita": "Saksi menyebut beberapa plat. Kita cari kendaraan mana saja yang pernah mereka lihat.",
+      "pelajaran": "IN memeriksa apakah sebuah nilai ada di dalam daftar. Daftarnya bisa berasal dari subquery."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Saksi pencurian",
-      "topic": "Subquery bertingkat"
+      "topic": "Subquery bertingkat",
+      "bukti": "Nama saksi kasus pencurian",
+      "cerita": "Kita butuh keterangan saksi pencurian saja. Jalurnya: cari kejadiannya dulu, lalu saksinya.",
+      "pelajaran": "Subquery bisa dipakai untuk berpindah antartabel: ambil id kejadian pencurian, lalu cari saksi dengan kejadian_id tersebut."
     },
     {
       "key": "n4",
@@ -42,12 +51,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Kendaraan tak terlihat",
-      "topic": "NOT IN dan NULL"
+      "topic": "NOT IN dan NULL",
+      "bukti": "Kendaraan yang tak pernah terlihat",
+      "cerita": "Kendaraan yang tidak pernah terlihat bisa jadi kendaraan untuk kabur. Hati-hati, ada saksi yang tidak melihat plat sama sekali.",
+      "pelajaran": "NOT IN adalah kebalikan IN. Kalau daftarnya berisi NULL, NOT IN tidak meloloskan apa pun, jadi buang NULL dulu dengan IS NOT NULL."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Pemilik plat yang paling sering disebut",
+      "cerita": "Satu plat disebut berulang kali. Temukan pemilik kendaraan itu.",
+      "pelajaran": "Di dalam subquery, kelompokkan plat dengan GROUP BY, urutkan dengan COUNT(*) dari yang terbanyak, lalu ambil satu dengan LIMIT 1."
     }
   ],
   "questions": [

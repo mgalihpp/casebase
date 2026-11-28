@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "04",
   "title": "Tersangka Tanpa Alibi",
-  "story": "Tujuh orang ada di sekitar lokasi saat kejadian. Polisi menyimpan alibi mereka di tabel terpisah, dan sebagian orang tidak punya alibi sama sekali. Tugasmu menemukan celahnya. Semua nama fiktif.",
+  "story": "Tujuh orang terlihat di sekitar lokasi saat kejadian. Polisi sudah mencatat alibi mereka, tapi ada yang alibinya lemah dan ada yang tidak punya alibi sama sekali. Kamu diminta menemukan celah itu.",
   "bukti": [
     "Tujuh tersangka tercatat.",
     "Lima alibi diambil, dua di antaranya tanpa saksi.",
@@ -19,19 +19,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Cari alibi tanpa saksi",
-      "topic": "NULL"
+      "topic": "NULL",
+      "bukti": "Daftar alibi tanpa saksi",
+      "cerita": "Alibi tanpa saksi sulit dibuktikan. Kita cari alibi yang kolom saksinya kosong.",
+      "pelajaran": "Nilai kosong di database disebut NULL. Untuk mencarinya, pakai IS NULL, bukan = NULL."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Siapa punya alibi",
-      "topic": "JOIN"
+      "topic": "JOIN",
+      "bukti": "Tempat alibi tiap tersangka",
+      "cerita": "Kita cocokkan setiap tersangka dengan tempat alibinya.",
+      "pelajaran": "JOIN hanya menampilkan baris yang punya pasangan di kedua tabel. Tersangka tanpa alibi tidak akan muncul."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Semua tersangka",
-      "topic": "LEFT JOIN"
+      "topic": "LEFT JOIN",
+      "bukti": "Daftar lengkap tersangka dan alibinya",
+      "cerita": "Daftar tadi belum lengkap, karena tersangka tanpa alibi tidak muncul. Kita tampilkan semuanya.",
+      "pelajaran": "LEFT JOIN mempertahankan semua baris dari tabel kiri. Kalau tidak ada pasangannya, kolom dari tabel kanan berisi NULL."
     },
     {
       "key": "n4",
@@ -42,12 +51,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Tersangka tanpa alibi",
-      "topic": "LEFT JOIN dan IS NULL"
+      "topic": "LEFT JOIN dan IS NULL",
+      "bukti": "Tersangka yang tidak punya alibi",
+      "cerita": "Sekarang kita pisahkan tersangka yang sama sekali tidak punya catatan alibi.",
+      "pelajaran": "Setelah LEFT JOIN, baris tanpa pasangan punya NULL di kolom tabel kanan. Saring dengan WHERE alibi.id IS NULL."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Daftar tersangka dengan alibi lemah",
+      "cerita": "Saatnya interogasi. Kumpulkan semua tersangka yang tidak punya alibi atau alibinya tanpa saksi.",
+      "pelajaran": "OR meloloskan baris jika salah satu syaratnya terpenuhi. Gabungkan dua pemeriksaan IS NULL dengan OR."
     }
   ],
   "questions": [

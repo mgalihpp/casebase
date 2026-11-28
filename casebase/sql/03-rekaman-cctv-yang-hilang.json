@@ -2,7 +2,7 @@
   "course": "sql",
   "number": "03",
   "title": "Rekaman CCTV yang Hilang",
-  "story": "Semalam rekaman kamera di sebuah gudang tiba-tiba terputus. Tim forensik harus merapikan arsip penyidik: menambah barang bukti, memperbaiki catatan, dan membuang log yang rusak. Semua data fiktif.",
+  "story": "Semalam, rekaman kamera di sebuah gudang tiba-tiba terputus. Arsip penyidik jadi berantakan: ada barang bukti yang belum dicatat, catatan yang keliru, dan log kamera yang rusak. Tugasmu merapikannya sebelum penyelidikan berlanjut.",
   "bukti": [
     "Kamera K2 mati dua kali pada malam kejadian.",
     "Lima barang bukti sudah tercatat di gudang.",
@@ -18,19 +18,28 @@
       "key": "n1",
       "type": "mission",
       "title": "Catat barang bukti",
-      "topic": "INSERT"
+      "topic": "INSERT",
+      "bukti": "Catatan kunci cadangan di pos satpam",
+      "cerita": "Petugas menemukan kunci cadangan di pos satpam, tapi belum tercatat di arsip. Kita tambahkan sekarang.",
+      "pelajaran": "INSERT INTO menambah baris baru. Isi VALUES harus urut sesuai kolom tabel."
     },
     {
       "key": "n2",
       "type": "mission",
       "title": "Perbarui kondisi barang",
-      "topic": "UPDATE"
+      "topic": "UPDATE",
+      "bukti": "Catatan kondisi pecahan kaca",
+      "cerita": "Hasil pemeriksaan ulang menunjukkan pecahan kaca ternyata rusak. Catatannya perlu diperbarui.",
+      "pelajaran": "UPDATE mengubah data yang sudah ada. SET menentukan nilai barunya, dan WHERE memastikan hanya baris yang dimaksud yang berubah."
     },
     {
       "key": "n3",
       "type": "mission",
       "title": "Buang log rusak",
-      "topic": "DELETE"
+      "topic": "DELETE",
+      "bukti": "Log CCTV yang masih bisa dipakai",
+      "cerita": "Log kamera yang berstatus mati tidak berguna untuk penyelidikan. Kita bersihkan dari arsip.",
+      "pelajaran": "DELETE FROM menghapus baris. Selalu pakai WHERE, karena tanpa WHERE semua baris ikut terhapus."
     },
     {
       "key": "n4",
@@ -41,12 +50,18 @@
       "key": "n5",
       "type": "mission",
       "title": "Tandai log lama",
-      "topic": "UPDATE dengan WHERE"
+      "topic": "UPDATE dengan WHERE",
+      "bukti": "Arsip log sebelum jam 22.00",
+      "cerita": "Rekaman sebelum jam 22.00 terjadi jauh sebelum kejadian. Kita tandai sebagai arsip supaya tidak tercampur.",
+      "pelajaran": "UPDATE dengan WHERE bisa mengubah banyak baris sekaligus. Teks jam bisa dibandingkan dengan < karena formatnya seragam."
     },
     {
       "key": "n6",
       "type": "boss",
-      "title": "Interogasi"
+      "title": "Interogasi",
+      "bukti": "Log CCTV yang sudah dibersihkan",
+      "cerita": "Penyidik meminta log yang bersih dan lengkap. Hapus log yang rusak, lalu catat rekaman baru yang ditemukan.",
+      "pelajaran": "Dua perintah bisa dijalankan berurutan dengan pemisah titik koma. Jalankan DELETE dulu, baru INSERT."
     }
   ],
   "questions": [

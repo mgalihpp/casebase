@@ -13,6 +13,15 @@ describe("casebase", () => {
       const body = caseBodySchema.parse(
         JSON.parse(readFileSync(join(dir, file), "utf8")),
       );
+      for (const node of body.nodes) {
+        if (node.type === "chest") continue;
+        expect(node.bukti, `${node.key} belum punya bukti`).toBeTruthy();
+        expect(node.cerita, `${node.key} belum punya cerita`).toBeTruthy();
+        expect(
+          node.pelajaran,
+          `${node.key} belum punya pelajaran`,
+        ).toBeTruthy();
+      }
       for (const question of body.questions) {
         if (question.type !== "write") continue;
         const db = new SQL.Database();
