@@ -222,7 +222,7 @@ body {
     transform: scale(1);
   }
   40% {
-    transform: scale(1.25) translateY(-3px);
+    transform: scale(1.03) translateY(-2px);
   }
   100% {
     transform: scale(1);
