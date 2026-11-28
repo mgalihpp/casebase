@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BottomSheet } from "@/components/ui/bottom-sheet";
 import {
   buttonGhost,
   buttonSecondary,
@@ -24,8 +25,6 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { useTRPC } from "@/trpc/client";
 
-type Confirm = "delete-account" | null;
-
 export function ProfileView() {
   const router = useRouter();
   const trpc = useTRPC();
@@ -41,7 +40,7 @@ export function ProfileView() {
 
   const [classCode, setClassCode] = useState("");
   const [classError, setClassError] = useState<string | null>(null);
-  const [confirm, setConfirm] = useState<Confirm>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
@@ -228,45 +227,47 @@ export function ProfileView() {
             >
               Danger zone
             </h2>
-            {confirm === "delete-account" ? (
-              <>
-                <p className="font-bold text-bad">
-                  Hapus akun? Semua progres, berkas, dan keanggotaan kelas akan
-                  hilang dan tidak bisa dikembalikan.
-                </p>
-                <button
-                  type="button"
-                  className="flex min-h-13 w-full items-center justify-center rounded-2xl bg-bad font-display font-black text-white"
-                  onClick={handleDeleteAccount}
-                >
-                  Ya, hapus akun saya
-                </button>
-                <button
-                  type="button"
-                  className={buttonGhost}
-                  onClick={() => setConfirm(null)}
-                >
-                  Batal
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-ink-soft">
-                  Menghapus akun akan menghilangkan semua progres, berkas, dan
-                  keanggotaan kelas secara permanen.
-                </p>
-                <button
-                  type="button"
-                  className="flex min-h-13 w-full items-center justify-center rounded-2xl border-2 border-bad bg-white font-display font-black text-bad"
-                  onClick={() => setConfirm("delete-account")}
-                >
-                  Hapus akun
-                </button>
-              </>
-            )}
+            <p className="text-sm text-ink-soft">
+              Menghapus akun akan menghilangkan semua progres, berkas, dan
+              keanggotaan kelas secara permanen.
+            </p>
+            <button
+              type="button"
+              className="flex min-h-13 w-full items-center justify-center rounded-2xl border-2 border-bad bg-white font-display font-black text-bad"
+              onClick={() => setDeleteOpen(true)}
+            >
+              Hapus akun
+            </button>
           </section>
         </>
       ) : null}
+
+      <BottomSheet
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title="Hapus akun?"
+      >
+        <p className="mb-4 text-base leading-normal text-ink-soft">
+          Semua progres, berkas, dan keanggotaan kelas akan hilang dan tidak
+          bisa dikembalikan.
+        </p>
+        <div className="grid gap-3">
+          <button
+            type="button"
+            className={buttonSecondary}
+            onClick={() => setDeleteOpen(false)}
+          >
+            Batal
+          </button>
+          <button
+            type="button"
+            className="flex min-h-13 w-full items-center justify-center rounded-2xl bg-bad font-display font-black text-white"
+            onClick={handleDeleteAccount}
+          >
+            Ya, hapus akun saya
+          </button>
+        </div>
+      </BottomSheet>
     </div>
   );
 }
