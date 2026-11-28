@@ -1,0 +1,232 @@
+{
+  "course": "sql",
+  "number": "08",
+  "title": "Sandi di Pesan Rahasia",
+  "story": "Ponsel seorang pegawai disita. Isinya delapan pesan, sebagian menyinggung transfer uang pada larut malam. Sisir pesan dengan pola teks, tanggal, dan kelas nominal. Semua pesan fiktif.",
+  "bukti": [
+    "Delapan pesan dalam dua bulan.",
+    "Pesan terkait transfer banyak dikirim lewat jam 22.",
+    "Satu pesan menyuruh menghapus catatan."
+  ],
+  "tersangka": [
+    "Budi, pengirim sebagian besar pesan transfer",
+    "Sinta dan Rani, pengirim pesan biasa"
+  ],
+  "seed": "CREATE TABLE pesan (id INTEGER, pengirim TEXT, isi TEXT, dikirim TEXT, nominal INTEGER); INSERT INTO pesan VALUES (1,'budi','Transfer sudah masuk, jangan bilang siapa-siapa','2025-03-02 23:10',1200), (2,'sinta','Rapat besok jam 9','2025-03-03 08:30',0), (3,'budi','Siapkan transfer kedua malam ini','2025-03-05 22:45',700), (4,'rani','Kirim laporan keuangan','2025-03-06 14:00',0), (5,'budi','Transfer terakhir, setelah itu hapus catatan','2025-04-01 23:55',1500), (6,'sinta','Terima kasih untuk transfernya','2025-04-02 09:15',300), (7,'rani','Makan siang?','2025-04-03 12:00',0), (8,'budi','Cek rekening lama, bukan transfer','2025-04-05 22:10',450);",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Cari kata kunci",
+      "topic": "LIKE"
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Olah teks",
+      "topic": "UPPER dan LENGTH"
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Saring per bulan",
+      "topic": "Fungsi tanggal"
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Beri label nominal",
+      "topic": "CASE"
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi"
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Pola LIKE '%transfer%' cocok dengan teks yang mana?",
+      "options": [
+        "Yang sama persis dengan transfer",
+        "Yang memuat kata transfer di mana saja",
+        "Yang diawali transfer saja",
+        "Yang diakhiri transfer saja"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "% berarti sembarang karakter, berapa pun jumlahnya.",
+        "Ada % di depan dan di belakang.",
+        "Kata bisa berada di awal, tengah, atau akhir."
+      ],
+      "explanation": "% di kedua sisi berarti kata transfer boleh muncul di bagian mana saja."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Tampilkan pesan yang isinya memuat kata 'transfer'.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "LIKE"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT * FROM pesan WHERE isi LIKE '%transfer%'",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai LIKE pada kolom isi.",
+        "Bungkus kata dengan % di kedua sisi.",
+        "WHERE isi LIKE '%___%'"
+      ],
+      "explanation": "Lima pesan memuat transfer. Awas, satu di antaranya berbunyi 'bukan transfer'."
+    },
+    {
+      "node": "n2",
+      "type": "pilih",
+      "prompt": "Fungsi mana yang mengubah teks jadi huruf besar?",
+      "options": [
+        "CAPS",
+        "LENGTH",
+        "UPPER",
+        "BIG"
+      ],
+      "answerIndex": 2,
+      "hints": [
+        "Nama fungsinya bahasa Inggris untuk huruf besar.",
+        "LENGTH menghitung panjang teks.",
+        "UPPER(teks)."
+      ],
+      "explanation": "UPPER mengubah teks menjadi huruf besar, sedangkan LENGTH menghitung jumlah karakter."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Tampilkan pengirim dalam huruf besar (kolom pengirim) dan panjang isi pesannya (kolom panjang).",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "UPPER",
+        "LENGTH"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT UPPER(pengirim) AS pengirim, LENGTH(isi) AS panjang FROM pesan",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai UPPER(pengirim) dan LENGTH(isi).",
+        "Beri alias dengan AS.",
+        "SELECT UPPER(pengirim) AS pengirim, LENGTH(isi) AS ___ FROM pesan"
+      ],
+      "explanation": "Fungsi teks bekerja per baris. Di MySQL fungsi yang sama juga ada, dengan nama UPPER dan LENGTH."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun query yang mencari pesan yang dikirim pada bulan Maret.",
+      "pieces": [
+        "SELECT * FROM pesan",
+        "WHERE strftime('%m', dikirim)",
+        "= '03'"
+      ],
+      "answer": [
+        "SELECT * FROM pesan",
+        "WHERE strftime('%m', dikirim)",
+        "= '03'"
+      ],
+      "hints": [
+        "strftime mengambil bagian dari tanggal.",
+        "Kode %m berarti bulan dua digit.",
+        "Bandingkan dengan teks '03'."
+      ],
+      "explanation": "strftime('%m', dikirim) menghasilkan bulan sebagai teks. Di MySQL fungsinya MONTH(dikirim)."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Tampilkan pesan yang dikirim pada bulan Maret (bulan 03).",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WHERE"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT * FROM pesan WHERE strftime('%m', dikirim) = '03'",
+      "pemeriksa": null,
+      "hints": [
+        "Ambil bulan dari kolom dikirim dengan strftime('%m', dikirim).",
+        "Bandingkan hasilnya dengan '03'.",
+        "WHERE strftime('%m', dikirim) = '___'"
+      ],
+      "explanation": "Empat pesan dikirim pada bulan Maret. Di MySQL, gunakan MONTH(dikirim) = 3."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "CASE WHEN nominal >= 1000 THEN 'besar' WHEN nominal >= 500 THEN 'sedang' ELSE 'kecil' END. Pesan bernominal 700 diberi label apa?",
+      "options": [
+        "besar",
+        "kecil",
+        "NULL",
+        "sedang"
+      ],
+      "answerIndex": 3,
+      "hints": [
+        "CASE memeriksa kondisi dari atas ke bawah.",
+        "700 tidak memenuhi >= 1000.",
+        "700 memenuhi >= 500."
+      ],
+      "explanation": "CASE berhenti di kondisi pertama yang benar. 700 lolos kondisi kedua, jadi sedang."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Tampilkan id dan kolom kelas: 'besar' bila nominal >= 1000, 'sedang' bila >= 500, selain itu 'kecil'.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "CASE"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT id, CASE WHEN nominal >= 1000 THEN 'besar' WHEN nominal >= 500 THEN 'sedang' ELSE 'kecil' END AS kelas FROM pesan",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai CASE WHEN ... THEN ... ELSE ... END.",
+        "Kondisi terbesar ditulis lebih dulu.",
+        "... END AS kelas"
+      ],
+      "explanation": "CASE membuat kolom baru dari kondisi. Pesan non-uang (nominal 0) masuk kelas kecil."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Dari pesan yang memuat kata 'transfer' dan dikirim jam 22 ke atas, hitung jumlahnya per kelas nominal (kolom kelas dan total). Kelas: besar >= 1000, sedang >= 500, selain itu kecil.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "CASE",
+        "LIKE",
+        "GROUP BY"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT CASE WHEN nominal >= 1000 THEN 'besar' WHEN nominal >= 500 THEN 'sedang' ELSE 'kecil' END AS kelas, COUNT(*) AS total FROM pesan WHERE isi LIKE '%transfer%' AND strftime('%H', dikirim) >= '22' GROUP BY kelas",
+      "pemeriksa": null,
+      "hints": [
+        "Saring dulu dengan WHERE: LIKE dan jam.",
+        "Jam diambil dengan strftime('%H', dikirim).",
+        "... GROUP BY kelas"
+      ],
+      "explanation": "Hasilnya besar 2, sedang 1, kecil 1. Pesan 'bukan transfer' ikut terhitung di kelas kecil, jadi periksa isinya."
+    }
+  ]
+}

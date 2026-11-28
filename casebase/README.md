@@ -10,6 +10,14 @@ casebase/
   sql/                       Satu folder per kursus (course)
     01-pencurian-di-gudang.json
     02-jejak-perusahaan-cangkang.json
+    03-rekaman-cctv-yang-hilang.json
+    04-tersangka-tanpa-alibi.json
+    05-saksi-kunci.json
+    06-rantai-transaksi-mencurigakan.json
+    07-peta-kejahatan-kota.json
+    08-sandi-di-pesan-rahasia.json
+    09-arsip-dari-nol.json
+    10-dalang-di-balik-layar.json
 ```
 
 ## Format

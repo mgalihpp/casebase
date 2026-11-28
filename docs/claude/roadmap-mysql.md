@@ -24,14 +24,14 @@ Satu kasus = satu file di `casebase/sql/`. Kolom Inspirasi hanya acuan tema. Tab
 | --- | --- | --- | --- | --- |
 | 01 | Pencurian di Gudang | SELECT, WHERE, ORDER BY, LIMIT, GROUP BY, HAVING | Asli | Ada |
 | 02 | Jejak Perusahaan Cangkang | JOIN, GROUP BY, HAVING | Panama Papers dan Paradise Papers | Ada |
-| 03 | (belum ditentukan) | INSERT, UPDATE, DELETE | Barang bukti diubah, catatan CCTV dihapus | Rencana |
-| 04 | (belum ditentukan) | LEFT JOIN dan NULL | Tersangka tanpa alibi (pola SQL Noir) | Rencana |
-| 05 | (belum ditentukan) | Subquery | Cari saksi, lalu cari pelaku dari kesaksiannya | Rencana |
-| 06 | (belum ditentukan) | CTE | Rantai transaksi mencurigakan (Enron) | Rencana |
-| 07 | (belum ditentukan) | Window function | Pola kejahatan per wilayah dan waktu (Chicago Crime) | Rencana |
-| 08 | (belum ditentukan) | CASE, fungsi tanggal dan teks | Menyisir catatan dengan LIKE (pola SQL Noir) | Rencana |
-| 09 | (belum ditentukan) | Desain tabel dan constraint | Membangun arsip kasus dari nol | Rencana |
-| 10 | (belum ditentukan) | View dan kasus gabungan penutup | Kasus besar gabungan | Rencana |
+| 03 | Rekaman CCTV yang Hilang | INSERT, UPDATE, DELETE | Barang bukti diubah, catatan CCTV dihapus | Ada |
+| 04 | Tersangka Tanpa Alibi | LEFT JOIN dan NULL | Tersangka tanpa alibi (pola SQL Noir) | Ada |
+| 05 | Saksi Kunci | Subquery | Cari saksi, lalu cari pelaku dari kesaksiannya | Ada |
+| 06 | Rantai Transaksi Mencurigakan | CTE | Rantai transaksi mencurigakan (Enron) | Ada |
+| 07 | Peta Kejahatan Kota | Window function | Pola kejahatan per wilayah dan waktu (Chicago Crime) | Ada |
+| 08 | Sandi di Pesan Rahasia | CASE, fungsi tanggal dan teks | Menyisir catatan dengan LIKE (pola SQL Noir) | Ada |
+| 09 | Arsip dari Nol | Desain tabel dan constraint | Membangun arsip kasus dari nol | Ada |
+| 10 | Dalang di Balik Layar | View dan kasus gabungan penutup | Kasus besar gabungan | Ada |
 
 Setiap kasus memakai struktur 6 node yang sama (lihat `casebase/README.md`).
 

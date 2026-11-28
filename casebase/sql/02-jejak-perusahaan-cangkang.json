@@ -114,6 +114,24 @@
     },
     {
       "node": "n2",
+      "type": "pilih",
+      "prompt": "Baris perusahaan mana yang lolos WHERE negara = 'Panama'?",
+      "options": [
+        "id 3, 6",
+        "id 1, 4, 7",
+        "id 1, 2, 4, 7",
+        "id 1, 2, 3, 4"
+      ],
+      "answerIndex": 2,
+      "hints": [
+        "Lihat kolom negara tiap baris.",
+        "Panama muncul di perusahaan pertama, kedua, keempat, dan ketujuh.",
+        "Ada empat baris."
+      ],
+      "explanation": "WHERE hanya meloloskan baris yang negaranya Panama: id 1, 2, 4, dan 7."
+    },
+    {
+      "node": "n2",
       "type": "write",
       "prompt": "Tampilkan perusahaan yang terdaftar di Panama.",
       "boleh": [
@@ -131,6 +149,31 @@
         "SELECT * FROM perusahaan WHERE negara = '___'"
       ],
       "explanation": "WHERE negara = 'Panama' menyisakan empat perusahaan yang terdaftar di Panama."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun kartu klausa menjadi query yang menampilkan 3 perusahaan terbaru.",
+      "pieces": [
+        "LIMIT 3",
+        "SELECT * FROM perusahaan",
+        "tahun_dibuat",
+        "DESC",
+        "ORDER BY"
+      ],
+      "answer": [
+        "SELECT * FROM perusahaan",
+        "ORDER BY",
+        "tahun_dibuat",
+        "DESC",
+        "LIMIT 3"
+      ],
+      "hints": [
+        "Query dibuka dengan SELECT * FROM perusahaan.",
+        "ORDER BY datang sebelum LIMIT.",
+        "DESC menaruh tahun terbesar di atas."
+      ],
+      "explanation": "Urutan klausa: SELECT, FROM, ORDER BY, lalu LIMIT. DESC membuat yang terbaru tampil lebih dulu."
     },
     {
       "node": "n3",
@@ -152,6 +195,42 @@
         "SELECT * FROM perusahaan ORDER BY ___ DESC LIMIT ___"
       ],
       "explanation": "ORDER BY tahun_dibuat DESC menaruh perusahaan terbaru di atas, LIMIT 3 mengambil tiga teratas."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "Query ini salah: SELECT nama, nama_pemilik FROM perusahaan JOIN pemilik ON pemilik.id = perusahaan.id. Bagian mana yang keliru?",
+      "options": [
+        "JOIN",
+        "SELECT nama",
+        "pemilik.id",
+        "perusahaan.id"
+      ],
+      "answerIndex": 2,
+      "hints": [
+        "JOIN mencocokkan kunci yang berhubungan.",
+        "pemilik.id adalah nomor urut pemilik, bukan rujukan ke perusahaan.",
+        "Kolom yang menunjuk perusahaan ada di tabel pemilik."
+      ],
+      "explanation": "pemilik.id hanya nomor baris pemilik. Rujukan ke perusahaan ada di pemilik.perusahaan_id."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "Apa pengganti yang benar untuk pemilik.id?",
+      "options": [
+        "pemilik.persen",
+        "pemilik.perusahaan_id",
+        "pemilik.nama_pemilik",
+        "perusahaan.nama"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "Cari kolom yang menyimpan id perusahaan.",
+        "Namanya memuat kata perusahaan.",
+        "Tabel pemilik punya kolom perusahaan_id."
+      ],
+      "explanation": "pemilik.perusahaan_id menyimpan id perusahaan, sehingga cocok dengan perusahaan.id."
     },
     {
       "node": "n5",

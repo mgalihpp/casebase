@@ -1,0 +1,259 @@
+{
+  "course": "sql",
+  "number": "04",
+  "title": "Tersangka Tanpa Alibi",
+  "story": "Tujuh orang ada di sekitar lokasi saat kejadian. Polisi menyimpan alibi mereka di tabel terpisah, dan sebagian orang tidak punya alibi sama sekali. Tugasmu menemukan celahnya. Semua nama fiktif.",
+  "bukti": [
+    "Tujuh tersangka tercatat.",
+    "Lima alibi diambil, dua di antaranya tanpa saksi.",
+    "Dua tersangka tidak punya catatan alibi."
+  ],
+  "tersangka": [
+    "Lina Marlina, akuntan, tidak punya alibi",
+    "Dedi Kurniawan, pedagang, tidak punya alibi",
+    "Joko Santoso dan Putri Ayu, alibi tanpa saksi"
+  ],
+  "seed": "CREATE TABLE tersangka (id INTEGER, nama TEXT, pekerjaan TEXT); INSERT INTO tersangka VALUES (1,'Rudi Hartono','Satpam'), (2,'Maya Sari','Kasir'), (3,'Joko Santoso','Sopir'), (4,'Lina Marlina','Akuntan'), (5,'Tono Wijaya','Teknisi'), (6,'Putri Ayu','Resepsionis'), (7,'Dedi Kurniawan','Pedagang'); CREATE TABLE alibi (id INTEGER, tersangka_id INTEGER, tempat TEXT, saksi TEXT); INSERT INTO alibi VALUES (1,1,'Pos jaga','Anto'), (2,2,'Toko roti','Bu Siti'), (3,3,'Terminal',NULL), (4,5,'Bengkel','Pak Hasan'), (5,6,'Rumah',NULL);",
+  "nodes": [
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Cari alibi tanpa saksi",
+      "topic": "NULL"
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Siapa punya alibi",
+      "topic": "JOIN"
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Semua tersangka",
+      "topic": "LEFT JOIN"
+    },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Tersangka tanpa alibi",
+      "topic": "LEFT JOIN dan IS NULL"
+    },
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi"
+    }
+  ],
+  "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Bagaimana cara menyaring kolom yang kosong (NULL)?",
+      "options": [
+        "WHERE saksi EMPTY",
+        "WHERE saksi IS NULL",
+        "WHERE saksi = NULL",
+        "WHERE saksi = ''"
+      ],
+      "answerIndex": 1,
+      "hints": [
+        "NULL berarti tidak ada nilai, bukan teks kosong.",
+        "Perbandingan = tidak bekerja untuk NULL.",
+        "Pakai IS NULL."
+      ],
+      "explanation": "NULL tidak sama dengan apa pun, termasuk NULL lain. Karena itu harus memakai IS NULL."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun query yang mencari alibi tanpa saksi.",
+      "pieces": [
+        "SELECT * FROM alibi",
+        "WHERE",
+        "saksi",
+        "IS NULL"
+      ],
+      "answer": [
+        "SELECT * FROM alibi",
+        "WHERE",
+        "saksi",
+        "IS NULL"
+      ],
+      "hints": [
+        "Mulai dengan SELECT * FROM alibi.",
+        "Lanjutkan dengan WHERE dan nama kolom.",
+        "Akhiri dengan IS NULL."
+      ],
+      "explanation": "WHERE saksi IS NULL menyisakan alibi yang tidak punya saksi."
+    },
+    {
+      "node": "n1",
+      "type": "write",
+      "prompt": "Tampilkan alibi yang tidak punya saksi.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WHERE",
+        "IS NULL"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT * FROM alibi WHERE saksi IS NULL",
+      "pemeriksa": null,
+      "hints": [
+        "Pakai WHERE pada kolom saksi.",
+        "Jangan pakai = untuk NULL.",
+        "SELECT * FROM alibi WHERE saksi IS ___"
+      ],
+      "explanation": "Ada dua alibi tanpa saksi: Terminal dan Rumah."
+    },
+    {
+      "node": "n2",
+      "type": "pilih",
+      "prompt": "JOIN biasa antara tersangka dan alibi. Tersangka mana yang TIDAK muncul di hasil?",
+      "options": [
+        "Rudi Hartono saja",
+        "Semua tersangka muncul",
+        "Lina Marlina dan Dedi Kurniawan",
+        "Joko Santoso dan Putri Ayu"
+      ],
+      "answerIndex": 2,
+      "hints": [
+        "JOIN biasa hanya memuat baris yang punya pasangan.",
+        "Cari tersangka yang id-nya tidak ada di kolom tersangka_id alibi.",
+        "Id 4 dan 7 tidak punya baris alibi."
+      ],
+      "explanation": "JOIN biasa membuang tersangka tanpa pasangan. Lina (id 4) dan Dedi (id 7) tidak punya alibi."
+    },
+    {
+      "node": "n2",
+      "type": "write",
+      "prompt": "Tampilkan nama tersangka beserta tempat alibinya, hanya untuk yang punya alibi.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "JOIN"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT nama, tempat FROM tersangka JOIN alibi ON alibi.tersangka_id = tersangka.id",
+      "pemeriksa": null,
+      "hints": [
+        "Gabungkan tersangka dan alibi.",
+        "Cocokkan alibi.tersangka_id dengan tersangka.id.",
+        "SELECT nama, tempat FROM tersangka JOIN alibi ON alibi.tersangka_id = ___"
+      ],
+      "explanation": "JOIN hanya mengeluarkan tersangka yang punya pasangan di tabel alibi."
+    },
+    {
+      "node": "n3",
+      "type": "susun",
+      "prompt": "Susun query yang menampilkan semua tersangka, termasuk yang belum punya alibi.",
+      "pieces": [
+        "SELECT nama, tempat",
+        "FROM tersangka",
+        "LEFT JOIN alibi",
+        "ON alibi.tersangka_id = tersangka.id"
+      ],
+      "answer": [
+        "SELECT nama, tempat",
+        "FROM tersangka",
+        "LEFT JOIN alibi",
+        "ON alibi.tersangka_id = tersangka.id"
+      ],
+      "hints": [
+        "Tabel kiri adalah tersangka.",
+        "LEFT JOIN menjaga semua baris tabel kiri.",
+        "ON menyebut kolom yang dicocokkan."
+      ],
+      "explanation": "LEFT JOIN mempertahankan semua tersangka. Kolom tempat berisi NULL bila tidak ada alibi."
+    },
+    {
+      "node": "n3",
+      "type": "write",
+      "prompt": "Tampilkan semua tersangka beserta tempat alibinya, termasuk yang tidak punya alibi.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "LEFT JOIN"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT nama, tempat FROM tersangka LEFT JOIN alibi ON alibi.tersangka_id = tersangka.id",
+      "pemeriksa": null,
+      "hints": [
+        "Ganti JOIN dengan LEFT JOIN.",
+        "Tabel di kiri LEFT JOIN selalu tampil penuh.",
+        "SELECT nama, tempat FROM tersangka LEFT JOIN alibi ON ..."
+      ],
+      "explanation": "Tujuh tersangka tampil. Lina dan Dedi memiliki tempat NULL."
+    },
+    {
+      "node": "n5",
+      "type": "pilih",
+      "prompt": "Query ini salah: SELECT nama FROM tersangka LEFT JOIN alibi ON alibi.tersangka_id = tersangka.id WHERE alibi.tempat = NULL. Bagian mana yang keliru?",
+      "options": [
+        "LEFT JOIN",
+        "SELECT nama",
+        "tersangka.id",
+        "= NULL"
+      ],
+      "answerIndex": 3,
+      "hints": [
+        "Query ini seharusnya mencari tersangka tanpa alibi.",
+        "Ada satu operator yang tidak bekerja untuk NULL.",
+        "Gantilah dengan IS NULL."
+      ],
+      "explanation": "= NULL tidak pernah benar. Pemeriksaan kosong harus memakai IS NULL."
+    },
+    {
+      "node": "n5",
+      "type": "write",
+      "prompt": "Tampilkan nama tersangka yang tidak punya alibi sama sekali.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "LEFT JOIN",
+        "IS NULL"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT nama FROM tersangka LEFT JOIN alibi ON alibi.tersangka_id = tersangka.id WHERE alibi.id IS NULL",
+      "pemeriksa": null,
+      "hints": [
+        "Mulai dari LEFT JOIN tersangka ke alibi.",
+        "Tersangka tanpa alibi punya kolom alibi yang NULL.",
+        "... WHERE alibi.id IS NULL"
+      ],
+      "explanation": "Setelah LEFT JOIN, tersangka tanpa pasangan punya alibi.id NULL. Hasilnya Lina dan Dedi."
+    },
+    {
+      "node": "n6",
+      "type": "write",
+      "prompt": "Tampilkan nama tersangka yang tidak punya alibi atau alibinya tidak punya saksi.",
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "LEFT JOIN",
+        "IS NULL",
+        "OR"
+      ],
+      "aturanKolom": "minimal",
+      "answer": "SELECT nama FROM tersangka LEFT JOIN alibi ON alibi.tersangka_id = tersangka.id WHERE alibi.id IS NULL OR alibi.saksi IS NULL",
+      "pemeriksa": null,
+      "hints": [
+        "LEFT JOIN menjaga semua tersangka.",
+        "Ada dua syarat NULL: alibi.id dan alibi.saksi.",
+        "... WHERE alibi.id IS NULL OR alibi.saksi IS NULL"
+      ],
+      "explanation": "Dua syarat digabung dengan OR. Hasilnya Joko, Lina, Putri, dan Dedi."
+    }
+  ]
+}

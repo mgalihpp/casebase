@@ -10,6 +10,14 @@ import { db } from "@/server/db";
 const CASE_FILES = [
   "sql/01-pencurian-di-gudang.json",
   "sql/02-jejak-perusahaan-cangkang.json",
+  "sql/03-rekaman-cctv-yang-hilang.json",
+  "sql/04-tersangka-tanpa-alibi.json",
+  "sql/05-saksi-kunci.json",
+  "sql/06-rantai-transaksi-mencurigakan.json",
+  "sql/07-peta-kejahatan-kota.json",
+  "sql/08-sandi-di-pesan-rahasia.json",
+  "sql/09-arsip-dari-nol.json",
+  "sql/10-dalang-di-balik-layar.json",
 ];
 
 async function main() {
