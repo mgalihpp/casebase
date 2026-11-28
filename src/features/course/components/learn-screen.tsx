@@ -626,8 +626,8 @@ export function LearnScreen({ courseId }: Props) {
                 style={{ background: meta.color }}
               >
                 <p className="text-[15px] leading-normal">{data.case.story}</p>
-                <button
-                  type="button"
+                <Link
+                  href={`/berkas/${data.case.id}`}
                   className="mt-3 inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-white/20 px-3.5 font-body text-[15px] font-semibold"
                 >
                   Buka berkas kasus
@@ -644,7 +644,7 @@ export function LearnScreen({ courseId }: Props) {
                   >
                     <path d="M9 5l7 7-7 7" />
                   </svg>
-                </button>
+                </Link>
               </div>
             ) : null}
           </section>
