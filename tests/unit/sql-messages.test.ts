@@ -5,13 +5,13 @@ describe("explainSqlError", () => {
   it.each([
     ["no such column: umur", "Kolom umur tidak ada di tabel."],
     ["no such table: pesanan", "Tabel pesanan tidak ditemukan."],
-    ['near "FORM": syntax error', 'Ada yang salah tulis di dekat "FORM".'],
-    ["syntax error", "Ada yang salah tulis di query-mu."],
+    ['near "FORM": syntax error', 'Ada salah tulis di dekat "FORM".'],
+    ["syntax error", "Ada salah tulis di query."],
     [
       "ambiguous column name: id",
-      "Nama kolom ambigu. Tambahkan nama tabel di depannya.",
+      "Nama kolom ambigu. Beri nama tabel di depannya.",
     ],
-    ["something unexpected", "Query gagal dijalankan. Cek lagi tulisanmu."],
+    ["something unexpected", "Query gagal. Cek tulisanmu."],
   ])("menerjemahkan %j", (raw, expected) => {
     expect(explainSqlError(new Error(raw))).toBe(expected);
   });

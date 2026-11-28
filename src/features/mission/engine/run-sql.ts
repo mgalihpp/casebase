@@ -1,6 +1,6 @@
 // Klien untuk worker SQL. Batas 3 detik hanya dihitung setelah mesin siap (SDD 3.8).
 export const RUN_TIMEOUT_MS = 3000;
-export const TIMEOUT_MESSAGE = "Query terlalu lama. Batas waktunya 3 detik.";
+export const TIMEOUT_MESSAGE = "Query terlalu lama. Batasnya 3 detik.";
 
 export type RunOutcome =
   | { ok: true; columns: string[]; rows: unknown[][] }

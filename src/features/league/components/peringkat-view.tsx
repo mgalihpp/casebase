@@ -123,7 +123,7 @@ export function PeringkatView() {
             Liga belum dimulai buatmu
           </p>
           <p className="mb-5 text-[15px] leading-relaxed text-ink-soft">
-            Selesaikan satu misi minggu ini dan bersaing dengan{" "}
+            Tuntaskan satu misi minggu ini untuk bersaing dengan{" "}
             {Math.max(leagueData.total - 1, 0)} detektif lain di Liga{" "}
             {leagueData.tier}.
           </p>

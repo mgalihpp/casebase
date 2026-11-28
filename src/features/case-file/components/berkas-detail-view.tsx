@@ -10,11 +10,17 @@ import { useTRPC } from "@/trpc/client";
 const COURSE_COLOR: Record<string, string> = { sql: "#00758F" };
 
 function updatedLabel(value: Date | string | null) {
-  if (!value) return "belum pernah";
+  if (!value) return "Belum pernah diperbarui.";
   const date = new Date(value);
   const today = new Date();
-  if (date.toDateString() === today.toDateString()) return "hari ini";
-  return date.toLocaleDateString("id-ID", { day: "numeric", month: "short" });
+  if (date.toDateString() === today.toDateString()) {
+    return "Terakhir diperbarui hari ini.";
+  }
+  const day = date.toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+  });
+  return `Terakhir diperbarui ${day}.`;
 }
 
 export function BerkasDetailView({ caseId }: { caseId: string }) {
@@ -107,8 +113,15 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <p className="mt-1.5 text-sm text-ink-soft">
-              {data.doneCount}/{data.totalNodes} misi, {status}, diperbarui{" "}
+            <div className="mt-1.5 flex items-center justify-between gap-3">
+              <p className="text-sm text-ink-soft">
+                {data.doneCount} dari {data.totalNodes} misi selesai
+              </p>
+              <span className="rounded-full bg-[#EEEDFD] px-2.5 py-0.5 text-xs font-semibold capitalize text-[#3730A3]">
+                {status}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-ink-soft">
               {updatedLabel(data.updatedAt)}
             </p>
           </div>

@@ -230,7 +230,7 @@ describe("judgeWrite", () => {
   it("meminta query kosong ditulis dulu", async () => {
     const run = vi.fn();
     const verdict = await judgeWrite(baseQuestion(), "seed", "   ", run);
-    expect(verdict).toEqual({ correct: false, message: "Tulis query dulu." });
+    expect(verdict).toEqual({ correct: false, message: "Tulis query dulu, detektif." });
     expect(run).not.toHaveBeenCalled();
   });
 
@@ -252,7 +252,7 @@ describe("judgeWrite", () => {
     const verdict = await judgeWrite(baseQuestion(), "seed", "HAHA x", run);
     expect(verdict).toEqual({
       correct: false,
-      message: "Perintah pertama belum dikenali. Periksa penulisannya.",
+      message: "Perintah pertama tidak dikenali. Cek penulisannya.",
     });
     expect(run).not.toHaveBeenCalled();
   });
@@ -295,7 +295,7 @@ describe("judgeWrite", () => {
       "  SELECT id FROM pelanggan  ",
       run,
     );
-    expect(verdict).toEqual({ correct: true, message: "Tepat sekali!" });
+    expect(verdict).toEqual({ correct: true, message: "Benar. Buktinya cocok." });
     expect(run).toHaveBeenCalledWith([
       { seed: "seed-1", prelude: null, query: "SELECT id FROM pelanggan" },
       { seed: "seed-1", prelude: null, query: "SELECT id FROM pelanggan" },
@@ -307,7 +307,7 @@ describe("judgeWrite", () => {
     const verdict = await judgeWrite(baseQuestion(), "seed", "SELECT 9", run);
     expect(verdict).toEqual({
       correct: false,
-      message: "Hasilnya belum sama dengan bukti yang dicari.",
+      message: "Hasilnya belum sesuai pertanyaan.",
     });
   });
 
@@ -356,7 +356,7 @@ describe("judgeWrite", () => {
     const verdict = await judgeWrite(question, "seed", "UPDATE t SET x=1", run);
     expect(verdict).toEqual({
       correct: false,
-      message: "Data setelah perintahmu belum sama dengan yang dicari.",
+      message: "Hasil query belum sesuai pertanyaan.",
     });
   });
 

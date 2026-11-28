@@ -32,6 +32,9 @@ export function BottomSheet({
         ? document.activeElement
         : null;
     panel.current?.focus();
+    const root = document.documentElement;
+    const previousOverflow = root.style.overflow;
+    root.style.overflow = "hidden";
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") onCloseRef.current();
@@ -39,6 +42,7 @@ export function BottomSheet({
     window.addEventListener("keydown", onKeyDown);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
+      root.style.overflow = previousOverflow;
       returnTo?.focus();
     };
   }, [open]);
@@ -60,40 +64,42 @@ export function BottomSheet({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="sheet-up absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-[24px] bg-white px-4 pb-6 pt-3 shadow-[0_-8px_30px_rgba(30,27,58,0.18)] outline-none"
+        className="sheet-up absolute inset-x-0 bottom-0 thin-scroll max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[24px] bg-white pb-6 shadow-[0_-8px_30px_rgba(30,27,58,0.18)] outline-none"
       >
-        <span
-          aria-hidden="true"
-          className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-line"
-        />
-        <div className="mb-3 flex min-h-11 items-center justify-between">
-          <h2
-            id={titleId}
-            className="font-display text-[20px] font-extrabold leading-tight"
-          >
-            {title}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Tutup"
-            className="grid h-[30px] w-[30px] place-items-center rounded-full bg-[#EEEDFD] text-ink-soft"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              aria-hidden="true"
+        <div className="sticky top-0 z-10 bg-white px-4 pt-3">
+          <span
+            aria-hidden="true"
+            className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-line"
+          />
+          <div className="mb-3 flex min-h-11 items-center justify-between">
+            <h2
+              id={titleId}
+              className="font-display text-[20px] font-extrabold leading-tight"
             >
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
+              {title}
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Tutup"
+              className="grid h-[30px] w-[30px] place-items-center rounded-full bg-[#EEEDFD] text-ink-soft"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </div>
         </div>
-        {children}
+        <div className="px-4">{children}</div>
       </div>
     </div>
   );

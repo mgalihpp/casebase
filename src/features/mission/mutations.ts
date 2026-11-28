@@ -36,7 +36,7 @@ export async function checkAnswer(
   if (status === "locked") {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Selesaikan misi sebelumnya untuk membuka misi ini.",
+      message: "Tuntaskan misi sebelumnya untuk membuka misi ini.",
     });
   }
 
@@ -48,7 +48,7 @@ export async function checkAnswer(
   if (question.type !== answer.type) {
     throw new TRPCError({
       code: "BAD_REQUEST",
-      message: "Jenis jawaban tidak cocok dengan soal.",
+      message: "Jenis jawaban tidak sesuai soal.",
     });
   }
 
@@ -57,13 +57,13 @@ export async function checkAnswer(
   if (!withinLimit) {
     throw new TRPCError({
       code: "TOO_MANY_REQUESTS",
-      message: "Terlalu sering mengecek. Tunggu sebentar lalu coba lagi.",
+      message: "Terlalu cepat. Tunggu sebentar, lalu coba lagi.",
     });
   }
   if ((await readHearts(userId, now)) === 0) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
-      message: "Nyawamu habis.",
+      message: "Nyawamu sudah habis.",
     });
   }
 
@@ -84,7 +84,7 @@ export async function checkAnswer(
   if (activeIndex !== questionIndex) {
     throw new TRPCError({
       code: "BAD_REQUEST",
-      message: "Soal ini bukan posisi aktifmu. Muat ulang halaman.",
+      message: "Soal ini bukan soal aktifmu. Muat ulang halaman.",
     });
   }
 
@@ -182,7 +182,7 @@ export async function takeHint(
   if (result.status === "urutan") {
     throw new TRPCError({
       code: "BAD_REQUEST",
-      message: "Buka petunjuk sebelumnya dulu.",
+      message: "Buka petunjuk sebelumnya lebih dulu.",
     });
   }
 
@@ -210,7 +210,7 @@ export async function openChest(
   if (status === "locked") {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Kotak bukti terbuka setelah misi sebelumnya selesai.",
+      message: "Kotak ini terbuka setelah misi sebelumnya tuntas.",
     });
   }
 
@@ -252,7 +252,7 @@ export async function failMission(
   if (status === "locked" || status === "done") {
     throw new TRPCError({
       code: "BAD_REQUEST",
-      message: "Misi ini belum bisa gagal.",
+      message: "Misi ini belum bisa ditandai gagal.",
     });
   }
 

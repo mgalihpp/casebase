@@ -7,7 +7,7 @@ import type { Job, RunOutcome } from "./judge";
 
 /** SDD 3.8: query yang berjalan lebih dari 3 detik dihentikan dengan mematikan worker. */
 export const SANDBOX_TIMEOUT_MS = 3000;
-export const TIMEOUT_MESSAGE = "Query terlalu lama. Batas waktunya 3 detik.";
+export const TIMEOUT_MESSAGE = "Query terlalu lama. Batasnya 3 detik.";
 
 // Dijalankan di worker thread Node. Hanya memakai sql.js dan pesan bawaan Node.
 const WORKER_SOURCE = `

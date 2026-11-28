@@ -385,10 +385,6 @@ export function LearnScreen({ courseId }: Props) {
         onClose={() => setPickerOpen(false)}
         title="Pilih kursus"
       >
-        <p className="mb-3 text-[15px] text-ink-soft">
-          Progres tiap kursus disimpan terpisah, jadi kamu bisa pindah kapan
-          saja.
-        </p>
         {courses.isPending ? (
           <p className="text-ink-soft">Memuat kursus…</p>
         ) : (
@@ -416,15 +412,26 @@ export function LearnScreen({ courseId }: Props) {
                       <span className="block text-[13px] text-ink-soft">
                         {findCourse(item.id)?.sub}
                       </span>
-                      <span className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-line">
-                        <span
-                          className="block h-full rounded-full"
-                          style={{
-                            width: `${isCurrent ? pct : 0}%`,
-                            background: item.color,
-                          }}
-                        />
-                      </span>
+                      {isCurrent && data ? (
+                        <>
+                          <span className="mt-1.5 block text-[13px] font-semibold text-ink">
+                            {data.done} dari {data.total} misi selesai
+                          </span>
+                          <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-line">
+                            <span
+                              className="block h-full rounded-full"
+                              style={{
+                                width: `${pct}%`,
+                                background: item.color,
+                              }}
+                            />
+                          </span>
+                        </>
+                      ) : (
+                        <span className="mt-1.5 block text-[13px] text-ink-soft">
+                          {item.caseCount} kasus
+                        </span>
+                      )}
                     </span>
                     {isCurrent ? (
                       <span className="text-[13px] font-bold text-ind">
@@ -453,7 +460,7 @@ export function LearnScreen({ courseId }: Props) {
               {streakCount} hari beruntun
             </p>
             <p className="text-[15px] text-ink-soft">
-              Selesaikan satu misi hari ini supaya lenteramu tetap menyala.
+              Tuntaskan satu misi hari ini agar lentera tetap menyala.
             </p>
           </div>
         </div>
@@ -553,7 +560,7 @@ export function LearnScreen({ courseId }: Props) {
 
   function poke() {
     setMood("wave");
-    setTip("Ayo lanjut, detektif! Bukti berikutnya menunggu.");
+    setTip("Lanjut ke bukti berikutnya.");
     clearTimeout(pokeTimer.current);
     pokeTimer.current = setTimeout(() => {
       setMood("idle");
@@ -578,9 +585,20 @@ export function LearnScreen({ courseId }: Props) {
         <h1 className="px-0 pt-0.5 font-display text-[34px] font-black leading-[41px] tracking-[0.2px]">
           Belajar
         </h1>
-        <p className="mt-0.5 text-[15px] text-ink-soft">
-          {meta.name}, {data.done} dari {data.total} misi selesai
-        </p>
+        <div className="mt-1 flex items-baseline justify-between gap-3">
+          <p className="text-[15px] font-semibold text-ink">{meta.name}</p>
+          <p className="text-sm text-ink-soft">
+            {data.done} dari {data.total} misi selesai
+          </p>
+        </div>
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#D9D6E8]">
+          <div
+            className="h-full rounded-full bg-[#0E7490]"
+            style={{
+              width: `${data.total > 0 ? (data.done / data.total) * 100 : 0}%`,
+            }}
+          />
+        </div>
 
         <div className="sticky top-14 z-10 -mx-4 mt-1.5 bg-gradient-to-b from-app from-[78%] to-app/0 px-4 pb-3.5 pt-2">
           <section
@@ -808,7 +826,7 @@ export function LearnScreen({ courseId }: Props) {
           </span>
         </button>
         <p className="mx-6 mt-[18px] text-center text-[13px] text-ink-soft">
-          Ketuk misi berikutnya dan lanjutkan penyelidikan.
+          Ketuk misi berikutnya untuk lanjut.
         </p>
       </main>
 
@@ -856,10 +874,10 @@ export function LearnScreen({ courseId }: Props) {
                     setNotice(
                       gained > 0
                         ? `+${gained} koin petunjuk`
-                        : "Kotak ini sudah dibuka.",
+                        : "Kotak ini sudah pernah dibuka.",
                     ),
                   onError: () =>
-                    setNotice("Kotak belum bisa dibuka. Coba lagi."),
+                    setNotice("Kotak belum bisa dibuka. Coba sekali lagi."),
                 },
               );
             }}
@@ -893,7 +911,7 @@ function NodeDetail({
       return (
         <NodeSheet
           meta={meta}
-          text="Kotak bukti terbuka setelah misi sebelumnya selesai."
+          text="Kotak ini terbuka setelah misi sebelumnya tuntas."
           buttonLabel="Mengerti"
           onClick={onClose}
         />
@@ -903,7 +921,7 @@ function NodeDetail({
       return (
         <NodeSheet
           meta={meta}
-          text="Kotak ini sudah dibuka. Isinya 5 koin petunjuk untuk misi yang sulit."
+          text="Kotak ini sudah dibuka. Isinya 5 koin petunjuk untuk misi sulit."
           buttonLabel="Oke"
           onClick={onClose}
         />
@@ -912,7 +930,7 @@ function NodeDetail({
     return (
       <NodeSheet
         meta={meta}
-        text="Kotak bukti siap dibuka. Isinya koin petunjuk."
+        text="Kotak ini siap dibuka. Isinya koin petunjuk."
         buttonLabel="Buka kotak"
         onClick={onOpenChest}
       />
@@ -923,7 +941,7 @@ function NodeDetail({
     return (
       <NodeSheet
         meta={meta}
-        text={`Selesaikan misi sebelumnya untuk membuka misi ini.${node.topic ? ` Materi: ${node.topic}.` : ""}`}
+        text={`Tuntaskan misi sebelumnya untuk membuka misi ini.${node.topic ? ` Materi: ${node.topic}.` : ""}`}
         buttonLabel="Mengerti"
         onClick={onClose}
       />
@@ -939,8 +957,8 @@ function NodeDetail({
       <p className="mt-1.5 text-base leading-normal">
         {topic}
         {done
-          ? "Misi ini sudah selesai. Ulangi untuk latihan."
-          : "Misi singkat, jawabanmu langsung dinilai."}
+          ? "Misi ini sudah tuntas. Ulangi untuk latihan."
+          : "Misi singkat. Jawabanmu langsung dinilai."}
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <span className="rounded-full bg-[#FEF3C7] px-2.5 py-1.5 text-[13px] font-semibold text-[#78350F]">
