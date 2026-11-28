@@ -66,9 +66,33 @@ export function BottomSheet({
           aria-hidden="true"
           className="mx-auto mb-3 block h-1.5 w-10 rounded-full bg-line"
         />
-        <h2 id={titleId} className="mb-3 font-display text-xl font-black">
-          {title}
-        </h2>
+        <div className="mb-3 flex min-h-11 items-center justify-between">
+          <h2
+            id={titleId}
+            className="font-display text-[20px] font-extrabold leading-tight"
+          >
+            {title}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup"
+            className="grid h-[30px] w-[30px] place-items-center rounded-full bg-[#EEEDFD] text-ink-soft"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
         {children}
       </div>
     </div>
