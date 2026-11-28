@@ -812,7 +812,7 @@ export function LearnScreen({ courseId }: Props) {
         </p>
       </main>
 
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[430px] bg-gradient-to-b from-app/0 from-0% to-app to-[38%] px-4 pb-3 pt-[18px]">
+      <div className="pointer-events-none fixed inset-x-0 bottom-[calc(60px+env(safe-area-inset-bottom,0px))] z-10 mx-auto max-w-[430px] bg-gradient-to-b from-app/0 from-0% to-app to-[38%] px-4 pb-3 pt-[18px]">
         {!current ? (
           <Link
             href={`/belajar/${courseId}/misi/${lastNode.key}`}
