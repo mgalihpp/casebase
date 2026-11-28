@@ -7,7 +7,10 @@ import { caseContent, course } from "@/features/course/schema";
 import { caseBodySchema } from "@/features/course/schemas";
 import { db } from "@/server/db";
 
-const CASE_FILES = ["sql/01-pencurian-di-gudang.json"];
+const CASE_FILES = [
+  "sql/01-pencurian-di-gudang.json",
+  "sql/02-jejak-perusahaan-cangkang.json",
+];
 
 async function main() {
   await db

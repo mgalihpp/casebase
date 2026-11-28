@@ -9,6 +9,7 @@ casebase/
   README.md
   sql/                       Satu folder per kursus (course)
     01-pencurian-di-gudang.json
+    02-jejak-perusahaan-cangkang.json
 ```
 
 ## Format
