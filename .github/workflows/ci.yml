@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Typecheck, test, dan build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Nilai dummy hanya untuk build. Tidak ada koneksi database di CI.
+      DATABASE_URL: postgres://user:password@localhost:5432/sql_quest
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ci-only-secret-not-used-in-production
+      CRON_SECRET: ci-only-secret-not-used-in-production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Pasang dependency
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Unit test
+        run: bun run test
+
+      - name: Build
+        run: bun run build
+
+  lint:
+    name: Lint (informasi, belum blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Biome masih punya temuan lama. Dibuat tidak blocking sampai dibersihkan.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - name: Pasang dependency
+        run: bun install --frozen-lockfile
+
+      - name: Biome check
+        run: bun run format:check
