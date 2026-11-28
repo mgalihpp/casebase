@@ -9,7 +9,7 @@ export const caseNodeSchema = z.object({
   coins: z.number().int().optional(),
 });
 
-export const caseQuestionSchema = z.object({
+const writeQuestionSchema = z.object({
   node: z.string().min(1),
   type: z.literal("write"),
   prompt: z.string().min(1),
@@ -21,6 +21,57 @@ export const caseQuestionSchema = z.object({
   hints: z.array(z.string()),
   explanation: z.string(),
 });
+
+const choiceQuestionSchema = z
+  .object({
+    node: z.string().min(1),
+    type: z.literal("pilih"),
+    prompt: z.string().min(1),
+    options: z.array(z.string().min(1)).min(2),
+    answerIndex: z.number().int().min(0),
+    hints: z.array(z.string()),
+    explanation: z.string(),
+  })
+  .superRefine((question, ctx) => {
+    if (question.answerIndex >= question.options.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["answerIndex"],
+        message: "answerIndex melebihi jumlah pilihan.",
+      });
+    }
+  });
+
+const arrangeQuestionSchema = z
+  .object({
+    node: z.string().min(1),
+    type: z.literal("susun"),
+    prompt: z.string().min(1),
+    pieces: z.array(z.string().min(1)).min(2),
+    answer: z.array(z.string().min(1)).min(2),
+    hints: z.array(z.string()),
+    explanation: z.string(),
+  })
+  .superRefine((question, ctx) => {
+    const sortedPieces = [...question.pieces].sort();
+    const sortedAnswer = [...question.answer].sort();
+    const isPermutation =
+      sortedPieces.length === sortedAnswer.length &&
+      sortedPieces.every((piece, index) => piece === sortedAnswer[index]);
+    if (!isPermutation) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["answer"],
+        message: "answer harus berisi potongan yang sama dengan pieces.",
+      });
+    }
+  });
+
+export const caseQuestionSchema = z.discriminatedUnion("type", [
+  writeQuestionSchema,
+  choiceQuestionSchema,
+  arrangeQuestionSchema,
+]);
 
 export const caseBodySchema = z.object({
   course: z.string().min(1),
@@ -34,4 +85,5 @@ export const caseBodySchema = z.object({
 
 export type CaseNode = z.infer<typeof caseNodeSchema>;
 export type CaseQuestion = z.infer<typeof caseQuestionSchema>;
+export type CaseWriteQuestion = z.infer<typeof writeQuestionSchema>;
 export type CaseBody = z.infer<typeof caseBodySchema>;

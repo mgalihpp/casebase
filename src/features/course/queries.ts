@@ -1,5 +1,5 @@
 import { and, asc, count, eq } from "drizzle-orm";
-import { nodeProgress } from "@/features/mission/schema";
+import { nodeFailure, nodeProgress } from "@/features/mission/schema";
 import { db } from "@/server/db";
 import { COURSES } from "./data";
 import { computeNodeStatuses, type NodeStatus } from "./path";
@@ -49,9 +49,16 @@ export async function loadCaseBundle(userId: string, courseId: string) {
     .where(
       and(eq(nodeProgress.userId, userId), eq(nodeProgress.caseId, caseRow.id)),
     );
+  const failed = await db
+    .select({ nodeKey: nodeFailure.nodeKey })
+    .from(nodeFailure)
+    .where(
+      and(eq(nodeFailure.userId, userId), eq(nodeFailure.caseId, caseRow.id)),
+    );
   const statuses = computeNodeStatuses(
     body.nodes,
     new Set(completed.map((row) => row.nodeKey)),
+    new Set(failed.map((row) => row.nodeKey)),
   );
 
   return { course: courseRow, caseRow, body, statuses };

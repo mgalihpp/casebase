@@ -1,10 +1,16 @@
 import initSqlJs, { type SqlJsStatic } from "sql.js";
-import type { CaseQuestion } from "@/features/course/schemas";
+import type { z } from "zod";
+import type {
+  CaseQuestion,
+  CaseWriteQuestion,
+} from "@/features/course/schemas";
 import { executeQuery, type QueryResult } from "./engine/execute";
 import { explainSqlError } from "./engine/sql-messages";
 import { checkRules } from "./rules";
+import type { answerInput } from "./schemas";
 
 export type Verdict = { correct: boolean; message: string };
+export type Answer = z.infer<typeof answerInput>;
 
 // Penilai ini hanya jalan di server (D-07). Sprint 2 memakai thread utama,
 // worker thread menyusul di Sprint 3 bersama batas waktu.
@@ -35,8 +41,36 @@ function sameRows(user: QueryResult, expected: QueryResult, ordered: boolean) {
   return sortedLeft.every((key, index) => key === sortedRight[index]);
 }
 
-export async function gradeQuery(
+// Jenis jawaban yang tidak cocok dengan soal ditolak di checkAnswer; cabang ini hanya penjaga tipe.
+export async function gradeAnswer(
   question: CaseQuestion,
+  seed: string,
+  answer: Answer,
+): Promise<Verdict> {
+  if (question.type === "write" && answer.type === "write") {
+    return gradeQuery(question, seed, answer.query);
+  }
+  if (question.type === "pilih" && answer.type === "pilih") {
+    return answer.choice === question.answerIndex
+      ? { correct: true, message: "Tepat sekali!" }
+      : {
+          correct: false,
+          message: "Pilihanmu belum tepat. Coba baca soalnya lagi.",
+        };
+  }
+  if (question.type === "susun" && answer.type === "susun") {
+    const same =
+      answer.order.length === question.answer.length &&
+      answer.order.every((piece, index) => piece === question.answer[index]);
+    return same
+      ? { correct: true, message: "Tepat sekali!" }
+      : { correct: false, message: "Urutannya belum tepat." };
+  }
+  return { correct: false, message: "Jenis jawaban tidak cocok dengan soal." };
+}
+
+export async function gradeQuery(
+  question: CaseWriteQuestion,
   seed: string,
   query: string,
 ): Promise<Verdict> {

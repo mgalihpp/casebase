@@ -1,4 +1,4 @@
-import type { CaseQuestion } from "@/features/course/schemas";
+import type { CaseWriteQuestion } from "@/features/course/schemas";
 
 // Hapus komentar dan isi string, lalu ubah ke huruf besar supaya aturan kata kunci
 // tidak terkecoh oleh teks di dalam tanda kutip.
@@ -14,7 +14,7 @@ export function normalizeSql(query: string): string {
 
 // Mengembalikan pesan galat dalam Bahasa Indonesia, atau null jika aturan terpenuhi.
 export function checkRules(
-  question: Pick<CaseQuestion, "boleh" | "wajib">,
+  question: Pick<CaseWriteQuestion, "boleh" | "wajib">,
   query: string,
 ): string | null {
   const normalized = normalizeSql(query);
