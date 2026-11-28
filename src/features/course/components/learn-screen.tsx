@@ -70,7 +70,7 @@ function FlameIcon({ size }: IconProps) {
       fill="currentColor"
       aria-hidden="true"
     >
-      <path d="M12 2.5c.8 3.4 5 5.6 5 10.5a5 5 0 0 1-10 0c0-2.1.9-3.6 2-4.7.2 1.6.9 2.6 1.9 3.1C10.6 8.2 10.9 5.2 12 2.5z" />
+      <path d="M12 2c1 3.5 5 5.5 5 10.5A5 5 0 0 1 7 12.5c0-2 1-3.5 2-4.5.2 1.6 1 2.6 2 3-.6-3 .3-6 1-9z" />
     </svg>
   );
 }
@@ -84,7 +84,7 @@ function HeartIcon({ size }: IconProps) {
       fill="currentColor"
       aria-hidden="true"
     >
-      <path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.2a4.2 4.2 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z" />
+      <path d="M12 21s-8-4.7-8-10.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 8 2.8C20 16.3 12 21 12 21z" />
     </svg>
   );
 }

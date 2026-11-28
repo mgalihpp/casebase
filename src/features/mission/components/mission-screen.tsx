@@ -857,7 +857,7 @@ function Hearts({ count }: { count: number }) {
         aria-hidden="true"
         fill="currentColor"
       >
-        <path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.2a4.2 4.2 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z" />
+        <path d="M12 21s-8-4.7-8-10.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 8 2.8C20 16.3 12 21 12 21z" />
       </svg>
       {count}
     </span>

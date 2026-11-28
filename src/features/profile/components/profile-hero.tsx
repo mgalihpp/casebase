@@ -107,7 +107,7 @@ export function ProfileHero({ data }: { data: ProfileHeroData }) {
               fill="#F59E0B"
               aria-hidden="true"
             >
-              <path d="M12 2c1 3.5 5 5.5 5 10.5A5 5 0 0 1 7 12c0-2 1-3.5 2-4.5 0 2 1 3 2 3C11 7 11 4.5 12 2z" />
+              <path d="M12 2c1 3.5 5 5.5 5 10.5A5 5 0 0 1 7 12.5c0-2 1-3.5 2-4.5.2 1.6 1 2.6 2 3-.6-3 .3-6 1-9z" />
             </svg>
           }
         />
