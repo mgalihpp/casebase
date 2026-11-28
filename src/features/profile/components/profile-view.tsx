@@ -186,6 +186,7 @@ export function ProfileView() {
                     id="profile-class-code"
                     type="text"
                     autoCapitalize="characters"
+                    placeholder="Contoh: BD2B-4821"
                     value={classCode}
                     onChange={(e) => setClassCode(e.target.value)}
                     className={inputClass}
