@@ -173,7 +173,7 @@ export function OnboardingFlow() {
 
   return (
     <div
-      className={`${pageClass} h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]`}
+      className={`${pageClass} pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]`}
     >
       <div className="relative flex shrink-0 items-center gap-2 bg-app py-2 pr-4">
         <span
@@ -217,7 +217,7 @@ export function OnboardingFlow() {
         </div>
       </div>
 
-      <div className="thin-scroll flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pb-4 pt-3">
+      <div className="flex flex-1 flex-col gap-4 pb-4 pt-3">
         <div className="flex min-h-26 items-end gap-2.5">
           <Mascot
             name={mascot.mascot}
