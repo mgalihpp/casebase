@@ -172,7 +172,7 @@ export function ProfileView() {
               </h2>
               {data.classroom ? (
                 <p className="mt-2 text-ink-soft">
-                  {data.classroom.name} · {data.classroom.lecturer}
+                  {data.classroom.name}, diampu {data.classroom.lecturer}
                 </p>
               ) : (
                 <div className="mt-3">
