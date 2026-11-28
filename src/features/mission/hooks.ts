@@ -15,9 +15,18 @@ export function useMissionCheck() {
   return useMutation(trpc.mission.check.mutationOptions());
 }
 
+// Petunjuk dibuka sebagai aksi pengguna, jadi diambil on demand, bukan saat render.
 export function useMissionHint() {
   const trpc = useTRPC();
-  return useMutation(trpc.mission.hint.mutationOptions());
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      courseId: string;
+      nodeKey: string;
+      questionIndex: number;
+      hintIndex: number;
+    }) => queryClient.fetchQuery(trpc.mission.hint.queryOptions(input)),
+  });
 }
 
 // Peta perlu data terbaru setelah misi ditandai gagal (node jadi "ulangi").
