@@ -41,7 +41,12 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
       : 0;
 
   return (
-    <AppShell tab="berkas" title={data?.title ?? "Berkas"} nav={nav}>
+    <AppShell
+      tab="berkas"
+      title={data?.title ?? "Berkas"}
+      nav={nav}
+      showNav={false}
+    >
       {file.isPending ? (
         <div
           role="status"

@@ -109,7 +109,7 @@ export function ProfileView() {
   if (!data) return null;
 
   return (
-    <div className={`${pageClass} anim-tab-in gap-5 py-8`}>
+    <div className={`${pageClass} anim-tab-in gap-5 pt-8 pb-28`}>
       <header>
         <h1 className="font-display text-3xl font-black">Profil</h1>
       </header>

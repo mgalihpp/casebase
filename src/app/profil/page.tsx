@@ -1,5 +1,6 @@
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { BottomNav } from "@/features/app-shell/components/bottom-nav";
 import { ProfileView } from "@/features/profile/components/profile-view";
 import { getQueryClient, HydrateClient, trpc } from "@/trpc/server";
 
@@ -10,6 +11,7 @@ async function PrefetchedProfile() {
   return (
     <HydrateClient>
       <ProfileView />
+      <BottomNav tab="profil" />
     </HydrateClient>
   );
 }
