@@ -270,6 +270,12 @@ function MissionPlay({
     setRunning(false);
   }
 
+  function clearCode() {
+    setCode("");
+    setRun(null);
+    document.getElementById("sqled")?.focus();
+  }
+
   function insertKeyword(keyword: string) {
     setCode((value) => {
       const separator = value === "" || /[\s(]$/.test(value) ? "" : " ";
@@ -293,6 +299,11 @@ function MissionPlay({
 
   function handleNext() {
     if (!result) return;
+    if (!result.correct) {
+      // Jawaban salah: tetap di soal ini dan biarkan pengguna mencoba lagi.
+      setResult(null);
+      return;
+    }
     if (index + 1 < total) {
       setIndex(index + 1);
       resetQuestionInput();
@@ -549,6 +560,15 @@ function MissionPlay({
                   onChange={(event) => setCode(event.target.value)}
                   className="absolute inset-0 h-full w-full resize-none overflow-hidden bg-transparent px-4 py-3.5 font-mono text-[16px] leading-[1.6] text-transparent caret-ind outline-none placeholder:text-ink-soft"
                 />
+                {code !== "" ? (
+                  <button
+                    type="button"
+                    onClick={clearCode}
+                    className="absolute right-2 bottom-2 min-h-11 rounded-xl border-[1.5px] border-b-[3px] border-line bg-white px-3.5 text-sm font-bold text-ink-soft active:translate-y-0.5"
+                  >
+                    Hapus
+                  </button>
+                ) : null}
               </div>
 
               <div
@@ -702,7 +722,7 @@ function MissionPlay({
               onClick={handleNext}
               className={`${buttonPrimary} ${result.correct ? "bg-ok! shadow-[0_5px_0_#0A5870]!" : "bg-bad! shadow-[0_5px_0_#A3123A]!"}`}
             >
-              Lanjut
+              {result.correct ? "Lanjut" : "Coba lagi"}
             </button>
           </div>
         ) : (
