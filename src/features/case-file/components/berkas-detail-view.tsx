@@ -127,12 +127,12 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
             <Separator />
             <AccordionRow
               label="Bukti terkumpul"
-              count={String(data.bukti.length)}
+              count={String((data.bukti ?? []).length)}
               open={open.evidence}
               onToggle={() => toggle("evidence")}
             >
               <ul className="m-0 list-none p-0">
-                {data.bukti.map((item) => (
+                {(data.bukti ?? []).map((item) => (
                   <li
                     key={item}
                     className="flex gap-2.5 py-[7px] text-[15px] leading-snug text-[#3F3B5C]"
@@ -198,12 +198,12 @@ export function BerkasDetailView({ caseId }: { caseId: string }) {
             <Separator />
             <AccordionRow
               label="Tersangka"
-              count={String(data.tersangka.length)}
+              count={String((data.tersangka ?? []).length)}
               open={open.suspects}
               onToggle={() => toggle("suspects")}
             >
               <ul className="m-0 list-none p-0">
-                {data.tersangka.map((item) => (
+                {(data.tersangka ?? []).map((item) => (
                   <li
                     key={item}
                     className="flex gap-2.5 py-[7px] text-[15px] leading-snug text-[#3F3B5C]"
