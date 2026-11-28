@@ -46,7 +46,7 @@ export function FinishOnboarding() {
       .mutateAsync(payload)
       .then(() => {
         useOnboardingStore.getState().reset();
-        router.replace("/profil");
+        router.replace(`/belajar/${payload.course}`);
       })
       .catch(() => setStatus("error"));
     // completeMutation is stable across renders; run once when the data is ready.
@@ -54,7 +54,7 @@ export function FinishOnboarding() {
 
   return (
     <div
-      className={`${pageClass} items-center justify-center gap-4 text-center`}
+      className={`${pageClass} anim-tab-in items-center justify-center gap-4 text-center`}
     >
       {status === "error" ? (
         <>
@@ -70,7 +70,11 @@ export function FinishOnboarding() {
           </button>
         </>
       ) : (
-        <p role="status" className="font-body text-ink-soft">
+        <p
+          key={status}
+          role="status"
+          className="anim-fade-in font-body text-ink-soft"
+        >
           {status === "saving" ? "Menyiapkan berkasmu…" : "Memuat akun…"}
         </p>
       )}

@@ -4,6 +4,7 @@ import { type FormEvent, useState } from "react";
 import {
   buttonPrimary,
   fieldClass,
+  fieldClassFor,
   inputClass,
   labelClass,
 } from "@/components/ui/styles";
@@ -23,10 +24,12 @@ export function ForgotPasswordSheet({ initialEmail, onSent, onClose }: Props) {
   const [invalid, setInvalid] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setFormError(null);
+    setAttempt((n) => n + 1);
     const trimmed = email.trim();
     if (!EMAIL_PATTERN.test(trimmed)) {
       setInvalid(true);
@@ -48,12 +51,12 @@ export function ForgotPasswordSheet({ initialEmail, onSent, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-ink/40">
+    <div className="anim-fade-in fixed inset-0 z-50 flex items-end bg-ink/40">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="forgot-title"
-        className="w-full rounded-t-3xl bg-white px-5 pb-8 pt-3"
+        className="anim-slide-up w-full rounded-t-3xl bg-white px-5 pb-8 pt-3"
       >
         <div
           className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-line"
@@ -71,7 +74,7 @@ export function ForgotPasswordSheet({ initialEmail, onSent, onClose }: Props) {
             <label htmlFor="fg-email" className={labelClass}>
               Email
             </label>
-            <div className={fieldClass}>
+            <div className={fieldClassFor(invalid)}>
               <input
                 id="fg-email"
                 type="email"
@@ -89,6 +92,7 @@ export function ForgotPasswordSheet({ initialEmail, onSent, onClose }: Props) {
             </div>
             {invalid && (
               <p
+                key={attempt}
                 role="alert"
                 className="mt-1.5 px-1 text-sm font-bold text-bad"
               >
@@ -97,7 +101,11 @@ export function ForgotPasswordSheet({ initialEmail, onSent, onClose }: Props) {
             )}
           </div>
           {formError && (
-            <p role="alert" className="px-1 text-sm font-bold text-bad">
+            <p
+              key={attempt}
+              role="alert"
+              className="px-1 text-sm font-bold text-bad"
+            >
               {formError}
             </p>
           )}

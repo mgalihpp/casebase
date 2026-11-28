@@ -59,6 +59,7 @@ function RuleIcon({ state }: { state: "ok" | "bad" | "todo" }) {
     return (
       <span className={`${base} bg-ok text-white`} aria-hidden="true">
         <svg
+          aria-hidden="true"
           viewBox="0 0 24 24"
           width="14"
           height="14"
@@ -77,6 +78,7 @@ function RuleIcon({ state }: { state: "ok" | "bad" | "todo" }) {
     return (
       <span className={`${base} bg-bad text-white`} aria-hidden="true">
         <svg
+          aria-hidden="true"
           viewBox="0 0 24 24"
           width="14"
           height="14"
@@ -112,6 +114,7 @@ export function ChangePasswordForm() {
   const [repeatError, setRepeatError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!isPending && !session) router.replace("/masuk");
@@ -128,6 +131,7 @@ export function ChangePasswordForm() {
     setFormError(null);
     setCurrentError(null);
     setRepeatError(null);
+    setAttempt((n) => n + 1);
 
     let valid = true;
     if (!current) {
@@ -212,7 +216,7 @@ export function ChangePasswordForm() {
               Kata sandi saat ini
             </label>
             <div
-              className={`flex min-h-[52px] items-center rounded-[14px] border-[1.5px] bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD] ${currentError ? "border-bad shadow-[0_0_0_4px_#FFF1F4]" : "border-line"}`}
+              className={`flex min-h-[52px] items-center rounded-[14px] border-[1.5px] bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD] ${currentError ? "border-bad shadow-[0_0_0_4px_#FFF1F4] focus-within:border-bad focus-within:shadow-[0_0_0_4px_#FFF1F4]" : "border-line"}`}
             >
               <input
                 id="cp-now"
@@ -231,6 +235,7 @@ export function ChangePasswordForm() {
             </div>
             {currentError && (
               <p
+                key={attempt}
                 role="alert"
                 className="mx-0.5 mt-1.5 flex items-center gap-1.5 text-[13.5px] font-bold leading-[1.4] text-bad"
               >
@@ -247,7 +252,7 @@ export function ChangePasswordForm() {
               Kata sandi baru
             </label>
             <div
-              className={`flex min-h-[52px] items-center rounded-[14px] border-[1.5px] bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD] ${sameAsCurrent ? "border-bad shadow-[0_0_0_4px_#FFF1F4]" : "border-line"}`}
+              className={`flex min-h-[52px] items-center rounded-[14px] border-[1.5px] bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD] ${sameAsCurrent ? "border-bad shadow-[0_0_0_4px_#FFF1F4] focus-within:border-bad focus-within:shadow-[0_0_0_4px_#FFF1F4]" : "border-line"}`}
             >
               <input
                 id="cp-new"
@@ -266,6 +271,7 @@ export function ChangePasswordForm() {
             </div>
             {sameAsCurrent && (
               <p
+                key={attempt}
                 role="alert"
                 className="mx-0.5 mt-1.5 flex items-center gap-1.5 text-[13.5px] font-bold leading-[1.4] text-bad"
               >
@@ -302,7 +308,7 @@ export function ChangePasswordForm() {
               Ulangi kata sandi baru
             </label>
             <div
-              className={`flex min-h-[52px] items-center rounded-[14px] border-[1.5px] bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD] ${repeatError ? "border-bad shadow-[0_0_0_4px_#FFF1F4]" : "border-line"}`}
+              className={`flex min-h-[52px] items-center rounded-[14px] border-[1.5px] bg-white pl-3.5 pr-1 focus-within:border-[#A5B4FC] focus-within:shadow-[0_0_0_4px_#EEEDFD] ${repeatError ? "border-bad shadow-[0_0_0_4px_#FFF1F4] focus-within:border-bad focus-within:shadow-[0_0_0_4px_#FFF1F4]" : "border-line"}`}
             >
               <input
                 id="cp-repeat"
@@ -321,6 +327,7 @@ export function ChangePasswordForm() {
             </div>
             {repeatError && (
               <p
+                key={attempt}
                 role="alert"
                 className="mx-0.5 mt-1.5 text-[13.5px] font-bold leading-[1.4] text-bad"
               >
@@ -354,7 +361,11 @@ export function ChangePasswordForm() {
         </ul>
 
         {formError && (
-          <p role="alert" className="mt-4 text-sm font-bold text-bad">
+          <p
+            key={attempt}
+            role="alert"
+            className="mt-4 text-sm font-bold text-bad"
+          >
             {formError}
           </p>
         )}

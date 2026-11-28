@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "db:seed": "bun src/server/db/seed.ts",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "format:check": "biome check ."
@@ -24,6 +25,7 @@
     "react-dom": "19.3.0",
     "resend": "^6.40.1",
     "server-only": "^0.0.1",
+    "sql.js": "^1.17.0",
     "superjson": "^2.2.7",
     "zod": "^4.6.7",
     "zustand": "^5.1.0"
@@ -35,6 +37,7 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/sql.js": "^1.16.1",
     "babel-plugin-react-compiler": "1.0.0",
     "drizzle-kit": "^0.31.11",
     "tailwindcss": "4.3.3",

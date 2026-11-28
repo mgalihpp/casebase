@@ -5,14 +5,60 @@
   "story": "Brankas gudang PT Sinar Logam dibobol tengah malam, 13 Maret. Sembilan transfer keluar sebelum pagi.",
   "seed": "CREATE TABLE transaksi (id INTEGER, rekening TEXT, jumlah INTEGER, waktu TEXT); INSERT INTO transaksi VALUES (1,'GDG-01',2500000,'13/03 21:10'), (2,'GDG-02',1200000,'13/03 21:14'), (3,'GDG-01',750000,'13/03 21:40'), (4,'GDG-03',4800000,'13/03 22:05'), (5,'GDG-02',300000,'13/03 22:30'), (6,'GDG-04',9500000,'13/03 23:50'), (7,'GDG-04',6200000,'14/03 00:15'), (8,'GDG-01',1100000,'14/03 00:40'), (9,'GDG-05',450000,'14/03 08:00');",
   "nodes": [
-    { "key": "n1", "type": "mission", "title": "Lihat semua bukti", "topic": "SELECT dan FROM" },
-    { "key": "n2", "type": "mission", "title": "Saring transfer besar", "topic": "WHERE" },
-    { "key": "n3", "type": "mission", "title": "Tiga transfer terbesar", "topic": "ORDER BY dan LIMIT" },
+    {
+      "key": "n1",
+      "type": "mission",
+      "title": "Lihat semua bukti",
+      "topic": "SELECT dan FROM"
+    },
+    {
+      "key": "n2",
+      "type": "mission",
+      "title": "Saring transfer besar",
+      "topic": "WHERE"
+    },
+    {
+      "key": "n3",
+      "type": "mission",
+      "title": "Tiga transfer terbesar",
+      "topic": "ORDER BY dan LIMIT"
+    },
     { "key": "n4", "type": "chest", "coins": 5 },
-    { "key": "n5", "type": "mission", "title": "Total per rekening", "topic": "GROUP BY dan SUM" },
+    {
+      "key": "n5",
+      "type": "mission",
+      "title": "Total per rekening",
+      "topic": "GROUP BY dan SUM"
+    },
     { "key": "n6", "type": "boss", "title": "Interogasi" }
   ],
   "questions": [
+    {
+      "node": "n1",
+      "type": "pilih",
+      "prompt": "Kata kunci apa yang dipakai untuk menyaring baris?",
+      "options": ["WHERE", "LIMIT", "ORDER BY", "FROM"],
+      "answerIndex": 0,
+      "hints": [
+        "Kata ini menentukan baris mana yang ikut ditampilkan.",
+        "Kata ini ditulis setelah nama tabel, lalu diikuti syarat.",
+        "Syaratnya bisa berupa perbandingan, misalnya jumlah > 2000000."
+      ],
+      "explanation": "WHERE menyaring baris berdasarkan syarat. LIMIT membatasi jumlah baris, ORDER BY mengurutkan, dan FROM menunjuk tabel sumber."
+    },
+    {
+      "node": "n1",
+      "type": "susun",
+      "prompt": "Susun potongan berikut menjadi query SELECT * FROM transaksi.",
+      "pieces": ["FROM", "transaksi", "SELECT", "*"],
+      "answer": ["SELECT", "*", "FROM", "transaksi"],
+      "hints": [
+        "Query selalu dimulai dengan kata SELECT.",
+        "Setelah SELECT, tulis kolom yang diminta. Tanda * berarti semua kolom.",
+        "Kata FROM diikuti nama tabel sumbernya."
+      ],
+      "explanation": "Urutannya SELECT * FROM transaksi: SELECT memilih kolom, * berarti semua kolom, FROM menunjuk tabel, dan transaksi adalah nama tabelnya."
+    },
     {
       "node": "n1",
       "type": "write",

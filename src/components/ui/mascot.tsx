@@ -11,12 +11,13 @@ export type MascotMood =
   | "sleep"
   | "celebrate";
 
+// Nama maskot mengikuti singkatan kursus di Design System v2.
 const KIND_BY_NAME: Record<string, MascotKind> = {
   Dibi: "sql",
-  Pogi: "pg",
+  Kura: "pg",
   Doku: "mongo",
-  Kubo: "redis",
-  Pena: "lite",
+  Cici: "redis",
+  Lumi: "lite",
 };
 
 type MascotProps = {

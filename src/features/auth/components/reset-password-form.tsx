@@ -89,6 +89,7 @@ export function ResetPasswordForm() {
   const [repeatError, setRepeatError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [attempt, setAttempt] = useState(0);
 
   const linkInvalid = !token || linkError === "INVALID_TOKEN";
   const lengthOk = password.length >= MIN_LENGTH;
@@ -104,6 +105,7 @@ export function ResetPasswordForm() {
     event.preventDefault();
     setFormError(null);
     setRepeatError(null);
+    setAttempt((n) => n + 1);
     if (!lengthOk || !mixOk) return;
     if (password !== repeat) {
       setRepeatError("Kata sandi belum sama. Ketik ulang dengan benar.");
@@ -127,7 +129,9 @@ export function ResetPasswordForm() {
 
   if (linkInvalid) {
     return (
-      <div className={`${pageClass} gap-5 pt-[env(safe-area-inset-top)]`}>
+      <div
+        className={`${pageClass} anim-slide-in-right gap-5 pt-[env(safe-area-inset-top)]`}
+      >
         <div className="py-2">
           <Link href="/masuk" className="font-bold text-ind">
             Kembali
@@ -147,7 +151,9 @@ export function ResetPasswordForm() {
   }
 
   return (
-    <div className={`${pageClass} pt-[env(safe-area-inset-top)]`}>
+    <div
+      className={`${pageClass} anim-slide-in-right pt-[env(safe-area-inset-top)]`}
+    >
       <div className="py-2">
         <button
           type="button"
@@ -236,6 +242,7 @@ export function ResetPasswordForm() {
             </div>
             {repeatError && (
               <p
+                key={attempt}
                 role="alert"
                 className="mx-0.5 mt-1.5 text-[13.5px] font-bold leading-[1.4] text-bad"
               >
@@ -251,7 +258,11 @@ export function ResetPasswordForm() {
         </ul>
 
         {formError && (
-          <p role="alert" className="mt-4 text-sm font-bold text-bad">
+          <p
+            key={attempt}
+            role="alert"
+            className="mt-4 text-sm font-bold text-bad"
+          >
             {formError}
           </p>
         )}

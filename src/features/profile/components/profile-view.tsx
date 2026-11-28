@@ -40,6 +40,7 @@ export function ProfileView() {
   const [classError, setClassError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<Confirm>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!sessionPending && !session) router.replace("/masuk");
@@ -62,6 +63,7 @@ export function ProfileView() {
 
   async function handleJoinClass() {
     setClassError(null);
+    setAttempt((n) => n + 1);
     const code = classCode.trim();
     if (!code) return;
     try {
@@ -95,7 +97,7 @@ export function ProfileView() {
 
   if (sessionPending || (session && profileQuery.isPending)) {
     return (
-      <div className={`${pageClass} items-center justify-center`}>
+      <div className={`${pageClass} anim-tab-in items-center justify-center`}>
         <p role="status" className="text-ink-soft">
           Memuat profil…
         </p>
@@ -106,7 +108,7 @@ export function ProfileView() {
   if (!data) return null;
 
   return (
-    <div className={`${pageClass} gap-5 py-8`}>
+    <div className={`${pageClass} anim-tab-in gap-5 py-8`}>
       <header>
         <h1 className="font-display text-3xl font-black">Profil</h1>
         <p className="mt-1 text-ink-soft">
@@ -116,7 +118,7 @@ export function ProfileView() {
 
       <section
         aria-labelledby="daily-target"
-        className="rounded-2xl border-2 border-line bg-white p-4"
+        className="anim-row-in rounded-2xl border-2 border-line bg-white p-4"
       >
         <h2 id="daily-target" className="font-display text-lg font-black">
           Target harian
@@ -137,8 +139,9 @@ export function ProfileView() {
       </section>
 
       <section
+        style={{ animationDelay: "0.07s" }}
         aria-labelledby="reminder"
-        className="rounded-2xl border-2 border-line bg-white p-4"
+        className="anim-row-in rounded-2xl border-2 border-line bg-white p-4"
       >
         <h2 id="reminder" className="font-display text-lg font-black">
           Pengingat
@@ -168,8 +171,9 @@ export function ProfileView() {
       </section>
 
       <section
+        style={{ animationDelay: "0.14s" }}
         aria-labelledby="class"
-        className="rounded-2xl border-2 border-line bg-white p-4"
+        className="anim-row-in rounded-2xl border-2 border-line bg-white p-4"
       >
         <h2 id="class" className="font-display text-lg font-black">
           Kelas
@@ -194,7 +198,11 @@ export function ProfileView() {
               />
             </div>
             {classError && (
-              <p role="alert" className="mt-2 text-sm font-bold text-bad">
+              <p
+                key={attempt}
+                role="alert"
+                className="mt-2 text-sm font-bold text-bad"
+              >
                 {classError}
               </p>
             )}
@@ -215,7 +223,10 @@ export function ProfileView() {
         </p>
       )}
 
-      <section className="grid gap-3 pb-8">
+      <section
+        className="anim-row-in grid gap-3 pb-8"
+        style={{ animationDelay: "0.21s" }}
+      >
         {confirm === "sign-out" ? (
           <div className="grid gap-2 rounded-2xl border-2 border-line bg-white p-4">
             <p className="font-bold">
