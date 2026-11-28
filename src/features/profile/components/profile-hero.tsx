@@ -154,7 +154,21 @@ export function ProfileHero({ data }: { data: ProfileHeroData }) {
           className="flex min-h-13 w-full items-center justify-between px-3.5 text-[17px]"
         >
           Aktivitas minggu ini
-          <span aria-hidden="true">{weekOpen ? "▴" : "▾"}</span>
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="shrink-0 text-ink-soft transition-transform duration-200"
+            style={{ transform: weekOpen ? "rotate(180deg)" : "none" }}
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </button>
         {weekOpen ? (
           <div className="flex h-32 items-end gap-2 px-3.5 pb-3.5">
@@ -187,7 +201,21 @@ export function ProfileHero({ data }: { data: ProfileHeroData }) {
           className="flex min-h-13 w-full items-center justify-between px-3.5 text-[17px]"
         >
           Target harian
-          <span aria-hidden="true">{goalOpen ? "▴" : "▾"}</span>
+          <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="shrink-0 text-ink-soft transition-transform duration-200"
+            style={{ transform: goalOpen ? "rotate(180deg)" : "none" }}
+          >
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </button>
         {goalOpen ? (
           <p className="px-3.5 pb-3.5 text-[15px] leading-normal text-ink-soft">

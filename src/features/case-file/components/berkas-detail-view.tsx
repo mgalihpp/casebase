@@ -152,13 +152,21 @@ function Accordion({
         className="flex min-h-[52px] w-full items-center justify-between px-3.5 font-body text-base font-semibold"
       >
         {label}
-        <span
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           aria-hidden="true"
-          className="text-ink-soft transition-transform"
+          className="shrink-0 text-ink-soft transition-transform duration-200"
           style={{ transform: open ? "rotate(180deg)" : "none" }}
         >
-          ▾
-        </span>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
       </button>
       {open ? <div className="fade-in px-3.5 pb-3.5">{children}</div> : null}
     </div>
