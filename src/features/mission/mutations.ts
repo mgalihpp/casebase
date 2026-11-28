@@ -166,7 +166,7 @@ export async function openChest(
     throw notFound("Kasus tidak ditemukan.");
   }
   const node = bundle.body.nodes.find((item) => item.key === nodeKey);
-  if (!node || node.type !== "chest") throw notFound("Kotak tidak ditemukan.");
+  if (node?.type !== "chest") throw notFound("Kotak tidak ditemukan.");
 
   const status = statusOf(bundle.statuses, nodeKey);
   if (status === "locked") {

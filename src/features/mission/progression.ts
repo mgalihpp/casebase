@@ -10,6 +10,8 @@ import {
   CHECKS_PER_MINUTE,
   calendarDate,
   FAST_ANSWER_MS,
+  HEART_REGEN_MS,
+  HEARTS_MAX,
   heartsNow,
   loseHeart,
   nextLantern,
@@ -259,4 +261,32 @@ export async function consumeCheck(tx: Executor, userId: string, now: Date) {
     })
     .returning({ count: checkRate.count });
   return (row?.count ?? CHECKS_PER_MINUTE + 1) <= CHECKS_PER_MINUTE;
+}
+
+export async function readCoins(userId: string) {
+  const [row] = await db
+    .select({ coins: profile.coins })
+    .from(profile)
+    .where(eq(profile.userId, userId))
+    .limit(1);
+  return row?.coins ?? 0;
+}
+
+/** Nyawa sekarang dan waktu nyawa berikutnya bertambah. `nextHeartAt` null jika sudah penuh. */
+export async function readHeartsDetail(userId: string, now: Date) {
+  const [row] = await db
+    .select({ hearts: profile.hearts, updatedAt: profile.heartsUpdatedAt })
+    .from(profile)
+    .where(eq(profile.userId, userId))
+    .limit(1);
+  if (!row) return { hearts: 0, nextHeartAt: null };
+  const hearts = heartsNow(row.hearts, row.updatedAt, now);
+  if (hearts >= HEARTS_MAX) return { hearts, nextHeartAt: null };
+  const gained = Math.floor(
+    (now.getTime() - row.updatedAt.getTime()) / HEART_REGEN_MS,
+  );
+  const nextHeartAt = new Date(
+    row.updatedAt.getTime() + (Math.max(0, gained) + 1) * HEART_REGEN_MS,
+  );
+  return { hearts, nextHeartAt };
 }

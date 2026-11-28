@@ -6,7 +6,11 @@ import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Mascot, type MascotMood } from "@/components/ui/mascot";
 import { buttonPrimary, pageClass } from "@/components/ui/styles";
 import { findCourse } from "@/features/course/data";
-import { useCourseList, useCoursePath } from "@/features/course/hooks";
+import {
+  useCourseList,
+  useCoursePath,
+  useOpenChest,
+} from "@/features/course/hooks";
 import { useStreak } from "@/features/progress/hooks";
 
 type Props = { courseId: string };
@@ -242,6 +246,7 @@ export function LearnScreen({ courseId }: Props) {
   const courses = useCourseList();
   const streak = useStreak();
   const hearts = streak.data?.hearts ?? 5;
+  const openChest = useOpenChest();
   const meta = findCourse(courseId);
   const [caseOpen, setCaseOpen] = useState(false);
   const [mood, setMood] = useState<MascotMood>("idle");
@@ -479,7 +484,9 @@ export function LearnScreen({ courseId }: Props) {
             </span>
           </div>
           <div className="rounded-2xl border border-line bg-white p-3">
-            <span className="block font-display text-xl font-black">—</span>
+            <span className="block font-display text-xl font-black">
+              {streak.data?.coins ?? 0}
+            </span>
             <span className="text-[13px] text-ink-soft">Koin petunjuk</span>
           </div>
         </div>
@@ -828,8 +835,21 @@ export function LearnScreen({ courseId }: Props) {
             courseId={courseId}
             onClose={() => setSelectedKey(null)}
             onOpenChest={() => {
+              if (!selected) return;
               setSelectedKey(null);
-              setNotice("+5 koin petunjuk");
+              openChest.mutate(
+                { courseId, nodeKey: selected.key },
+                {
+                  onSuccess: ({ gained }) =>
+                    setNotice(
+                      gained > 0
+                        ? `+${gained} koin petunjuk`
+                        : "Kotak ini sudah dibuka.",
+                    ),
+                  onError: () =>
+                    setNotice("Kotak belum bisa dibuka. Coba lagi."),
+                },
+              );
             }}
           />
         ) : null}

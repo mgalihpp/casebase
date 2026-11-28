@@ -249,7 +249,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
         onError: (failure) => {
           if (failure.data?.code === "UNAUTHORIZED") router.replace("/masuk");
           else if (failure.data?.code === "PRECONDITION_FAILED")
-            setToast(failure.message);
+            setHeartsLeft(0);
           else setToast(GAGAL_KIRIM);
         },
       },
@@ -313,6 +313,15 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
   }
 
   const closeSheet = () => setSheet(null);
+
+  if (hearts === 0 && !finished) {
+    return (
+      <OutOfHearts
+        nextHeartAt={data.nextHeartAt}
+        onBack={() => router.replace(`/belajar/${courseId}`)}
+      />
+    );
+  }
 
   if (finished) {
     return (
@@ -690,6 +699,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
           <div className="grid gap-2.5 border-t border-line bg-white px-4 pb-4 pt-2.5">
             {question.type === "write" ? (
               <div
+                role="group"
                 aria-label="Sisipkan kata kunci"
                 className="-mx-4 flex gap-1.5 overflow-x-auto px-4"
               >
@@ -943,4 +953,44 @@ function formatTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+// FR-MIS-07: nyawa habis menghentikan misi dan menampilkan kapan nyawa berikutnya datang.
+function OutOfHearts({
+  nextHeartAt,
+  onBack,
+}: {
+  nextHeartAt: Date | null;
+  onBack: () => void;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const remainingSeconds = nextHeartAt
+    ? Math.max(0, Math.ceil((nextHeartAt.getTime() - now) / 1000))
+    : 0;
+
+  return (
+    <main
+      className={`${pageClass} items-center justify-center gap-4 text-center`}
+    >
+      <h1 className="font-display text-[28px] font-black">Nyawamu habis</h1>
+      <p className="text-[16px] leading-normal text-ink-soft">
+        Misi ini dihentikan. Jawabanmu di misi ini tidak disimpan.
+      </p>
+      {nextHeartAt ? (
+        <p className="text-[15px] text-ink-soft">
+          Nyawa berikutnya dalam{" "}
+          <span className="font-display text-[22px] font-black tabular-nums text-ink">
+            {formatTime(remainingSeconds)}
+          </span>
+        </p>
+      ) : null}
+      <button type="button" onClick={onBack} className={buttonPrimary}>
+        Kembali ke Belajar
+      </button>
+    </main>
+  );
 }

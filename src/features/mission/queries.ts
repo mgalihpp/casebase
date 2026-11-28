@@ -5,7 +5,7 @@ import { loadCaseBundle, statusOf } from "@/features/course/queries";
 import type { CaseQuestion } from "@/features/course/schemas";
 import { profile } from "@/features/profile/schema";
 import { db } from "@/server/db";
-import { readHearts } from "./progression";
+import { readHeartsDetail } from "./progression";
 import { missionAttempt, missionHint } from "./schema";
 import type { startInput } from "./schemas";
 
@@ -101,7 +101,7 @@ export async function startMission(
     .limit(1);
 
   return {
-    hearts: await readHearts(userId, new Date()),
+    ...(await readHeartsDetail(userId, new Date())),
     coins: me?.coins ?? 0,
     hintsOpened,
     course: { id: bundle.course.id, name: bundle.course.name },
