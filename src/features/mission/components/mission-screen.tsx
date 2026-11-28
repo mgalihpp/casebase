@@ -141,7 +141,6 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
   const [reward, setReward] = useState<Reward | null>(null);
   const [mistakes, setMistakes] = useState(0);
   const [attempts, setAttempts] = useState(0);
-  const [hintsUsed, setHintsUsed] = useState(0);
   const [hintTexts, setHintTexts] = useState<string[]>([]);
   const [startedAt] = useState(() => Date.now());
   const [elapsed, setElapsed] = useState(0);
@@ -149,6 +148,27 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
   const [sheet, setSheet] = useState<Sheet>(null);
 
   const question = data?.questions[index];
+
+  // Petunjuk yang sudah dibuka di server dimuat ulang teksnya satu per satu. Pemanggilan ini tidak memotong koin.
+  useEffect(() => {
+    if (!data || hint.isPending) return;
+    const openedCount = data.hintsOpened[index]?.length ?? 0;
+    if (hintTexts.length >= openedCount) return;
+    hint.mutate(
+      { courseId, nodeKey, questionIndex: index, hintIndex: hintTexts.length },
+      {
+        onSuccess: (opened) => setHintTexts((texts) => [...texts, opened.text]),
+      },
+    );
+  }, [
+    data,
+    index,
+    hintTexts.length,
+    hint.isPending,
+    hint.mutate,
+    courseId,
+    nodeKey,
+  ]);
 
   useEffect(() => {
     if (!toast) return;
@@ -184,6 +204,11 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
   }
 
   const total = data.questions.length;
+  const hintsUsed = data.hintsOpened.reduce(
+    (sum, list) => sum + list.length,
+    0,
+  );
+  const openedHere = data.hintsOpened[index]?.length ?? 0;
   const hearts = heartsLeft ?? data.hearts ?? HEARTS;
   const xp = Math.max(0, total * XP_PER_SOAL - hintsUsed * BIAYA_PETUNJUK);
   const score = Math.max(0, 100 - hintsUsed * 10 - mistakes * 5);
@@ -261,11 +286,13 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
 
   function openNextHint() {
     hint.mutate(
-      { courseId, nodeKey, questionIndex: index, hintIndex: hintTexts.length },
+      { courseId, nodeKey, questionIndex: index, hintIndex: openedHere },
       {
         onSuccess: (opened) => {
           setHintTexts((texts) => [...texts, opened.text]);
-          setHintsUsed((count) => count + 1);
+          void queryClient.invalidateQueries({
+            queryKey: trpc.mission.start.queryKey(),
+          });
         },
       },
     );
@@ -351,7 +378,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
     );
   }
 
-  const hintMaxed = hintTexts.length >= HINT_MAX;
+  const hintMaxed = openedHere >= HINT_MAX;
   const canCheck =
     question.type === "write"
       ? code.trim() !== ""
@@ -417,6 +444,19 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
                 aria-haspopup="dialog"
                 className="min-h-11 px-2 font-display text-[15px] font-black text-ind"
               >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  aria-hidden="true"
+                  className="mr-1 inline"
+                >
+                  <rect x="3" y="4" width="18" height="16" rx="2" />
+                  <path d="M3 10h18M9 10v10" />
+                </svg>
                 Skema
               </button>
               <button
@@ -425,7 +465,20 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
                 aria-haspopup="dialog"
                 className="min-h-11 px-2 font-display text-[15px] font-black text-ind"
               >
-                Petunjuk {hintsUsed}/{HINT_MAX}
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                  className="mr-1 inline"
+                >
+                  <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z" />
+                </svg>
+                Petunjuk {openedHere}/{HINT_MAX}
               </button>
             </div>
           ) : null}
@@ -636,7 +689,10 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
         ) : (
           <div className="grid gap-2.5 border-t border-line bg-white px-4 pb-4 pt-2.5">
             {question.type === "write" ? (
-              <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4">
+              <div
+                aria-label="Sisipkan kata kunci"
+                className="-mx-4 flex gap-1.5 overflow-x-auto px-4"
+              >
                 {KETUKAN_KATA_KUNCI.map((keyword) => (
                   <button
                     key={keyword}
@@ -713,7 +769,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
               ? "Membuka…"
               : hintMaxed
                 ? "Semua petunjuk terbuka"
-                : `Buka petunjuk ${hintTexts.length + 1}`}
+                : `Buka petunjuk ${openedHere + 1}`}
           </button>
           {hint.isError ? (
             <p role="alert" className="text-[15px] text-bad">
