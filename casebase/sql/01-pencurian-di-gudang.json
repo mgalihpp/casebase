@@ -3,6 +3,16 @@
   "number": "01",
   "title": "Pencurian di Gudang",
   "story": "Brankas gudang PT Sinar Logam dibobol tengah malam, 13 Maret. Sembilan transfer keluar sebelum pagi.",
+  "bukti": [
+    "Empat nama tercatat absen malam itu.",
+    "Bayu absen, tapi kartu aksesnya dipakai pukul 23.38.",
+    "Rekening GDG-01 mengirim transfer besar setelah tengah malam."
+  ],
+  "tersangka": [
+    "Bayu Santoso, shift malam, punya akses gudang",
+    "Rina Wijaya, shift malam, tanpa akses",
+    "Agus Hidayat, shift pagi, punya akses"
+  ],
   "seed": "CREATE TABLE transaksi (id INTEGER, rekening TEXT, jumlah INTEGER, waktu TEXT); INSERT INTO transaksi VALUES (1,'GDG-01',2500000,'13/03 21:10'), (2,'GDG-02',1200000,'13/03 21:14'), (3,'GDG-01',750000,'13/03 21:40'), (4,'GDG-03',4800000,'13/03 22:05'), (5,'GDG-02',300000,'13/03 22:30'), (6,'GDG-04',9500000,'13/03 23:50'), (7,'GDG-04',6200000,'14/03 00:15'), (8,'GDG-01',1100000,'14/03 00:40'), (9,'GDG-05',450000,'14/03 08:00');",
   "nodes": [
     {
@@ -23,21 +33,34 @@
       "title": "Tiga transfer terbesar",
       "topic": "ORDER BY dan LIMIT"
     },
-    { "key": "n4", "type": "chest", "coins": 5 },
+    {
+      "key": "n4",
+      "type": "chest",
+      "coins": 5
+    },
     {
       "key": "n5",
       "type": "mission",
       "title": "Total per rekening",
       "topic": "GROUP BY dan SUM"
     },
-    { "key": "n6", "type": "boss", "title": "Interogasi" }
+    {
+      "key": "n6",
+      "type": "boss",
+      "title": "Interogasi"
+    }
   ],
   "questions": [
     {
       "node": "n1",
       "type": "pilih",
       "prompt": "Kata kunci apa yang dipakai untuk menyaring baris?",
-      "options": ["WHERE", "LIMIT", "ORDER BY", "FROM"],
+      "options": [
+        "WHERE",
+        "LIMIT",
+        "ORDER BY",
+        "FROM"
+      ],
       "answerIndex": 0,
       "hints": [
         "Kata ini menentukan baris mana yang ikut ditampilkan.",
@@ -50,8 +73,18 @@
       "node": "n1",
       "type": "susun",
       "prompt": "Susun potongan berikut menjadi query SELECT * FROM transaksi.",
-      "pieces": ["FROM", "transaksi", "SELECT", "*"],
-      "answer": ["SELECT", "*", "FROM", "transaksi"],
+      "pieces": [
+        "FROM",
+        "transaksi",
+        "SELECT",
+        "*"
+      ],
+      "answer": [
+        "SELECT",
+        "*",
+        "FROM",
+        "transaksi"
+      ],
       "hints": [
         "Query selalu dimulai dengan kata SELECT.",
         "Setelah SELECT, tulis kolom yang diminta. Tanda * berarti semua kolom.",
@@ -63,8 +96,12 @@
       "node": "n1",
       "type": "write",
       "prompt": "Tampilkan semua kolom dan semua baris dari tabel transaksi.",
-      "boleh": ["SELECT"],
-      "wajib": ["FROM"],
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "FROM"
+      ],
       "aturanKolom": "tepat",
       "answer": "SELECT * FROM transaksi",
       "pemeriksa": null,
@@ -79,8 +116,12 @@
       "node": "n2",
       "type": "write",
       "prompt": "Tampilkan transfer dengan jumlah lebih dari 2.000.000.",
-      "boleh": ["SELECT"],
-      "wajib": ["WHERE"],
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "WHERE"
+      ],
       "aturanKolom": "minimal",
       "answer": "SELECT * FROM transaksi WHERE jumlah > 2000000",
       "pemeriksa": null,
@@ -95,8 +136,13 @@
       "node": "n3",
       "type": "write",
       "prompt": "Tampilkan 3 transaksi dengan jumlah terbesar.",
-      "boleh": ["SELECT"],
-      "wajib": ["ORDER BY", "LIMIT"],
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "ORDER BY",
+        "LIMIT"
+      ],
       "aturanKolom": "minimal",
       "answer": "SELECT * FROM transaksi ORDER BY jumlah DESC LIMIT 3",
       "pemeriksa": null,
@@ -111,8 +157,13 @@
       "node": "n5",
       "type": "write",
       "prompt": "Tampilkan total jumlah transfer per rekening, dari yang terbesar.",
-      "boleh": ["SELECT"],
-      "wajib": ["GROUP BY", "SUM"],
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "GROUP BY",
+        "SUM"
+      ],
       "aturanKolom": "minimal",
       "answer": "SELECT rekening, SUM(jumlah) AS total FROM transaksi GROUP BY rekening ORDER BY total DESC",
       "pemeriksa": null,
@@ -127,8 +178,13 @@
       "node": "n6",
       "type": "write",
       "prompt": "Tampilkan rekening yang menerima lebih dari satu transfer di atas 2.000.000.",
-      "boleh": ["SELECT"],
-      "wajib": ["GROUP BY", "HAVING"],
+      "boleh": [
+        "SELECT"
+      ],
+      "wajib": [
+        "GROUP BY",
+        "HAVING"
+      ],
       "aturanKolom": "minimal",
       "answer": "SELECT rekening FROM transaksi WHERE jumlah > 2000000 GROUP BY rekening HAVING COUNT(*) > 1",
       "pemeriksa": null,
