@@ -43,6 +43,7 @@ export const courseRouter = createTRPCRouter({
       return {
         course: bundle.course,
         case: {
+          id: bundle.caseRow.id,
           number: bundle.body.number,
           title: bundle.body.title,
           story: bundle.body.story,

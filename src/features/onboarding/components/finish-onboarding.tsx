@@ -11,7 +11,7 @@ import { toCompletePayload, useOnboardingStore } from "../store";
 type Status = "loading" | "saving" | "error";
 
 // Destination after sign-up or sign-in. If guest onboarding choices are still in the store,
-// they are sent to the server first, then the user is taken to the profile page.
+// they are sent to the server first, then the user is taken to the lesson screen.
 export function FinishOnboarding() {
   const router = useRouter();
   const trpc = useTRPC();
@@ -37,7 +37,7 @@ export function FinishOnboarding() {
 
     const payload = toCompletePayload(useOnboardingStore.getState());
     if (!payload) {
-      router.replace("/profil");
+      router.replace("/belajar");
       return;
     }
 
