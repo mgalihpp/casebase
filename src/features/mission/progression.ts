@@ -69,6 +69,7 @@ export async function openAttempt(
       caseId,
       nodeKey,
       isRepeat: Boolean(done),
+      startedAt: now,
       lastEventAt: now,
     })
     .returning();
