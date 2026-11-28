@@ -4,6 +4,7 @@ import type { z } from "zod";
 import { loadCaseBundle, statusOf } from "@/features/course/queries";
 import { profile } from "@/features/profile/schema";
 import { db } from "@/server/db";
+import { checkRule } from "./check-rules";
 import { gradeAnswer } from "./grader";
 import {
   applyWrongAnswer,
@@ -35,7 +36,7 @@ export async function checkAnswer(
   if (status === "locked") {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Selesaikan misi sebelumnya untuk membuka misi ini.",
+      message: "Tuntaskan misi sebelumnya untuk membuka misi ini.",
     });
   }
 
@@ -47,7 +48,7 @@ export async function checkAnswer(
   if (question.type !== answer.type) {
     throw new TRPCError({
       code: "BAD_REQUEST",
-      message: "Jenis jawaban tidak cocok dengan soal.",
+      message: "Jenis jawaban tidak sesuai soal.",
     });
   }
 
@@ -56,20 +57,44 @@ export async function checkAnswer(
   if (!withinLimit) {
     throw new TRPCError({
       code: "TOO_MANY_REQUESTS",
-      message: "Terlalu sering mengecek. Tunggu sebentar lalu coba lagi.",
+      message: "Terlalu cepat. Tunggu sebentar, lalu coba lagi.",
     });
   }
   if ((await readHearts(userId, now)) === 0) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
-      message: "Nyawamu habis.",
+      message: "Nyawamu sudah habis.",
+    });
+  }
+
+  const caseId = bundle.caseRow.id;
+  const [active] = await db
+    .select({ questionIndex: missionAttempt.questionIndex })
+    .from(missionAttempt)
+    .where(
+      and(
+        eq(missionAttempt.userId, userId),
+        eq(missionAttempt.caseId, caseId),
+        eq(missionAttempt.nodeKey, nodeKey),
+        eq(missionAttempt.status, "active"),
+      ),
+    )
+    .limit(1);
+  const activeIndex = active?.questionIndex ?? 0;
+  if (activeIndex !== questionIndex) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Soal ini bukan soal aktifmu. Muat ulang halaman.",
     });
   }
 
   const verdict = await gradeAnswer(question, bundle.body.seed, answer);
-  const isLastQuestion = questionIndex === questions.length - 1;
-  const nodeDone = verdict.correct && isLastQuestion;
-  const caseId = bundle.caseRow.id;
+  const { nodeDone, advance } = checkRule({
+    activeIndex,
+    questionIndex,
+    total: questions.length,
+    correct: verdict.correct,
+  });
 
   const outcome = await db.transaction(async (tx) => {
     const attempt = await openAttempt(tx, userId, caseId, nodeKey, now);
@@ -80,8 +105,7 @@ export async function checkAnswer(
       : await applyWrongAnswer(tx, userId, now);
 
     if (!nodeDone) {
-      // Maju ke soal berikutnya hanya jika soal ini memang posisi aktif, agar jawaban ulang tidak menggeser posisi.
-      if (verdict.correct) {
+      if (advance) {
         await tx
           .update(missionAttempt)
           .set({ questionIndex: sql`${missionAttempt.questionIndex} + 1` })
@@ -158,7 +182,7 @@ export async function takeHint(
   if (result.status === "urutan") {
     throw new TRPCError({
       code: "BAD_REQUEST",
-      message: "Buka petunjuk sebelumnya dulu.",
+      message: "Buka petunjuk sebelumnya lebih dulu.",
     });
   }
 
@@ -186,7 +210,7 @@ export async function openChest(
   if (status === "locked") {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Kotak bukti terbuka setelah misi sebelumnya selesai.",
+      message: "Kotak ini terbuka setelah misi sebelumnya tuntas.",
     });
   }
 
@@ -228,7 +252,7 @@ export async function failMission(
   if (status === "locked" || status === "done") {
     throw new TRPCError({
       code: "BAD_REQUEST",
-      message: "Misi ini belum bisa gagal.",
+      message: "Misi ini belum bisa ditandai gagal.",
     });
   }
 

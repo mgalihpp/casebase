@@ -137,7 +137,7 @@ export function compareTables(
   return sortedGot.every((row, i) => row === sortedWant[i]);
 }
 
-const CORRECT = "Tepat sekali!";
+const CORRECT = "Benar. Buktinya cocok.";
 
 /**
  * Menilai soal tulis query (SDD 3.7.1). Urutan pemeriksaan: perintah yang
@@ -150,7 +150,7 @@ export async function judgeWrite(
   run: Runner,
 ): Promise<Verdict> {
   const query = userQuery.trim();
-  if (!query) return { correct: false, message: "Tulis query dulu." };
+  if (!query) return { correct: false, message: "Tulis query dulu, detektif." };
 
   const allowed = question.boleh.map((b) => b.toUpperCase());
   for (const statement of splitStatements(query)) {
@@ -165,7 +165,7 @@ export async function judgeWrite(
         message:
           command && KNOWN_COMMANDS.includes(command)
             ? `Perintah ${command} belum dipakai di misi ini.`
-            : "Perintah pertama belum dikenali. Periksa penulisannya.",
+            : "Perintah pertama tidak dikenali. Cek penulisannya.",
       };
     }
   }
@@ -202,7 +202,7 @@ export async function judgeWrite(
     : {
         correct: false,
         message: question.pemeriksa
-          ? "Data setelah perintahmu belum sama dengan yang dicari."
-          : "Hasilnya belum sama dengan bukti yang dicari.",
+          ? "Hasil query belum sesuai pertanyaan."
+          : "Hasilnya belum sesuai pertanyaan.",
       };
 }

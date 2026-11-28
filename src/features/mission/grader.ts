@@ -20,10 +20,10 @@ export async function gradeAnswer(
   }
   if (question.type === "pilih" && answer.type === "pilih") {
     return answer.choice === question.answerIndex
-      ? { correct: true, message: "Tepat sekali!" }
+      ? { correct: true, message: "Benar. Buktinya cocok." }
       : {
           correct: false,
-          message: "Pilihanmu belum tepat. Coba baca soalnya lagi.",
+          message: "Pilihanmu belum benar. Baca soalnya sekali lagi.",
         };
   }
   if (question.type === "susun" && answer.type === "susun") {
@@ -31,8 +31,8 @@ export async function gradeAnswer(
       answer.order.length === question.answer.length &&
       answer.order.every((piece, index) => piece === question.answer[index]);
     return same
-      ? { correct: true, message: "Tepat sekali!" }
-      : { correct: false, message: "Urutannya belum tepat." };
+      ? { correct: true, message: "Benar. Buktinya cocok." }
+      : { correct: false, message: "Urutannya belum benar." };
   }
-  return { correct: false, message: "Jenis jawaban tidak cocok dengan soal." };
+  return { correct: false, message: "Jenis jawaban tidak sesuai soal." };
 }

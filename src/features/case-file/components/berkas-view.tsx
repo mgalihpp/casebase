@@ -582,7 +582,7 @@ function FileRow({
               ) : null}
             </span>
             <span className="mt-0.5 block truncate text-[13px] text-ink-soft">
-              {item.courseLabel}, {item.doneCount}/{item.totalNodes} misi
+              {item.courseLabel}, {item.doneCount} dari {item.totalNodes} misi selesai
             </span>
             <span
               className="mt-1.5 inline-block rounded-full px-2 py-0.5 font-body text-[11.5px] font-bold tracking-wide"
@@ -678,7 +678,7 @@ function ContextMenu({
               {item.title}
             </span>
             <span className="block text-[13px] text-ink-soft">
-              {item.courseLabel}, {item.doneCount}/{item.totalNodes} misi
+              {item.courseLabel}, {item.doneCount} dari {item.totalNodes} misi selesai
             </span>
           </span>
         </div>

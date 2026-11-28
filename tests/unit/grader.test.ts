@@ -53,7 +53,7 @@ describe("gradeAnswer: pilih", () => {
     const answer: Answer = { type: "pilih", choice: 1 };
     await expect(gradeAnswer(pilih, "seed", answer)).resolves.toEqual({
       correct: true,
-      message: "Tepat sekali!",
+      message: "Benar. Buktinya cocok.",
     });
   });
 
@@ -62,7 +62,7 @@ describe("gradeAnswer: pilih", () => {
     const verdict = await gradeAnswer(pilih, "seed", answer);
     expect(verdict.correct).toBe(false);
     expect(verdict.message).toBe(
-      "Pilihanmu belum tepat. Coba baca soalnya lagi.",
+      "Pilihanmu belum benar. Baca soalnya sekali lagi.",
     );
   });
 
@@ -76,7 +76,7 @@ describe("gradeAnswer: susun", () => {
   it("benar jika urutan potongan sama persis", async () => {
     const answer: Answer = { type: "susun", order: ["SELECT", "*", "FROM"] };
     const verdict = await gradeAnswer(susun, "seed", answer);
-    expect(verdict).toEqual({ correct: true, message: "Tepat sekali!" });
+    expect(verdict).toEqual({ correct: true, message: "Benar. Buktinya cocok." });
   });
 
   it("salah jika urutan berbeda", async () => {
@@ -84,7 +84,7 @@ describe("gradeAnswer: susun", () => {
     const verdict = await gradeAnswer(susun, "seed", answer);
     expect(verdict).toEqual({
       correct: false,
-      message: "Urutannya belum tepat.",
+      message: "Urutannya belum benar.",
     });
   });
 
@@ -114,7 +114,7 @@ describe("gradeAnswer: write", () => {
       type: "write",
       query: "SELECT 1 AS n FROM t",
     });
-    expect(verdict).toEqual({ correct: true, message: "Tepat sekali!" });
+    expect(verdict).toEqual({ correct: true, message: "Benar. Buktinya cocok." });
     expect(sandbox).toHaveBeenCalledTimes(1);
     expect(sandbox.mock.calls[0][0]).toEqual([
       { seed: "seed-x", prelude: null, query: "SELECT 1 AS n FROM t" },
@@ -145,7 +145,7 @@ describe("gradeAnswer: jenis jawaban tidak cocok", () => {
     const verdict = await gradeAnswer(question, "seed", answer);
     expect(verdict).toEqual({
       correct: false,
-      message: "Jenis jawaban tidak cocok dengan soal.",
+      message: "Jenis jawaban tidak sesuai soal.",
     });
     expect(sandbox).not.toHaveBeenCalled();
   });

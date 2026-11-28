@@ -9,7 +9,10 @@ const sqlPromise: Promise<SqlJsStatic> = initSqlJs({
   locateFile: (file) => `/${file}`,
 });
 
-sqlPromise.then(() => postMessage({ type: "ready" }));
+sqlPromise.then(
+  () => postMessage({ type: "ready" }),
+  () => postMessage({ type: "failed" }),
+);
 
 addEventListener("message", async (event: MessageEvent<RunRequest>) => {
   const { id, seed, query } = event.data;

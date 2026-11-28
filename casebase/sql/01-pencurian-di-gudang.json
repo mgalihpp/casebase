@@ -2,11 +2,11 @@
   "course": "sql",
   "number": "01",
   "title": "Pencurian di Gudang",
-  "story": "Brankas gudang PT Sinar Logam dibobol tengah malam, 13 Maret. Sembilan transfer keluar sebelum pagi.",
+  "story": "Brankas gudang PT Sinar Logam dibobol tengah malam, 13 Maret. Sembilan transfer keluar sejak malam sampai pagi.",
   "bukti": [
-    "Empat nama tercatat absen malam itu.",
+    "Tiga nama tercatat absen malam itu.",
     "Bayu absen, tapi kartu aksesnya dipakai pukul 23.38.",
-    "Rekening GDG-01 mengirim transfer besar setelah tengah malam."
+    "Rekening GDG-04 mengirim transfer besar setelah tengah malam."
   ],
   "tersangka": [
     "Bayu Santoso, shift malam, punya akses gudang",
@@ -65,7 +65,7 @@
       "hints": [
         "Kata ini menentukan baris mana yang ikut ditampilkan.",
         "Kata ini ditulis setelah nama tabel, lalu diikuti syarat.",
-        "Syaratnya bisa berupa perbandingan, misalnya jumlah > 2000000."
+        "Syarat itu memakai tanda perbandingan dan angka batasnya."
       ],
       "explanation": "WHERE menyaring baris berdasarkan syarat. LIMIT membatasi jumlah baris, ORDER BY mengurutkan, dan FROM menunjuk tabel sumber."
     },
@@ -156,7 +156,7 @@
     {
       "node": "n5",
       "type": "write",
-      "prompt": "Tampilkan total jumlah transfer per rekening, dari yang terbesar.",
+      "prompt": "Tampilkan total jumlah transfer per rekening, dari yang terbesar. Beri nama kolom total untuk hasil SUM.",
       "boleh": [
         "SELECT"
       ],

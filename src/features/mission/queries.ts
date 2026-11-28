@@ -58,7 +58,7 @@ export async function startMission(
   if (status === "locked") {
     throw new TRPCError({
       code: "FORBIDDEN",
-      message: "Selesaikan misi sebelumnya untuk membuka misi ini.",
+      message: "Tuntaskan misi sebelumnya untuk membuka misi ini.",
     });
   }
 

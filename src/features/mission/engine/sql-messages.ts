@@ -9,12 +9,12 @@ export function explainSqlError(error: unknown): string {
   if (table) return `Tabel ${table[1]} tidak ditemukan.`;
 
   const near = raw.match(/near "([^"]+)": syntax error/i);
-  if (near) return `Ada yang salah tulis di dekat "${near[1]}".`;
+  if (near) return `Ada salah tulis di dekat "${near[1]}".`;
 
-  if (/syntax error/i.test(raw)) return "Ada yang salah tulis di query-mu.";
+  if (/syntax error/i.test(raw)) return "Ada salah tulis di query.";
   if (/ambiguous column name/i.test(raw)) {
-    return "Nama kolom ambigu. Tambahkan nama tabel di depannya.";
+    return "Nama kolom ambigu. Beri nama tabel di depannya.";
   }
 
-  return "Query gagal dijalankan. Cek lagi tulisanmu.";
+  return "Query gagal. Cek tulisanmu.";
 }

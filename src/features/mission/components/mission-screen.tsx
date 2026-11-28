@@ -45,7 +45,7 @@ const HEARTS = 5;
 const HINT_MAX = 3;
 const XP_PER_SOAL = 10;
 const BIAYA_PETUNJUK = 10;
-const GAGAL_KIRIM = "Jawaban belum terkirim. Periksa koneksimu lalu coba lagi.";
+const GAGAL_KIRIM = "Jawaban belum terkirim. Cek koneksimu, lalu coba lagi.";
 const KETUKAN_KATA_KUNCI = [
   "SELECT",
   "*",
@@ -270,6 +270,12 @@ function MissionPlay({
     setRunning(false);
   }
 
+  function clearCode() {
+    setCode("");
+    setRun(null);
+    document.getElementById("sqled")?.focus();
+  }
+
   function insertKeyword(keyword: string) {
     setCode((value) => {
       const separator = value === "" || /[\s(]$/.test(value) ? "" : " ";
@@ -293,6 +299,11 @@ function MissionPlay({
 
   function handleNext() {
     if (!result) return;
+    if (!result.correct) {
+      // Jawaban salah: tetap di soal ini dan biarkan pengguna mencoba lagi.
+      setResult(null);
+      return;
+    }
     if (index + 1 < total) {
       setIndex(index + 1);
       resetQuestionInput();
@@ -344,10 +355,10 @@ function MissionPlay({
           className="mt-3 font-display text-[30px] font-black anim-row-in"
           style={{ animationDelay: "0.15s" }}
         >
-          Misi selesai!
+          Misi tuntas!
         </h1>
         <p className="mt-2 text-base text-ink-soft">
-          Satu bukti lagi masuk ke berkas. Pelakunya makin dekat.
+          Ada bukti baru di berkas.
         </p>
         <dl className="mt-6 grid w-full grid-cols-3 gap-2 rounded-2xl border-[1.5px] border-line bg-white py-3">
           <Stat label="XP" value={`+${reward?.xp ?? xp}`} delay={0.35} />
@@ -355,7 +366,7 @@ function MissionPlay({
           <Stat label="Waktu" value={formatTime(elapsed)} delay={0.65} />
         </dl>
         <p className="mt-3.5 text-sm text-ink-soft">
-          Skor {reward?.score ?? score} dari 100, memakai {hintsUsed} petunjuk
+          Skor {reward?.score ?? score}. Petunjuk dipakai: {hintsUsed}.
         </p>
         <Link href={`/belajar/${courseId}`} className={`${buttonPrimary} mt-8`}>
           Lanjut
@@ -368,7 +379,7 @@ function MissionPlay({
     return (
       <main className={pageClass}>
         <p className="mt-10 text-center text-ink-soft">
-          Misi ini belum punya soal.
+          Misi ini belum ada soalnya.
         </p>
         <Link
           href={`/belajar/${courseId}`}
@@ -389,8 +400,8 @@ function MissionPlay({
         : placed.length > 0;
   const bubble = result
     ? result.correct
-      ? "Mantap! Bukti ini langsung kucatat."
-      : "Hmm, belum tepat. Soal ini kita ulang nanti."
+      ? "Bukti ini sudah dicatat."
+      : "Belum cocok. Periksa lagi dengan teliti."
     : "";
 
   return (
@@ -549,6 +560,15 @@ function MissionPlay({
                   onChange={(event) => setCode(event.target.value)}
                   className="absolute inset-0 h-full w-full resize-none overflow-hidden bg-transparent px-4 py-3.5 font-mono text-[16px] leading-[1.6] text-transparent caret-ind outline-none placeholder:text-ink-soft"
                 />
+                {code !== "" ? (
+                  <button
+                    type="button"
+                    onClick={clearCode}
+                    className="absolute right-2 bottom-2 min-h-11 rounded-xl border-[1.5px] border-b-[3px] border-line bg-white px-3.5 text-sm font-bold text-ink-soft active:translate-y-0.5"
+                  >
+                    Hapus
+                  </button>
+                ) : null}
               </div>
 
               <div
@@ -690,7 +710,7 @@ function MissionPlay({
               </span>
               <div>
                 <p className="mb-1 mt-1.5 font-display text-xl font-black">
-                  {result.correct ? "Tepat sekali!" : "Jejaknya meleset"}
+                  {result.correct ? "Benar. Buktinya cocok." : "Belum cocok dengan bukti."}
                 </p>
                 <p className="text-[15px] leading-[1.45]">
                   {result.correct ? result.explanation : result.message}
@@ -702,7 +722,7 @@ function MissionPlay({
               onClick={handleNext}
               className={`${buttonPrimary} ${result.correct ? "bg-ok! shadow-[0_5px_0_#0A5870]!" : "bg-bad! shadow-[0_5px_0_#A3123A]!"}`}
             >
-              Lanjut
+              {result.correct ? "Lanjut" : "Coba lagi"}
             </button>
           </div>
         ) : (
@@ -740,8 +760,8 @@ function MissionPlay({
       >
         <div className="flex flex-col gap-2.5">
           <p className="text-[15px] leading-normal text-ink-soft">
-            Petunjuk dibuka satu per satu, makin lama makin jelas. Tiap petunjuk
-            mengurangi skor {BIAYA_PETUNJUK} poin.
+            Petunjuk dibuka satu per satu, dari yang umum ke yang spesifik. Tiap
+            petunjuk mengurangi skor {BIAYA_PETUNJUK} poin.
           </p>
           {Array.from({ length: HINT_MAX }, (_, position) => {
             const text = hintTexts[position];
@@ -770,12 +790,12 @@ function MissionPlay({
             {hint.isPending
               ? "Membuka…"
               : hintMaxed
-                ? "Semua petunjuk terbuka"
+                ? "Semua petunjuk sudah dibuka"
                 : `Buka petunjuk ${openedHere + 1}`}
           </button>
           {hint.isError ? (
             <p role="alert" className="text-[15px] text-bad">
-              Petunjuk belum bisa dibuka. Coba lagi.
+              Petunjuk belum bisa dibuka. Coba sekali lagi.
             </p>
           ) : null}
         </div>
@@ -784,7 +804,7 @@ function MissionPlay({
       <BottomSheet open={sheet === "skema"} onClose={closeSheet} title="Skema">
         <div className="flex flex-col gap-4">
           <p className="text-[15px] text-ink-soft">
-            Kolom yang bisa kamu pakai di tabel ini.
+            Kolom yang bisa dipakai di tabel ini.
           </p>
           <div className="overflow-hidden rounded-2xl border-[1.5px] border-line">
             <p className="bg-[#EEEDFD] px-3.5 py-2.5 font-mono text-[15px] font-bold text-[#3730A3]">
@@ -816,8 +836,7 @@ function MissionPlay({
         title="Keluar dari misi?"
       >
         <p className="text-base leading-normal text-ink-soft">
-          Jawabanmu di misi ini tidak disimpan, dan nyawa yang sudah hilang
-          tidak kembali.
+          Jawabanmu belum tersimpan. Nyawa yang hilang tidak kembali.
         </p>
         <div className="mt-4 grid gap-3">
           <button type="button" onClick={closeSheet} className={buttonPrimary}>
@@ -970,7 +989,7 @@ function OutOfHearts({
     >
       <h1 className="font-display text-[28px] font-black">Nyawamu habis</h1>
       <p className="text-[16px] leading-normal text-ink-soft">
-        Misi ini dihentikan. Jawabanmu di misi ini tidak disimpan.
+        Kamu bisa mencoba lagi setelah nyawa terisi kembali.
       </p>
       {nextHeartAt ? (
         <p className="text-[15px] text-ink-soft">
