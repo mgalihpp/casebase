@@ -1,0 +1,1 @@
+ALTER TABLE "mission_attempt" ADD COLUMN "question_index" integer DEFAULT 0 NOT NULL;

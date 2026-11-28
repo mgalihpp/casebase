@@ -1,7 +1,5 @@
-import { sql } from "drizzle-orm";
 import {
   boolean,
-  check,
   index,
   integer,
   pgTable,
@@ -65,8 +63,11 @@ export const missionAttempt = pgTable(
       .notNull()
       .default("active"),
     hints: integer("hints").notNull().default(0),
+    questionIndex: integer("question_index").notNull().default(0),
     answered: integer("answered").notNull().default(0),
     correct: integer("correct").notNull().default(0),
+    fastCorrect: integer("fast_correct").notNull().default(0),
+    lastEventAt: timestamp("last_event_at").defaultNow().notNull(),
     score: integer("score"),
     xp: integer("xp").notNull().default(0),
     startedAt: timestamp("started_at").defaultNow().notNull(),
@@ -77,8 +78,69 @@ export const missionAttempt = pgTable(
       table.userId,
       table.finishedAt,
     ),
-    check("mission_attempt_hints_check", sql`${table.hints} between 0 and 3`),
   ],
+);
+
+// Petunjuk yang sudah dibuka pada satu soal dalam satu percobaan. Membuka ulang tidak memotong koin lagi.
+export const missionHint = pgTable(
+  "mission_hint",
+  {
+    attemptId: text("attempt_id")
+      .notNull()
+      .references(() => missionAttempt.id, { onDelete: "cascade" }),
+    questionKey: text("question_key").notNull(),
+    hintIndex: integer("hint_index").notNull(),
+    openedAt: timestamp("opened_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.attemptId, table.questionKey, table.hintIndex],
+    }),
+  ],
+);
+
+// Kotak bukti yang sudah dibuka. Koin hanya diberikan sekali per kotak.
+export const chestOpen = pgTable(
+  "chest_open",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    caseId: text("case_id")
+      .notNull()
+      .references(() => caseContent.id, { onDelete: "cascade" }),
+    nodeKey: text("node_key").notNull(),
+    openedAt: timestamp("opened_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.userId, table.caseId, table.nodeKey] }),
+  ],
+);
+
+// Lencana yang sudah didapat. Progres lencana yang belum didapat dihitung dari data lain.
+export const userBadge = pgTable(
+  "user_badge",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    badgeKey: text("badge_key").notNull(),
+    earnedAt: timestamp("earned_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.badgeKey] })],
+);
+
+// Jumlah percobaan cek jawaban per pengguna per menit, untuk batas laju.
+export const checkRate = pgTable(
+  "check_rate",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    minute: text("minute").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.minute] })],
 );
 
 // Berkas kasus: pin, arsip, hapus lunak, dan kueri terakhir per pengguna.
@@ -107,6 +169,7 @@ export const leagueGroup = pgTable(
     id: text("id").primaryKey(),
     tier: text("tier").notNull(),
     weekStart: text("week_start").notNull(),
+    closed: boolean("closed").notNull().default(false),
   },
   (table) => [
     index("league_group_tier_week_idx").on(table.tier, table.weekStart),

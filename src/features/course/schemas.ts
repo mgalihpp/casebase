@@ -78,6 +78,8 @@ export const caseBodySchema = z.object({
   number: z.string().min(1),
   title: z.string().min(1),
   story: z.string(),
+  bukti: z.array(z.string()).default([]),
+  tersangka: z.array(z.string()).default([]),
   seed: z.string().min(1),
   nodes: z.array(caseNodeSchema).min(1),
   questions: z.array(caseQuestionSchema),

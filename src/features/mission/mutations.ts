@@ -1,18 +1,25 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { z } from "zod";
 import { loadCaseBundle, statusOf } from "@/features/course/queries";
+import { profile } from "@/features/profile/schema";
 import { db } from "@/server/db";
 import { gradeAnswer } from "./grader";
 import {
   applyWrongAnswer,
   completeAttempt,
+  consumeCheck,
   openAttempt,
+  openHint,
   readHearts,
+  recordAnswer,
 } from "./progression";
-import { HINT_MAX } from "./rewards";
-import { missionAttempt, nodeFailure } from "./schema";
+import { chestOpen, missionAttempt, nodeFailure, nodeProgress } from "./schema";
 import type { checkInput, hintInput, startInput } from "./schemas";
+
+function notFound(message: string) {
+  return new TRPCError({ code: "NOT_FOUND", message });
+}
 
 // Menilai ulang jawaban di server. Node selesai ketika soal terakhirnya benar.
 export async function checkAnswer(
@@ -21,10 +28,7 @@ export async function checkAnswer(
 ) {
   const bundle = await loadCaseBundle(userId, courseId);
   if (!bundle?.body || !bundle.caseRow || !bundle.statuses) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Kasus tidak ditemukan.",
-    });
+    throw notFound("Kasus tidak ditemukan.");
   }
 
   const status = statusOf(bundle.statuses, nodeKey);
@@ -39,12 +43,7 @@ export async function checkAnswer(
     (question) => question.node === nodeKey,
   );
   const question = questions[questionIndex];
-  if (!question) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Soal tidak ditemukan.",
-    });
-  }
+  if (!question) throw notFound("Soal tidak ditemukan.");
   if (question.type !== answer.type) {
     throw new TRPCError({
       code: "BAD_REQUEST",
@@ -53,6 +52,13 @@ export async function checkAnswer(
   }
 
   const now = new Date();
+  const withinLimit = await consumeCheck(db, userId, now);
+  if (!withinLimit) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Terlalu sering mengecek. Tunggu sebentar lalu coba lagi.",
+    });
+  }
   if ((await readHearts(userId, now)) === 0) {
     throw new TRPCError({
       code: "PRECONDITION_FAILED",
@@ -61,26 +67,33 @@ export async function checkAnswer(
   }
 
   const verdict = await gradeAnswer(question, bundle.body.seed, answer);
-
   const isLastQuestion = questionIndex === questions.length - 1;
   const nodeDone = verdict.correct && isLastQuestion;
   const caseId = bundle.caseRow.id;
 
   const outcome = await db.transaction(async (tx) => {
-    const attempt = await openAttempt(tx, userId, caseId, nodeKey);
-    await tx
-      .update(missionAttempt)
-      .set({
-        answered: attempt.answered + 1,
-        correct: attempt.correct + (verdict.correct ? 1 : 0),
-      })
-      .where(eq(missionAttempt.id, attempt.id));
+    const attempt = await openAttempt(tx, userId, caseId, nodeKey, now);
+    await recordAnswer(tx, attempt.id, verdict.correct, now);
 
     const hearts = verdict.correct
       ? await readHearts(userId, now)
       : await applyWrongAnswer(tx, userId, now);
 
-    if (!nodeDone) return { hearts, reward: null };
+    if (!nodeDone) {
+      // Maju ke soal berikutnya hanya jika soal ini memang posisi aktif, agar jawaban ulang tidak menggeser posisi.
+      if (verdict.correct) {
+        await tx
+          .update(missionAttempt)
+          .set({ questionIndex: sql`${missionAttempt.questionIndex} + 1` })
+          .where(
+            and(
+              eq(missionAttempt.id, attempt.id),
+              eq(missionAttempt.questionIndex, questionIndex),
+            ),
+          );
+      }
+      return { hearts, reward: null };
+    }
 
     await tx
       .delete(nodeFailure)
@@ -112,45 +125,93 @@ export async function checkAnswer(
   };
 }
 
-// Mencatat petunjuk yang dibuka. Skor mengurangi 10 per petunjuk, maksimal 3 per percobaan.
+// Membuka satu petunjuk. Petunjuk dibuka berurutan per soal dan memotong koin saat ada saldo.
 export async function takeHint(
   userId: string,
   { courseId, nodeKey, questionIndex, hintIndex }: z.infer<typeof hintInput>,
 ) {
   const bundle = await loadCaseBundle(userId, courseId);
   if (!bundle?.body || !bundle.caseRow || !bundle.statuses) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Kasus tidak ditemukan.",
-    });
+    throw notFound("Kasus tidak ditemukan.");
   }
-  const question = bundle.body.questions.filter(
+  const questions = bundle.body.questions.filter(
     (item) => item.node === nodeKey,
-  )[questionIndex];
-  if (!question) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Soal tidak ditemukan.",
-    });
-  }
+  );
+  const question = questions[questionIndex];
+  if (!question) throw notFound("Soal tidak ditemukan.");
   const text = question.hints[hintIndex];
-  if (text === undefined) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Petunjuk tidak ditemukan.",
-    });
-  }
+  if (text === undefined) throw notFound("Petunjuk tidak ditemukan.");
 
-  await db.transaction(async (tx) => {
-    const attempt = await openAttempt(tx, userId, bundle.caseRow.id, nodeKey);
-    const hints = Math.min(HINT_MAX, Math.max(attempt.hints, hintIndex + 1));
-    await tx
-      .update(missionAttempt)
-      .set({ hints })
-      .where(eq(missionAttempt.id, attempt.id));
+  const now = new Date();
+  const caseId = bundle.caseRow.id;
+  const result = await db.transaction(async (tx) => {
+    const attempt = await openAttempt(tx, userId, caseId, nodeKey, now);
+    return openHint(
+      tx,
+      userId,
+      attempt.id,
+      `${nodeKey}:${questionIndex}`,
+      hintIndex,
+    );
   });
 
-  return { text, total: question.hints.length };
+  if (result.status === "urutan") {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Buka petunjuk sebelumnya dulu.",
+    });
+  }
+
+  return {
+    text,
+    total: question.hints.length,
+    coins: result.coins,
+    spent: result.status === "baru",
+  };
+}
+
+// Membuka kotak bukti. Koinnya hanya diberikan sekali per kotak.
+export async function openChest(
+  userId: string,
+  { courseId, nodeKey }: z.infer<typeof startInput>,
+) {
+  const bundle = await loadCaseBundle(userId, courseId);
+  if (!bundle?.body || !bundle.caseRow || !bundle.statuses) {
+    throw notFound("Kasus tidak ditemukan.");
+  }
+  const node = bundle.body.nodes.find((item) => item.key === nodeKey);
+  if (node?.type !== "chest") throw notFound("Kotak tidak ditemukan.");
+
+  const status = statusOf(bundle.statuses, nodeKey);
+  if (status === "locked") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Kotak bukti terbuka setelah misi sebelumnya selesai.",
+    });
+  }
+
+  const caseId = bundle.caseRow.id;
+  const gained = await db.transaction(async (tx) => {
+    const [opened] = await tx
+      .insert(chestOpen)
+      .values({ userId, caseId, nodeKey })
+      .onConflictDoNothing()
+      .returning({ nodeKey: chestOpen.nodeKey });
+    if (!opened) return 0;
+
+    await tx
+      .insert(nodeProgress)
+      .values({ userId, caseId, nodeKey })
+      .onConflictDoNothing();
+    const coins = node.coins ?? 0;
+    await tx
+      .update(profile)
+      .set({ coins: sql`${profile.coins} + ${coins}` })
+      .where(eq(profile.userId, userId));
+    return coins;
+  });
+
+  return { gained };
 }
 
 // Menandai misi yang sedang aktif sebagai gagal, sehingga statusnya menjadi "retry".
@@ -160,10 +221,7 @@ export async function failMission(
 ) {
   const bundle = await loadCaseBundle(userId, courseId);
   if (!bundle?.body || !bundle.caseRow || !bundle.statuses) {
-    throw new TRPCError({
-      code: "NOT_FOUND",
-      message: "Kasus tidak ditemukan.",
-    });
+    throw notFound("Kasus tidak ditemukan.");
   }
 
   const status = statusOf(bundle.statuses, nodeKey);

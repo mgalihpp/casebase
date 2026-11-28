@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { BottomNav } from "@/features/app-shell/components/bottom-nav";
 import { LearnScreen } from "@/features/course/components/learn-screen";
 
 export default function BelajarPage({
@@ -13,5 +14,10 @@ export default function BelajarPage({
 
 async function CoursePage({ params }: { params: Promise<{ course: string }> }) {
   const { course } = await params;
-  return <LearnScreen courseId={course} />;
+  return (
+    <>
+      <LearnScreen courseId={course} />
+      <BottomNav tab="belajar" />
+    </>
+  );
 }

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { randomUUID } from "node:crypto";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, lt, sql } from "drizzle-orm";
 import { classMember, classroom } from "@/features/class/schema";
 import { profile } from "@/features/profile/schema";
 import { db } from "@/server/db";
@@ -9,18 +9,26 @@ import { user } from "@/server/db/auth-schema";
 import { calendarDate, leagueWeekStart } from "./rewards";
 import { leagueGroup, leagueMember } from "./schema";
 
-/** SRS 2.2 menyebut Perunggu dan Safir sebagai contoh. Daftar lengkap belum diputuskan. */
+/** Jenjang liga, dari bawah ke atas. Desain memakai Perunggu dan Safir. */
 export const LEAGUE_TIERS = ["Perunggu", "Safir"] as const;
+export type LeagueTier = (typeof LEAGUE_TIERS)[number];
+
+export function tierAbove(tier: string): string | null {
+  const index = LEAGUE_TIERS.indexOf(tier as LeagueTier);
+  return LEAGUE_TIERS[index + 1] ?? null;
+}
+
+export function tierBelow(tier: string): string | null {
+  const index = LEAGUE_TIERS.indexOf(tier as LeagueTier);
+  return index > 0 ? (LEAGUE_TIERS[index - 1] ?? null) : null;
+}
 
 /** Ukuran grup sekitar 30 (FR-RNK-02). */
 export const GROUP_SIZE = 30;
 
-/**
- * Jumlah peserta zona naik dan zona turun belum diputuskan (SRS 5.2, SDD 5.2).
- * Nilai ini sementara dan wajib diganti setelah keputusan.
- */
-export const ZONE_UP = 3;
-export const ZONE_DOWN = 3;
+/** Lima teratas naik jenjang, lima terbawah turun jenjang. Berlaku di tiap grup. */
+export const ZONE_UP = 5;
+export const ZONE_DOWN = 5;
 
 export type Executor =
   | typeof db
@@ -155,4 +163,60 @@ export async function addWeekXp(
       target: [leagueMember.groupId, leagueMember.userId],
       set: { xpWeek: sql`${leagueMember.xpWeek} + ${xp}` },
     });
+}
+
+/**
+ * Menutup grup liga dari minggu yang sudah lewat. Lima teratas naik jenjang
+ * dan lima terbawah turun jenjang, sesuai zona di papan liga. Idempoten: grup
+ * yang sudah ditutup dilewati.
+ */
+export async function closeFinishedGroups(now: Date) {
+  const currentWeek = leagueWeekStart(calendarDate(now));
+  const finished = await db
+    .select({ id: leagueGroup.id, tier: leagueGroup.tier })
+    .from(leagueGroup)
+    .where(
+      and(
+        eq(leagueGroup.closed, false),
+        lt(leagueGroup.weekStart, currentWeek),
+      ),
+    );
+
+  let moved = 0;
+  for (const group of finished) {
+    moved += await db.transaction(async (tx) => {
+      const [locked] = await tx
+        .update(leagueGroup)
+        .set({ closed: true })
+        .where(and(eq(leagueGroup.id, group.id), eq(leagueGroup.closed, false)))
+        .returning({ id: leagueGroup.id });
+      if (!locked) return 0;
+
+      const members = await tx
+        .select({ userId: leagueMember.userId })
+        .from(leagueMember)
+        .where(eq(leagueMember.groupId, group.id))
+        .orderBy(desc(leagueMember.xpWeek), asc(leagueMember.userId));
+
+      const total = members.length;
+      const up = tierAbove(group.tier);
+      const down = tierBelow(group.tier);
+      let changed = 0;
+      for (const [index, member] of members.entries()) {
+        const rank = index + 1;
+        const zoneUp = total > ZONE_UP && rank <= ZONE_UP;
+        const zoneDown =
+          total > ZONE_UP + ZONE_DOWN && rank > total - ZONE_DOWN;
+        const next = zoneUp ? up : zoneDown ? down : null;
+        if (!next) continue;
+        await tx
+          .update(profile)
+          .set({ leagueTier: next })
+          .where(eq(profile.userId, member.userId));
+        changed++;
+      }
+      return changed;
+    });
+  }
+  return { groups: finished.length, moved };
 }

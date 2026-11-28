@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/styles";
 import { findCourse } from "@/features/course/data";
 import { type RunOutcome, runSql } from "@/features/mission/engine/run-sql";
+import { highlight, type Token } from "@/features/mission/highlight";
 import {
   useMissionCheck,
   useMissionHint,
@@ -40,8 +41,6 @@ type Check = {
 
 type Sheet = "petunjuk" | "skema" | "keluar" | null;
 
-type Token = { t: string; c: string; w: string };
-
 const HEARTS = 5;
 const HINT_MAX = 3;
 const XP_PER_SOAL = 10;
@@ -66,8 +65,6 @@ const KOLOM_TRANSAKSI = [
   ["jumlah", "INTEGER"],
   ["waktu", "TEXT"],
 ];
-const KATA_SQL =
-  /^(SELECT|FROM|WHERE|ORDER|BY|GROUP|HAVING|LIMIT|DESC|ASC|AND|OR|JOIN|ON|AS|INSERT|INTO|VALUES|UPDATE|SET|DELETE|CREATE|TABLE)$/i;
 const LABEL_SOAL = {
   write: "Tulis query",
   pilih: "Pilih jawaban",
@@ -91,70 +88,15 @@ const CONFETTI = Array.from({ length: 26 }, (_, i) => ({
 }));
 
 // Pewarnaan sederhana untuk editor, meniru highlight di desain.
-function highlight(code: string): Token[][] {
-  return code.split("\n").map((line) => {
-    const tokens: Token[] = [];
-    const pattern = /('[^']*'?|"[^"]*"?|--.*$|\b\d+\b|[A-Za-z_][\w.]*|\s+|.)/g;
-    let match: RegExpExecArray | null = pattern.exec(line);
-    while (match !== null) {
-      const text = match[0];
-      let color = "#1E1B3A";
-      let weight = "500";
-      if (/^['"]/.test(text)) color = "#0E7490";
-      else if (/^--/.test(text)) color = "#8B87A3";
-      else if (/^\d+$/.test(text)) color = "#7C3AED";
-      else if (KATA_SQL.test(text)) {
-        color = "#4F46E5";
-        weight = "700";
-      } else if (/^[(){},;*]$/.test(text)) color = "#5C5878";
-      const last = tokens[tokens.length - 1];
-      if (last && last.c === color && last.w === weight) last.t += text;
-      else tokens.push({ t: text, c: color, w: weight });
-      match = pattern.exec(line);
-    }
-    return tokens;
-  });
-}
-
 function rupiah(value: unknown) {
   return `Rp${Number(value).toLocaleString("id-ID")}`;
 }
 
+type MissionData = NonNullable<ReturnType<typeof useMissionStart>["data"]>;
+
 export function MissionScreen({ courseId, nodeKey }: Props) {
   const router = useRouter();
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
   const { data, error, isPending } = useMissionStart(courseId, nodeKey);
-  const check = useMissionCheck();
-  const hint = useMissionHint();
-  const meta = findCourse(courseId);
-
-  const [index, setIndex] = useState(0);
-  const [code, setCode] = useState("");
-  const [choice, setChoice] = useState<number | null>(null);
-  const [placed, setPlaced] = useState<number[]>([]);
-  const [run, setRun] = useState<RunOutcome | null>(null);
-  const [running, setRunning] = useState(false);
-  const [result, setResult] = useState<Check | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
-  const [heartsLeft, setHeartsLeft] = useState<number | null>(null);
-  const [reward, setReward] = useState<Reward | null>(null);
-  const [mistakes, setMistakes] = useState(0);
-  const [attempts, setAttempts] = useState(0);
-  const [hintsUsed, setHintsUsed] = useState(0);
-  const [hintTexts, setHintTexts] = useState<string[]>([]);
-  const [startedAt] = useState(() => Date.now());
-  const [elapsed, setElapsed] = useState(0);
-  const [finished, setFinished] = useState(false);
-  const [sheet, setSheet] = useState<Sheet>(null);
-
-  const question = data?.questions[index];
-
-  useEffect(() => {
-    if (!toast) return;
-    const id = setTimeout(() => setToast(null), 3000);
-    return () => clearTimeout(id);
-  }, [toast]);
 
   if (error?.data?.code === "UNAUTHORIZED") {
     router.replace("/masuk");
@@ -175,7 +117,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
     );
   }
 
-  if (isPending || !data || !meta) {
+  if (isPending || !data || !findCourse(courseId)) {
     return (
       <main className={pageClass} aria-busy="true">
         <div className="mt-6 h-12 anim-skeleton rounded-2xl bg-line" />
@@ -183,7 +125,77 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
     );
   }
 
+  return <MissionPlay courseId={courseId} nodeKey={nodeKey} data={data} />;
+}
+
+// Dipisah dari MissionScreen agar posisi soal bisa diisi dari data server saat pertama dirender.
+function MissionPlay({
+  courseId,
+  nodeKey,
+  data,
+}: Props & { data: MissionData }) {
+  const router = useRouter();
+  const trpc = useTRPC();
+  const queryClient = useQueryClient();
+  const check = useMissionCheck();
+  const hint = useMissionHint();
+  const meta = findCourse(courseId);
+
+  const [index, setIndex] = useState(data.questionIndex);
+  const [code, setCode] = useState("");
+  const [choice, setChoice] = useState<number | null>(null);
+  const [placed, setPlaced] = useState<number[]>([]);
+  const [run, setRun] = useState<RunOutcome | null>(null);
+  const [running, setRunning] = useState(false);
+  const [result, setResult] = useState<Check | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const [heartsLeft, setHeartsLeft] = useState<number | null>(null);
+  const [reward, setReward] = useState<Reward | null>(null);
+  const [mistakes, setMistakes] = useState(0);
+  const [attempts, setAttempts] = useState(0);
+  const [hintTexts, setHintTexts] = useState<string[]>([]);
+  const [startedAt] = useState(() => Date.now());
+  const [elapsed, setElapsed] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const [sheet, setSheet] = useState<Sheet>(null);
+
+  const question = data?.questions[index];
+
+  // Petunjuk yang sudah dibuka di server dimuat ulang teksnya satu per satu. Pemanggilan ini tidak memotong koin.
+  useEffect(() => {
+    if (!data || hint.isPending) return;
+    const openedCount = data.hintsOpened[index]?.length ?? 0;
+    if (hintTexts.length >= openedCount) return;
+    hint.mutate(
+      { courseId, nodeKey, questionIndex: index, hintIndex: hintTexts.length },
+      {
+        onSuccess: (opened) => setHintTexts((texts) => [...texts, opened.text]),
+      },
+    );
+  }, [
+    data,
+    index,
+    hintTexts.length,
+    hint.isPending,
+    hint.mutate,
+    courseId,
+    nodeKey,
+  ]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const id = setTimeout(() => setToast(null), 3000);
+    return () => clearTimeout(id);
+  }, [toast]);
+
+  if (!meta) return null;
+
   const total = data.questions.length;
+  const hintsUsed = data.hintsOpened.reduce(
+    (sum, list) => sum + list.length,
+    0,
+  );
+  const openedHere = data.hintsOpened[index]?.length ?? 0;
   const hearts = heartsLeft ?? data.hearts ?? HEARTS;
   const xp = Math.max(0, total * XP_PER_SOAL - hintsUsed * BIAYA_PETUNJUK);
   const score = Math.max(0, 100 - hintsUsed * 10 - mistakes * 5);
@@ -218,13 +230,19 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
           setAttempts((count) => count + 1);
           setHeartsLeft(outcome.hearts);
           if (outcome.reward) setReward(outcome.reward);
-          if (outcome.correct) return;
+          if (outcome.correct) {
+            // Posisi soal di server sudah maju; segarkan cache agar pindah halaman tidak memakai posisi lama.
+            void queryClient.invalidateQueries({
+              queryKey: trpc.mission.start.queryKey(),
+            });
+            return;
+          }
           setMistakes((count) => count + 1);
         },
         onError: (failure) => {
           if (failure.data?.code === "UNAUTHORIZED") router.replace("/masuk");
           else if (failure.data?.code === "PRECONDITION_FAILED")
-            setToast(failure.message);
+            setHeartsLeft(0);
           else setToast(GAGAL_KIRIM);
         },
       },
@@ -261,11 +279,13 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
 
   function openNextHint() {
     hint.mutate(
-      { courseId, nodeKey, questionIndex: index, hintIndex: hintTexts.length },
+      { courseId, nodeKey, questionIndex: index, hintIndex: openedHere },
       {
         onSuccess: (opened) => {
           setHintTexts((texts) => [...texts, opened.text]);
-          setHintsUsed((count) => count + 1);
+          void queryClient.invalidateQueries({
+            queryKey: trpc.mission.start.queryKey(),
+          });
         },
       },
     );
@@ -286,6 +306,15 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
   }
 
   const closeSheet = () => setSheet(null);
+
+  if (hearts === 0 && !finished) {
+    return (
+      <OutOfHearts
+        nextHeartAt={data.nextHeartAt}
+        onBack={() => router.replace(`/belajar/${courseId}`)}
+      />
+    );
+  }
 
   if (finished) {
     return (
@@ -351,7 +380,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
     );
   }
 
-  const hintMaxed = hintTexts.length >= HINT_MAX;
+  const hintMaxed = openedHere >= HINT_MAX;
   const canCheck =
     question.type === "write"
       ? code.trim() !== ""
@@ -417,6 +446,19 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
                 aria-haspopup="dialog"
                 className="min-h-11 px-2 font-display text-[15px] font-black text-ind"
               >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  aria-hidden="true"
+                  className="mr-1 inline"
+                >
+                  <rect x="3" y="4" width="18" height="16" rx="2" />
+                  <path d="M3 10h18M9 10v10" />
+                </svg>
                 Skema
               </button>
               <button
@@ -425,7 +467,20 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
                 aria-haspopup="dialog"
                 className="min-h-11 px-2 font-display text-[15px] font-black text-ind"
               >
-                Petunjuk {hintsUsed}/{HINT_MAX}
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                  className="mr-1 inline"
+                >
+                  <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z" />
+                </svg>
+                Petunjuk {openedHere}/{HINT_MAX}
               </button>
             </div>
           ) : null}
@@ -438,12 +493,12 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
           {question.prompt}
         </h2>
 
-        <div className="mb-2.5 flex items-end gap-2">
+        <div className="mb-3.5 flex items-end gap-2">
           <span className="h-[72px] w-[72px] shrink-0">
             <Mascot name={meta.abbr} size={72} mood={mood} />
           </span>
           {bubble ? (
-            <p className="rounded-2xl rounded-bl-sm border-[1.5px] border-line bg-white px-3 py-2.5 text-[15px] leading-snug">
+            <p className="rounded-[14px_14px_14px_4px] border-[1.5px] border-line bg-white px-3 py-2.5 text-[15px] leading-[1.45]">
               {bubble}
             </p>
           ) : null}
@@ -494,6 +549,23 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
                   onChange={(event) => setCode(event.target.value)}
                   className="absolute inset-0 h-full w-full resize-none overflow-hidden bg-transparent px-4 py-3.5 font-mono text-[16px] leading-[1.6] text-transparent caret-ind outline-none placeholder:text-ink-soft"
                 />
+              </div>
+
+              <div
+                role="group"
+                aria-label="Sisipkan kata kunci"
+                className="mt-2.5 flex flex-wrap gap-2"
+              >
+                {KETUKAN_KATA_KUNCI.map((keyword) => (
+                  <button
+                    key={keyword}
+                    type="button"
+                    onClick={() => insertKeyword(keyword)}
+                    className="min-h-11 rounded-xl border-[1.5px] border-b-[3px] border-line bg-white px-3.5 font-mono text-[15px] font-bold text-ind-7 active:translate-y-0.5"
+                  >
+                    {keyword}
+                  </button>
+                ))}
               </div>
 
               {hintTexts.map((text) => (
@@ -635,20 +707,6 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
           </div>
         ) : (
           <div className="grid gap-2.5 border-t border-line bg-white px-4 pb-4 pt-2.5">
-            {question.type === "write" ? (
-              <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4">
-                {KETUKAN_KATA_KUNCI.map((keyword) => (
-                  <button
-                    key={keyword}
-                    type="button"
-                    onClick={() => insertKeyword(keyword)}
-                    className="min-h-11 shrink-0 rounded-xl border-[1.5px] border-b-[3px] border-line bg-white px-3 font-mono text-[15px] font-bold text-ind-7 active:translate-y-0.5"
-                  >
-                    {keyword}
-                  </button>
-                ))}
-              </div>
-            ) : null}
             <div
               className={`grid gap-2.5 ${question.type === "write" ? "grid-cols-2" : "grid-cols-1"}`}
             >
@@ -713,7 +771,7 @@ export function MissionScreen({ courseId, nodeKey }: Props) {
               ? "Membuka…"
               : hintMaxed
                 ? "Semua petunjuk terbuka"
-                : `Buka petunjuk ${hintTexts.length + 1}`}
+                : `Buka petunjuk ${openedHere + 1}`}
           </button>
           {hint.isError ? (
             <p role="alert" className="text-[15px] text-bad">
@@ -791,7 +849,7 @@ function Hearts({ count }: { count: number }) {
         aria-hidden="true"
         fill="currentColor"
       >
-        <path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.2a4.2 4.2 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20z" />
+        <path d="M12 21s-8-4.7-8-10.6A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 8 2.8C20 16.3 12 21 12 21z" />
       </svg>
       {count}
     </span>
@@ -887,4 +945,44 @@ function formatTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
+// FR-MIS-07: nyawa habis menghentikan misi dan menampilkan kapan nyawa berikutnya datang.
+function OutOfHearts({
+  nextHeartAt,
+  onBack,
+}: {
+  nextHeartAt: Date | null;
+  onBack: () => void;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const remainingSeconds = nextHeartAt
+    ? Math.max(0, Math.ceil((nextHeartAt.getTime() - now) / 1000))
+    : 0;
+
+  return (
+    <main
+      className={`${pageClass} items-center justify-center gap-4 text-center`}
+    >
+      <h1 className="font-display text-[28px] font-black">Nyawamu habis</h1>
+      <p className="text-[16px] leading-normal text-ink-soft">
+        Misi ini dihentikan. Jawabanmu di misi ini tidak disimpan.
+      </p>
+      {nextHeartAt ? (
+        <p className="text-[15px] text-ink-soft">
+          Nyawa berikutnya dalam{" "}
+          <span className="font-display text-[22px] font-black tabular-nums text-ink">
+            {formatTime(remainingSeconds)}
+          </span>
+        </p>
+      ) : null}
+      <button type="button" onClick={onBack} className={buttonPrimary}>
+        Kembali ke Belajar
+      </button>
+    </main>
+  );
 }

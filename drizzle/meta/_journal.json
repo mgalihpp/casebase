@@ -36,6 +36,20 @@
       "when": 1795837884618,
       "tag": "0004_sprint3_4_gamifikasi_berkas_liga",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795839332686,
+      "tag": "0005_sprint3_4_penilaian_lencana_liga",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795842767706,
+      "tag": "0006_sprint3_4_posisi_soal",
+      "breakpoints": true
     }
   ]
 }

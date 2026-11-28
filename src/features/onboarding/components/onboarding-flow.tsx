@@ -45,9 +45,9 @@ function InfoNote({ children }: { children: React.ReactNode }) {
         aria-hidden="true"
         className="mt-px shrink-0"
       >
-        <circle cx="12" cy="12" r="9.5" />
-        <path d="M12 11v5.5" />
-        <path d="M12 7.6v.4" />
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v5" />
+        <path d="M12 7.5v.5" />
       </svg>
       <span>{children}</span>
     </div>
