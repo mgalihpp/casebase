@@ -18,6 +18,7 @@ import {
   REMINDER_OPTIONS,
   type ReminderKey,
 } from "@/features/onboarding/data";
+import { ProfileHero } from "@/features/profile/components/profile-hero";
 import { authClient } from "@/lib/auth-client";
 import { useTRPC } from "@/trpc/client";
 
@@ -111,10 +112,9 @@ export function ProfileView() {
     <div className={`${pageClass} anim-tab-in gap-5 py-8`}>
       <header>
         <h1 className="font-display text-3xl font-black">Profil</h1>
-        <p className="mt-1 text-ink-soft">
-          {data.name} · {data.email}
-        </p>
       </header>
+
+      <ProfileHero data={data} />
 
       <section
         aria-labelledby="daily-target"
