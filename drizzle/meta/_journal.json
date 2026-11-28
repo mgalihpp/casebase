@@ -8,6 +8,13 @@
       "when": 1795788839300,
       "tag": "0000_sprint1_accounts_onboarding",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795795327074,
+      "tag": "0001_sprint2_belajar_misi",
+      "breakpoints": true
     }
   ]
 }
