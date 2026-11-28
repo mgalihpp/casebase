@@ -175,7 +175,7 @@ export function OnboardingFlow() {
     <div
       className={`${pageClass} pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]`}
     >
-      <div className="relative flex shrink-0 items-center gap-2 bg-app py-2 pr-4">
+      <div className="sticky top-0 z-20 flex shrink-0 items-center gap-2 bg-app py-2 pr-4">
         <span
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 -bottom-6 z-10 h-6 bg-linear-to-b from-app to-app/0"
@@ -470,7 +470,7 @@ export function OnboardingFlow() {
         )}
       </div>
 
-      <div className="relative grid shrink-0 gap-3 bg-app pb-6 pt-2">
+      <div className="sticky bottom-0 z-20 grid shrink-0 gap-3 bg-app pb-6 pt-2">
         <span
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 -top-6 z-10 h-6 bg-linear-to-b from-app/0 to-app"
